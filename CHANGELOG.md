@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.29.0 — Production progress bar _(2026-06-07)_
+- A building training a unit now shows an ember progress bar above it (filled by
+  productionTimer/buildTime), so you can see how close the next unit is at a
+  glance. Verified headlessly: a producing barracks shows a partially-filled
+  ember bar matching its timer.
+
 ## v0.28.0 — Walk-bob animation _(2026-06-07)_
 - Moving units now bob up and down a little (tied to distance travelled, so it
   stops cleanly when they halt) while their shadow and base ring stay planted —

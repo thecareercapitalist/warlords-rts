@@ -4,7 +4,7 @@ import type { Fog } from "../systems/fog.ts";
 import { FOG_HIDDEN, FOG_VISIBLE } from "../systems/fog.ts";
 import type { BuildingKind, Vec2 } from "../types.ts";
 import { COLORS, TILE } from "../constants.ts";
-import { BUILDING_DEFS } from "../entities/defs.ts";
+import { BUILDING_DEFS, UNIT_DEFS } from "../entities/defs.ts";
 import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
 import type { Assets, TileKey } from "./assets.ts";
 import type { Effects } from "./effects.ts";
@@ -299,6 +299,19 @@ export class Renderer {
       ctx.stroke();
       if (b.rally) this.drawRally(b.center(), b.rally);
     }
+    // Unit-production progress bar (ember fill) when training something.
+    if (b.state === "complete" && b.queue.length > 0) {
+      const total = UNIT_DEFS[b.queue[0]].buildTime;
+      const frac = total > 0 ? 1 - b.productionTimer / total : 0;
+      const bw = (maxX - minX) * 0.7;
+      const bx = (minX + maxX) / 2 - bw / 2;
+      const yb = topY - 14;
+      ctx.fillStyle = "rgba(10,8,6,0.8)";
+      ctx.fillRect(bx, yb, bw, 4);
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.fillRect(bx, yb, bw * Math.max(0, Math.min(1, frac)), 4);
+    }
+
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
