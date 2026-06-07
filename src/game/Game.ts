@@ -896,6 +896,24 @@ export class Game {
       this.shake,
     );
 
+    // "Under attack" crimson edge pulse — fades over the first 1.5s of a hit.
+    if (this.attackPing && this.attackPing.t < 1.5) {
+      const k = 1 - this.attackPing.t / 1.5;
+      const a = 0.32 * k * (0.55 + 0.45 * Math.sin(this.attackPing.t * 14));
+      if (a > 0.01) {
+        const W = this.cam.viewW;
+        const H = this.cam.viewH;
+        const grd = this.ctx.createRadialGradient(
+          W / 2, H / 2, Math.min(W, H) * 0.34,
+          W / 2, H / 2, Math.max(W, H) * 0.62,
+        );
+        grd.addColorStop(0, "rgba(150,20,20,0)");
+        grd.addColorStop(1, `rgba(150,20,20,${a.toFixed(3)})`);
+        this.ctx.fillStyle = grd;
+        this.ctx.fillRect(0, 0, W, H);
+      }
+    }
+
     this.hud.render(
       this.world,
       this.cam,

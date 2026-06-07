@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.68.0 — Under-attack screen pulse _(2026-06-07)_
+- When your forces take damage, the **screen edges now flash crimson** (fading
+  over ~1.5s, re-triggered on each hit) — a visceral urgency cue layered on the
+  existing alert sound and minimap ping. Verified headlessly: the screen edge
+  reddens under a fresh attack ping and is neutral otherwise.
+
 ## v0.67.0 — Guaranteed start forests _(2026-06-07)_
 - Map generation now plants a **forest near each start corner** (mirroring the
   guaranteed goldmines), so neither side spawns wood-starved — wood is the key
