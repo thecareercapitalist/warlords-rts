@@ -76,10 +76,11 @@ export class Renderer {
         const img = spriteKey ? this.assets.get(spriteKey) : undefined;
 
         if (img) {
+          const v = this.tileVariant(tx, ty, img);
           ctx.save();
           this.diamondPath(s.x, s.y);
           ctx.clip();
-          ctx.drawImage(img, 0, 0, ISO_TILE_W, ISO_TILE_H, s.x - hw, s.y - hh, ISO_TILE_W * z, ISO_TILE_H * z);
+          ctx.drawImage(img, v.sx, v.sy, ISO_TILE_W, ISO_TILE_H, s.x - hw, s.y - hh, ISO_TILE_W * z, ISO_TILE_H * z);
           ctx.restore();
         } else {
           this.diamondPath(s.x, s.y);
@@ -96,6 +97,20 @@ export class Renderer {
         }
       }
     }
+  }
+
+  /**
+   * Pick a tile-sheet cell deterministically from tile coords, so each tile
+   * keeps a stable variant (no per-frame flicker) while the field looks varied.
+   * The SBS sheets are grids of same-biome variations, so any cell fits.
+   */
+  private tileVariant(tx: number, ty: number, img: HTMLImageElement): { sx: number; sy: number } {
+    const cols = Math.max(1, Math.floor(img.width / ISO_TILE_W));
+    const rows = Math.max(1, Math.floor(img.height / ISO_TILE_H));
+    const count = cols * rows;
+    const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
+    const cell = h % count;
+    return { sx: (cell % cols) * ISO_TILE_W, sy: Math.floor(cell / cols) * ISO_TILE_H };
   }
 
   private terrainSprite(terrain: string): TileKey | null {

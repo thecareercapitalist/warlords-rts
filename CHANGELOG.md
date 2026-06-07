@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.7.0 — Terrain variety _(2026-06-07)_
+- Each terrain tile now picks a stable, hashed variant cell from its SBS sheet
+  (18 variations per sheet) instead of always cell (0,0), so the ground reads as
+  varied natural terrain rather than one repeated tile. No new assets; the
+  variant is deterministic per tile coordinate (no flicker).
+
 ## v0.6.0 — Sound, zoom & launcher _(2026-06-07)_
 - **Procedural sound effects** via the Web Audio API (no audio files): sword
   clang, arrow whoosh, build-complete chime, death, UI click — synthesized in
