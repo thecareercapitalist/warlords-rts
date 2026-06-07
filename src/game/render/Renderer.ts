@@ -559,6 +559,26 @@ export class Renderer {
           ctx.fill();
         }
       }
+
+      // Patrol beat: a cyan dashed line between the two endpoints.
+      if (u.patrolA && u.patrolB) {
+        const pa = this.cam.worldToScreen(u.patrolA.x, u.patrolA.y);
+        const pb = this.cam.worldToScreen(u.patrolB.x, u.patrolB.y);
+        ctx.strokeStyle = "rgba(120,200,235,0.7)";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y);
+        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "rgba(120,200,235,0.9)";
+        for (const p of [pa, pb]) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3 * z, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     }
 
     // Body bobs while moving (shadow + ring stay grounded). Tied to distance

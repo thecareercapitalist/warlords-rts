@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.66.0 — Patrol route display _(2026-06-07)_
+- A selected patrolling unit now shows its **beat as a cyan dashed line** between
+  the two endpoints, so you can see and adjust guard routes. Verified headlessly:
+  the line renders along the endpoints when patrolling, absent otherwise.
+
 ## v0.65.0 — Patrol command _(2026-06-07)_
 - New **Patrol** order (`P`, then click): combat units march back and forth
   between their spot and the target, attack-moving so they engage anything that
