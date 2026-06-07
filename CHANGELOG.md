@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.67.0 — Guaranteed start forests _(2026-06-07)_
+- Map generation now plants a **forest near each start corner** (mirroring the
+  guaranteed goldmines), so neither side spawns wood-starved — wood is the key
+  economic bottleneck, so this is a fairness fix. Verified headlessly: across 6
+  seeds, both starts have a forest within 8 tiles.
+
 ## v0.66.0 — Patrol route display _(2026-06-07)_
 - A selected patrolling unit now shows its **beat as a cyan dashed line** between
   the two endpoints, so you can see and adjust guard routes. Verified headlessly:

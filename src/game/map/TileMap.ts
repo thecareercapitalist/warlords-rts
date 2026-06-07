@@ -104,6 +104,18 @@ export class TileMap {
       this.goldmines.push({ x: spot.x, y: spot.y });
     }
 
+    // 4b. Guarantee a forest near each start so neither side is wood-starved.
+    const startForests: Vec2[] = [
+      { x: 14, y: 7 },
+      { x: this.w - 15, y: this.h - 8 },
+    ];
+    for (const f of startForests) {
+      this.blob(f.x, f.y, 2, rng, (x, y) => {
+        const ter = this.at(x, y)?.terrain;
+        if (ter && ter !== "water" && ter !== "goldmine") this.set(x, y, "forest", FOREST_TILE_WOOD);
+      });
+    }
+
     // 5. Guarantee clear build space at the two player start corners.
     this.clearArea(4, 4, 8, 8);
     this.clearArea(this.w - 12, this.h - 12, 8, 8);
