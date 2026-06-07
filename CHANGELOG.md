@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.134.0 — New grass + water tiles _(2026-06-07)_
+- Replaced the terrain tiles with **lush hand-painted ground**: a They-Are-Billions
+  / Warcraft-style **grass** texture (deep green with subtle dirt paths, moss, and
+  pebbles) and **moody rippling water** (dark teal with foam), both generated via
+  Gemini and clipped per isometric diamond. The map now reads as a continuous
+  green field rather than a noisy checkerboard. Offline packer sniffs PNG/JPEG mime
+  so the inlined tiles decode correctly.
+
 ## v0.133.0 — UI polish + fixes _(2026-06-07)_
 - **Gold/Wood always show as integers** (floored on display) — no more
   `1912.8000000…097` floating-point drift.

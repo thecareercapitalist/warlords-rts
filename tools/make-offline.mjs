@@ -23,11 +23,17 @@ let js = readFileSync(resolve(assetsDir, jsName), "utf8");
 js = js.replace(/<\/script/gi, "<\\/script");
 
 // 2. Inline the terrain tiles as base64 data URIs.
+// Sniff PNG vs JPEG by magic bytes so data URIs declare the right mime (some of
+// our "*.png" tiles are actually JPEG bytes from the generator).
+const mimeOf = (buf) => (buf[0] === 0xff && buf[1] === 0xd8 ? "image/jpeg" : "image/png");
+const dataUri = (p) => {
+  const buf = readFileSync(p);
+  return `data:${mimeOf(buf)};base64,${buf.toString("base64")}`;
+};
 const tiles = ["grass", "water", "forest"];
 const tileData = {};
 for (const t of tiles) {
-  const buf = readFileSync(resolve(root, "public", "tiles", `${t}.png`));
-  tileData[t] = `data:image/png;base64,${buf.toString("base64")}`;
+  tileData[t] = dataUri(resolve(root, "public", "tiles", `${t}.png`));
 }
 // Building roof sprite sheet (Assets reads window.__TILES.roofs when present).
 tileData.roofs = `data:image/png;base64,${readFileSync(resolve(root, "public", "buildings-roofs.png")).toString("base64")}`;
