@@ -323,6 +323,8 @@ export class Game {
         for (const u of this.selUnits) u.stop();
       } else if (key === this.kb.get("idleWorker")) {
         this.selectIdleWorkers();
+      } else if (key === this.kb.get("selectArmy")) {
+        this.selectArmy();
       } else {
         const action = this.hud.hotkeyAction(key);
         if (action) this.applyHudAction(action);
@@ -398,6 +400,30 @@ export class Game {
       });
     }
     return pts;
+  }
+
+  /** Select all combat units (non-workers) and center on their midpoint. */
+  private selectArmy(): void {
+    const army = this.world
+      .unitsOf(this.humanId)
+      .filter((u) => !u.def.canGather && u.def.damage > 0);
+    if (army.length === 0) {
+      this.setMessage("No army units");
+      return;
+    }
+    this.clearSelection();
+    let sx = 0;
+    let sy = 0;
+    for (const u of army) {
+      u.selected = true;
+      this.selUnits.push(u);
+      sx += u.pos.x;
+      sy += u.pos.y;
+    }
+    this.selBuildings = [];
+    this.rebuildHudButtons();
+    this.cam.centerOn({ x: sx / army.length, y: sy / army.length });
+    this.sfx.click();
   }
 
   /** Select all idle workers and center the camera on one. */

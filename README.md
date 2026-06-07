@@ -49,6 +49,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Stop | `S` |
 | Assign / recall control group | `Ctrl+1…9` to assign · `1…9` to recall |
 | Select idle workers | `.` (rebindable) |
+| Select whole army | `Q` (rebindable) |
 | Set building rally point | Select the building, right-click a spot |
 | Scroll the map | Arrow keys (rebindable) or push the screen edge |
 | Zoom in / out | Mouse wheel (toward the cursor) |
