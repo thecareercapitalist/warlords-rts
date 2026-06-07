@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.71.0 — README accuracy refresh _(2026-06-07)_
+- Brought the README in line with reality: added a "What's here now" summary of
+  everything the loop has layered on (tech buildings, towers, armor/veterancy,
+  the command suite, the juice/animation set, the smarter AI), and rewrote the
+  stale "not here / next steps" lists (which still claimed sound, animation,
+  control groups, save/load, and a defensive AI were missing). Keeps the docs —
+  which the loop itself consults for direction — honest.
+
 ## v0.70.0 — AI repairs its buildings _(2026-06-07)_
 - The AI now **pulls workers to repair its most-damaged building** (up to 2, gold
   permitting), so its base mends under siege instead of crumbling for free —

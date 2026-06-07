@@ -140,45 +140,50 @@ src/
 Run `npm run typecheck` for a strict type pass (the project builds clean under
 `strict` + `noUnusedLocals`/`noUnusedParameters`).
 
+## What's here now
+
+Beyond the vertical slice, the autonomous improvement loop (see `CHANGELOG.md`,
+tagged `v0.3.0`→) has layered on a lot:
+
+- **Economy & tech:** gold + wood, Farms (supply), Sawmill, Temple (unlocks
+  Knights), **Forge** (+attack upgrade while it stands), **Guard Towers** (auto-
+  firing defense). Cancel/refund for buildings *and* queued units.
+- **Combat depth:** armor (Knights shrug off part of each hit), **veterancy**
+  (kills → rank → +damage), projectiles, ranged towers.
+- **Command suite:** control groups (Ctrl-assign / Shift-add / double-tap to
+  center), drag-select, double-click select-all-of-type, select-army, idle-worker
+  jump, formation move, **shift-click waypoint queues**, **patrol**, attack-move,
+  jump-to-base, rebindable keys, save/load.
+- **Game feel:** procedural Web-Audio SFX + victory/defeat stings, walk-bob, idle
+  breathing, gather-swing, banner flutter, construction scaffolding, hit sparks,
+  muzzle flashes, building collapse + camera shake, death decals, damage smoke,
+  rim-lit units & buildings, health-graded bars, under-attack screen pulse.
+- **Smarter AI:** balanced wood economy, mixed army (footmen/archers/knights),
+  defends its base, **workers flee raids**, **repairs damaged buildings**, and
+  spends surplus on Forges and Towers.
+
 ## What's intentionally not here (yet)
 
-Honest scope notes for whoever picks this up next:
-
-- **Multiplayer.** Deliberately out of scope — deterministic lockstep netcode is
-  months of work. Single-player skirmish only.
-- **Sound, animation, real art.** Everything is shapes + glyphs.
-- **Campaign / mission scripting.** It's a single skirmish vs. one AI.
-- **Tech tree / upgrades / spellcasters.** Two production buildings, three
-  combat units, one worker.
-- **Smarter AI.** The AI follows a fixed build order and throws attack waves; it
-  doesn't scout, defend reactively, expand to new bases, or micro.
-- **Flow-field pathfinding.** A* per unit + separation works for these counts
-  but large armies will still jostle in chokepoints.
+- **Multiplayer.** Out of scope — deterministic lockstep netcode is months of
+  work. Single-player skirmish only.
+- **Hand-quality pixel-art sprites & frame animation.** Units/buildings are
+  procedural code-art (shaded shapes, glyphs, rim light); buildings like the Forge
+  and Tower have bespoke silhouettes, but there are no drawn sprite sheets yet.
+- **Campaign / mission scripting.** A single skirmish vs. one AI.
+- **Spellcasters / abilities.** Combat is stat-based (damage/armor/veterancy); no
+  active abilities yet.
+- **Flow-field pathfinding.** A* per unit + separation works for these counts but
+  large armies still jostle in chokepoints.
 
 ## Good next steps
 
-### Code-generated — no external assets needed (loop tackles these)
-1. **Combat & motion animations**: attack lunge/recoil, hit flashes, death
-   fade-out, walk bob, construction scaffolding, gather swing.
-2. **Projectiles**: arrows/spears that fly from archer to target with an arc +
-   impact puff.
-3. **Procedural sound** via the Web Audio API: sword clang, arrow whoosh, click,
-   build-complete chime, death — synthesized in code, no audio files. Optional
-   ambient/music bed.
-4. **Procedurally-drawn unit sprites**: replace flat circles with shaded,
-   team-coloured little soldiers/workers drawn + animated in code.
-5. **UI theming**: beautify the HUD and pause menu (panels, gradients, on-theme
-   framing) — all canvas drawing.
-6. Building sprites from the **SBS Town pack** (real pixel art we already have in
-   `pixel packs/`, 64×96), plus terrain-tile variety (each sheet has 18 cells).
-
-### Gameplay
-7. AI: defensive response when attacked, second-base expansion, scouting.
-8. Control groups (`Ctrl+1`…`9`) and double-click "select all of type".
-9. Save/load and a map seed picker.
-10. A second visually distinct faction (the `grunt` unit already exists in `defs.ts`).
-
-### Needs an asset source or image-gen hookup
-11. Hand-quality **pixel-art unit sprites + frame animations**: not producible by
-    the in-environment tools (no text-to-image). Options: wire up an image-gen
-    API/MCP, source more CC0 art, or stick with the procedural sprites from (4).
+1. **Real unit sprites + frame animations** — the big remaining art lift. Needs an
+   image-gen hookup (the Pixelcut MCP is wired but loads only at session start +
+   needs auth) or more CC0 art; otherwise keep refining the procedural look.
+2. **A second visually distinct faction** — the `grunt` unit already exists in
+   `defs.ts`; give the AI side its own units/trim for real Orcs-vs-Humans flavor.
+3. **Smarter AI still:** scouting, second-base expansion, focus-fire micro,
+   difficulty levels.
+4. **More units/abilities:** a ranged-siege unit, a healer, or a caster with one
+   active ability.
+5. **Flow-field / formation pathing** for big armies; map seed picker UI.
