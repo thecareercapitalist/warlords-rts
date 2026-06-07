@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.56.0 — Muzzle flash _(2026-06-07)_
+- Ranged attacks (archers, Guard Towers) now throw a brief **muzzle-flash spark**
+  at the shooter as the projectile launches, complementing the impact sparks at
+  the target. Verified headlessly: an archer's shot spawns a spark at its own
+  position.
+
 ## v0.55.0 — Double-tap to center _(2026-06-07)_
 - Pressing a control-group number **twice quickly** now snaps the camera to that
   group (first tap selects, second jumps) — standard RTS muscle memory. Verified
