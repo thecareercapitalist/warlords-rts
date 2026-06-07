@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.12.0 — Gothic HUD theming _(2026-06-07)_
+- Recolored the HUD to the art North Star: dark stone-brown panels, ember accent
+  lines on the resource/command bars, ember-bordered command buttons, gold/ember
+  resource readouts, and parchment text. Verified the bar fills and ember accents
+  render in the new palette. Added a reusable UI palette to `constants.ts`.
+
 ## v0.11.0 — Gothic color grade _(2026-06-07)_
 - First step toward the art North Star: a world color grade — a faint cool gloom
   wash plus a vignette that darkens the edges and focuses the centre, drawn over

@@ -40,6 +40,17 @@ export const COLORS = {
   hpEnemy: "#e23b3b",
   buildOk: "rgba(60,200,90,0.35)",
   buildBad: "rgba(220,60,60,0.35)",
+
+  // Gothic UI palette (Warcraft × They Are Billions × Darkest Dungeon).
+  uiPanel: "rgba(20,17,14,0.92)", // dark stone-brown
+  uiPanelEdge: "#3a2f24", // inked border
+  uiEmber: "#d98a32", // warm ember accent
+  uiGold: "#e8c060",
+  uiWood: "#b07a45",
+  uiText: "#cdbfa6", // parchment
+  uiTextDim: "#8a7e6a",
+  uiBtn: "#2a2018",
+  uiBtnDisabled: "rgba(30,26,22,0.7)",
 } as const;
 
 // Resource node yields

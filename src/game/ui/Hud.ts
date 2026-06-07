@@ -3,7 +3,7 @@ import type { Camera } from "../Camera.ts";
 import type { Unit } from "../entities/Unit.ts";
 import type { Building } from "../entities/Building.ts";
 import type { BuildingKind, UnitKind, Vec2 } from "../types.ts";
-import { MAP_W, MAP_H, TILE } from "../constants.ts";
+import { MAP_W, MAP_H, TILE, COLORS } from "../constants.ts";
 import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { clamp, type Rect, rectContains } from "../util/math.ts";
 
@@ -178,30 +178,32 @@ export class Hud {
     const ctx = this.ctx;
     const p = world.player(humanId);
 
-    // Top resource bar.
-    ctx.fillStyle = "rgba(15,15,20,0.85)";
+    // Top resource bar — dark stone with an ember underline.
+    ctx.fillStyle = COLORS.uiPanel;
     ctx.fillRect(0, 0, cam.viewW, 34);
+    ctx.fillStyle = COLORS.uiEmber;
+    ctx.fillRect(0, 33, cam.viewW, 1.5);
     ctx.font = "16px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffd24a";
+    ctx.fillStyle = COLORS.uiGold;
     ctx.fillText(`⛂ Gold ${p.gold}`, 16, 17);
-    ctx.fillStyle = "#c79a5b";
+    ctx.fillStyle = COLORS.uiWood;
     ctx.fillText(`🌲 Wood ${p.wood}`, 170, 17);
-    ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#ff6b6b" : "#cfd8e0";
+    ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#c0492f" : COLORS.uiText;
     ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
 
     if (message) {
-      ctx.fillStyle = "#ffec99";
+      ctx.fillStyle = COLORS.uiEmber;
       ctx.textAlign = "center";
       ctx.fillText(message, cam.viewW / 2, 17);
     }
 
-    // Bottom command bar.
-    ctx.fillStyle = "rgba(15,15,20,0.9)";
+    // Bottom command bar — dark stone with an ember top edge.
+    ctx.fillStyle = COLORS.uiPanel;
     ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, this.barRect.h);
-    ctx.strokeStyle = "rgba(120,120,140,0.5)";
-    ctx.strokeRect(this.barRect.x, this.barRect.y + 0.5, this.barRect.w, 1);
+    ctx.fillStyle = COLORS.uiEmber;
+    ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, 1.5);
 
     this.renderMinimap(world, cam, humanId, fogVis);
     this.renderSelectionInfo(units, buildings);
@@ -258,7 +260,7 @@ export class Hud {
     ctx.lineWidth = 1;
     ctx.strokeRect(v0x, v0y, vw, vh);
 
-    ctx.strokeStyle = "rgba(120,120,140,0.6)";
+    ctx.strokeStyle = COLORS.uiPanelEdge;
     ctx.strokeRect(r.x, r.y, r.w, r.h);
   }
 
@@ -266,7 +268,7 @@ export class Hud {
     const ctx = this.ctx;
     const x = this.minimapRect.x + this.minimapRect.w + 20;
     const y = this.barRect.y + 24;
-    ctx.fillStyle = "#dfe6ee";
+    ctx.fillStyle = COLORS.uiText;
     ctx.font = "15px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
@@ -278,7 +280,7 @@ export class Hud {
     if (units.length === 1) {
       const u = units[0];
       ctx.fillText(u.def.label, x, y);
-      ctx.fillStyle = "#9fb2c2";
+      ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
       ctx.fillText(`State: ${u.state}`, x, y + 38);
@@ -288,7 +290,7 @@ export class Hud {
     if (buildings.length >= 1) {
       const b = buildings[0];
       ctx.fillText(b.def.label, x, y);
-      ctx.fillStyle = "#9fb2c2";
+      ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(b.hp)}/${b.def.maxHp}`, x, y + 20);
       if (b.state !== "complete") {
@@ -305,17 +307,17 @@ export class Hud {
   private renderButtons(): void {
     const ctx = this.ctx;
     for (const b of this.buttons) {
-      ctx.fillStyle = b.enabled ? "rgba(60,70,90,0.95)" : "rgba(45,45,55,0.7)";
+      ctx.fillStyle = b.enabled ? COLORS.uiBtn : COLORS.uiBtnDisabled;
       ctx.fillRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
-      ctx.strokeStyle = b.enabled ? "rgba(150,170,200,0.8)" : "rgba(80,80,90,0.6)";
+      ctx.strokeStyle = b.enabled ? COLORS.uiEmber : COLORS.uiPanelEdge;
       ctx.lineWidth = 1;
       ctx.strokeRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
-      ctx.fillStyle = b.enabled ? "#eef2f7" : "#888";
+      ctx.fillStyle = b.enabled ? COLORS.uiText : COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(b.label, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 - 6);
-      ctx.fillStyle = "#9fb2c2";
+      ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "11px 'Segoe UI', sans-serif";
       ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
     }
