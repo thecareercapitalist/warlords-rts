@@ -208,6 +208,11 @@ export class Hud {
     ctx.fillText(`🌲 Wood ${p.wood}`, 170, 17);
     ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#c0492f" : COLORS.uiText;
     ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
+    const idle = this.idleWorkerCount(world, humanId);
+    if (idle > 0) {
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.fillText(`⚒ ${idle} idle`, 500, 17);
+    }
 
     if (message) {
       ctx.fillStyle = COLORS.uiEmber;
@@ -354,6 +359,21 @@ export class Hud {
       ctx.font = "11px 'Segoe UI', sans-serif";
       ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
     }
+  }
+
+  /** How many of the player's workers are idle (matches the idle-worker hotkey). */
+  idleWorkerCount(world: World, humanId: number): number {
+    return world
+      .unitsOf(humanId)
+      .filter(
+        (u) =>
+          u.def.canGather &&
+          u.state === "idle" &&
+          !u.carrying &&
+          !u.buildTarget &&
+          u.path.length === 0 &&
+          u.finalTarget === null,
+      ).length;
   }
 
   /** "3 Footman · 2 Archer" — composition of a multi-unit selection, most first. */

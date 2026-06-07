@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.49.0 — Idle-worker indicator _(2026-06-07)_
+- The resource bar now shows **"⚒ N idle"** whenever you have idle workers, so a
+  stalled economy is obvious at a glance (pairs with the `.` select-idle hotkey).
+  Verified headlessly: the count reflects only truly-idle workers (excludes
+  gatherers, builders, and non-workers).
+
 ## v0.48.0 — Death decals _(2026-06-07)_
 - The fallen now leave **lingering stains** — dark dried-blood/scorch splotches on
   the ground that fade over ~7 seconds — so a battlefield carries the marks of the
