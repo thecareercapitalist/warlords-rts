@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.103.0 — Catapult splash damage _(2026-06-07)_
+- The Catapult's shot now deals **splash damage** (0.6× its base) to enemy units
+  within 1.5 tiles of the impact — so massing infantry against siege is punished,
+  giving the Catapult a real anti-cluster role beyond wall-breaking. Verified
+  headlessly: two footmen beside the target both take splash (200→193) while one
+  outside the radius is untouched.
+
 ## v0.102.0 — README accuracy refresh _(2026-06-07)_
 - Updated the README "What's here now" to match ~30 versions of additions:
   Catapult siege unit, hold-position stance, colored move markers, Forge embers /

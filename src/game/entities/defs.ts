@@ -22,6 +22,8 @@ export interface UnitDef {
   requiresBuilding?: BuildingKind;
   /** Damage multiplier vs buildings (siege weapons); 1 if omitted. */
   siegeMult?: number;
+  /** Splash radius in tiles: hits enemy units near the impact (siege). */
+  splash?: number;
 }
 
 export interface BuildingDef {
@@ -150,6 +152,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     radius: 12,
     damage: 12, // modest vs units...
     siegeMult: 4, // ...devastating vs buildings
+    splash: 1.5, // area damage to enemy units clustered near the impact
     attackRange: 6, // long siege reach
     attackCooldown: 2.4,
     visionRadius: 5,

@@ -154,7 +154,8 @@ tagged `v0.3.0`→) has layered on a lot:
   firing defense). Cancel/refund for buildings *and* queued units.
 - **Combat depth:** armor (Knights shrug off part of each hit), **veterancy**
   (kills → rank → +damage, with a gold elite aura), projectiles, ranged towers,
-  and a Forge-gated **Catapult** siege unit (4× damage to buildings).
+  and a Forge-gated **Catapult** siege unit (4× damage to buildings, plus splash
+  to clustered enemies).
 - **Command suite:** control groups (Ctrl-assign / Shift-add / double-tap to
   center), drag-select, double-click select-all-of-type, select-army, idle-worker
   jump, formation move, **shift-click waypoint queues**, **patrol**, attack-move,

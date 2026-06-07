@@ -179,6 +179,31 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       const raw = (u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId)) * siege;
       t.hp -= Math.max(1, raw - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
+
+      // Siege splash: the shot also harms enemy units clustered near the impact.
+      if (u.def.splash) {
+        const sr2 = (u.def.splash * TILE) ** 2;
+        const splashDmg = u.def.damage * 0.6;
+        for (const o of world.units) {
+          if (o.dead || o === t || !isEnemy(u, o)) continue;
+          if ((o.pos.x - c.x) ** 2 + (o.pos.y - c.y) ** 2 > sr2) continue;
+          o.hp -= Math.max(1, splashDmg - (o.def.armor ?? 0));
+          o.hitFlash = 0.12;
+          world.events.push({ type: "damaged", playerId: o.playerId, x: o.pos.x, y: o.pos.y });
+          if (o.hp <= 0 && o.state !== "dead") {
+            o.state = "dead";
+            u.kills++;
+            world.events.push({
+              type: "death",
+              x: o.pos.x,
+              y: o.pos.y,
+              color: world.player(o.playerId).color,
+              glyph: o.def.glyph,
+              by: u.playerId,
+            });
+          }
+        }
+      }
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
         u.kills++;
