@@ -325,6 +325,8 @@ export class Game {
         this.selectIdleWorkers();
       } else if (key === this.kb.get("selectArmy")) {
         this.selectArmy();
+      } else if (key === this.kb.get("jumpBase")) {
+        this.jumpToBase();
       } else {
         const action = this.hud.hotkeyAction(key);
         if (action) this.applyHudAction(action);
@@ -400,6 +402,17 @@ export class Game {
       });
     }
     return pts;
+  }
+
+  /** Snap the camera to the latest attack (if active) or the town hall. */
+  private jumpToBase(): void {
+    if (this.attackPing) {
+      this.cam.centerOn({ x: this.attackPing.x, y: this.attackPing.y });
+      return;
+    }
+    const own = this.world.buildingsOf(this.humanId);
+    const th = own.find((b) => b.kind === "townhall") ?? own[0];
+    if (th) this.cam.centerOn(th.center());
   }
 
   /** Select all combat units (non-workers) and center on their midpoint. */

@@ -10,7 +10,8 @@ export type ActionId =
   | "attackMove"
   | "stop"
   | "idleWorker"
-  | "selectArmy";
+  | "selectArmy"
+  | "jumpBase";
 
 export interface ActionInfo {
   id: ActionId;
@@ -26,6 +27,7 @@ export const ACTION_ORDER: ActionInfo[] = [
   { id: "stop", label: "Stop" },
   { id: "idleWorker", label: "Idle Workers" },
   { id: "selectArmy", label: "Select Army" },
+  { id: "jumpBase", label: "Jump to Base" },
 ];
 
 const DEFAULTS: Record<ActionId, string> = {
@@ -37,6 +39,7 @@ const DEFAULTS: Record<ActionId, string> = {
   stop: "s",
   idleWorker: ".",
   selectArmy: "q",
+  jumpBase: " ",
 };
 
 const STORAGE_KEY = "warlords.keybindings.v1";

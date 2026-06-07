@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.32.0 — Jump-to-base hotkey _(2026-06-07)_
+- Press `Space` (rebindable) to snap the camera to your town hall — or to the
+  latest attack location while you're under assault. Space is prevented from
+  scrolling the page. Verified headlessly: the town hall centers exactly after a
+  jump from off-screen.
+
 ## v0.31.0 — Select-army hotkey _(2026-06-07)_
 - Press `Q` (rebindable) to select your whole army — all combat units
   (footmen/archers/knights), excluding workers — and center on them. Says "No

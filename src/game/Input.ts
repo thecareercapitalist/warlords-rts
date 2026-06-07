@@ -110,8 +110,9 @@ export class Input {
       // Track modifier state from the event itself so it can't get stuck.
       this.ctrl = e.ctrlKey;
       this.shift = e.shiftKey;
-      // Stop Ctrl+1..9 from switching browser tabs.
+      // Stop Ctrl+1..9 from switching browser tabs, and Space from scrolling.
       if (e.ctrlKey && /^[1-9]$/.test(e.key)) e.preventDefault();
+      if (e.key === " ") e.preventDefault();
       this.keys.add(e.key.toLowerCase());
       this.pressedKeys.push(e.key.toLowerCase());
     });
