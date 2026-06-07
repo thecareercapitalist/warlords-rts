@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.26.0 — Multi-select breakdown _(2026-06-07)_
+- Selecting several units now shows the composition (e.g. "3 Footman · 2 Archer ·
+  1 Worker") under the count, instead of just "N units selected". Verified
+  headlessly: summary lists per-type counts, most numerous first.
+
 ## v0.25.0 — End-game polish _(2026-06-07)_
 - Victory/defeat now plays a one-shot audio sting (triumphant rising chord / a
   somber descending dirge) and the end screen shows the **elapsed time**. Verified

@@ -291,7 +291,10 @@ export class Hud {
     ctx.textBaseline = "alphabetic";
 
     if (units.length > 1) {
-      ctx.fillText(`${units.length} units selected`, x, y);
+      ctx.fillText(`${units.length} selected`, x, y);
+      ctx.fillStyle = COLORS.uiTextDim;
+      ctx.font = "13px 'Segoe UI', sans-serif";
+      ctx.fillText(this.selectionSummary(units), x, y + 20);
       return;
     }
     if (units.length === 1) {
@@ -338,6 +341,16 @@ export class Hud {
       ctx.font = "11px 'Segoe UI', sans-serif";
       ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
     }
+  }
+
+  /** "3 Footman · 2 Archer" — composition of a multi-unit selection, most first. */
+  selectionSummary(units: Unit[]): string {
+    const counts = new Map<string, number>();
+    for (const u of units) counts.set(u.def.label, (counts.get(u.def.label) ?? 0) + 1);
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, n]) => `${n} ${label}`)
+      .join(" · ");
   }
 
   renderEndScreen(cam: Camera, won: boolean, elapsed = 0): void {
