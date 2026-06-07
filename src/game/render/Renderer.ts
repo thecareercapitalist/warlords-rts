@@ -343,9 +343,14 @@ export class Renderer {
       ctx.stroke();
     }
 
+    // Body bobs while moving (shadow + ring stay grounded). Tied to distance
+    // travelled so it's deterministic and stops when the unit is still.
+    const moving = u.path.length > 0 || u.finalTarget !== null;
+    const by = s.y - (moving ? Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z : 0);
+
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.arc(s.x, by, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "#15110d"; // heavy inked outline
     ctx.lineWidth = 2;
@@ -355,13 +360,13 @@ export class Renderer {
     ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(u.def.glyph, s.x, s.y);
+    ctx.fillText(u.def.glyph, s.x, by);
 
     if (u.hitFlash > 0) {
       ctx.globalAlpha = Math.min(1, u.hitFlash / 0.12) * 0.7;
       ctx.fillStyle = "#fff";
       ctx.beginPath();
-      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+      ctx.arc(s.x, by, r, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
     }
@@ -369,12 +374,12 @@ export class Renderer {
     if (u.carrying) {
       ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
       ctx.beginPath();
-      ctx.arc(s.x + r * 0.8, s.y - r * 0.8, Math.max(2, r * 0.4), 0, Math.PI * 2);
+      ctx.arc(s.x + r * 0.8, by - r * 0.8, Math.max(2, r * 0.4), 0, Math.PI * 2);
       ctx.fill();
     }
 
     if (u.hp < u.def.maxHp || u.selected) {
-      this.drawHpBar(s.x - r, s.y - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
+      this.drawHpBar(s.x - r, by - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
     }
   }
 

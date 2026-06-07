@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.28.0 — Walk-bob animation _(2026-06-07)_
+- Moving units now bob up and down a little (tied to distance travelled, so it
+  stops cleanly when they halt) while their shadow and base ring stay planted —
+  a touch of life in motion. Verified headlessly: a moving unit's body renders
+  lifted above its ground point, no errors.
+
 ## v0.27.0 — Kill counter _(2026-06-07)_
 - Death/collapse events now carry the killer, so the game tallies enemy units and
   buildings *you* destroyed and shows "Enemies slain: N" on the end screen
