@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.119.0 — Sprite scale + facing polish _(2026-06-07)_
+- **Units are ~2× larger** (sprite height 3.3→6.6 × unit radius) so they're clearly
+  readable next to buildings; building overhang trimmed 1.18→1.05 to rebalance the
+  unit↔building size ratio.
+- **Left/right facing:** unit sprites now mirror horizontally to face their
+  movement target (or attack aim), tracked via `Unit.faceLeft`. Verified two
+  footmen given opposite targets render as clean mirror images.
+- **Sawmill is now 2×2** (footprint 3→2).
+
 ## v0.118.0 — Generated building sprites (Pixelcut) _(2026-06-07)_
 - All eight buildings (Town Hall, Barracks, Farm, Sawmill, Temple, Forge, Guard
   Tower, Wall) now render as **generated gothic isometric sprites** from a single

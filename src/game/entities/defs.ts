@@ -217,7 +217,7 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     label: "Sawmill",
     glyph: "SM",
     maxHp: 500,
-    footprint: 3,
+    footprint: 2,
     visionRadius: 3,
     costGold: 120,
     costWood: 20,

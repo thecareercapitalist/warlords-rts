@@ -518,7 +518,7 @@ export class Renderer {
     const fpW = Math.max(...xs) - Math.min(...xs);
     const cw = (sprite as HTMLCanvasElement).width;
     const ch = (sprite as HTMLCanvasElement).height;
-    const scale = (fpW / cw) * 1.18; // buildings overhang their footprint a little
+    const scale = (fpW / cw) * 1.05; // buildings sit close to their footprint
     const dw = cw * scale;
     const dh = ch * scale;
     const bottomY = Math.max(...ys); // footprint front (south) vertex
@@ -982,11 +982,25 @@ export class Renderer {
     const pal = UNIT_BODY[u.kind] ?? { tunic: "#6b5e48", head: "#c9a06a" };
     const ink = "#15110d";
     if (sprite) {
+      // Determine screen-facing from attack aim or movement; mirror to face it.
+      const face = u.attackAnim > 0 && u.aim ? u.aim : u.finalTarget;
+      if (face) {
+        const fs = this.cam.worldToScreen(face.x, face.y);
+        if (fs.x < s.x - 1) u.faceLeft = true;
+        else if (fs.x > s.x + 1) u.faceLeft = false;
+      }
       const cw = (sprite as HTMLCanvasElement).width;
       const ch = (sprite as HTMLCanvasElement).height;
-      const sh = r * 3.3; // sprite height relative to unit radius
+      const sh = r * 6.6; // sprite height relative to unit radius (readable scale)
       const sw = sh * (cw / ch);
-      ctx.drawImage(sprite, bx - sw / 2, by + r * 0.55 - sh, sw, sh); // feet at base ring
+      const footY = by + r * 0.55;
+      ctx.save();
+      if (u.faceLeft) {
+        ctx.translate(bx * 2, 0); // mirror across the unit's vertical axis
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(sprite, bx - sw / 2, footY - sh, sw, sh); // feet at base ring
+      ctx.restore();
     } else if (u.kind === "catapult") {
       this.drawSiegeEngine(bx, by, r);
     } else {

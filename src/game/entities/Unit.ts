@@ -55,6 +55,7 @@ export class Unit {
   healFx = 0; // green heal glow while mending near a Temple
   attackAnim = 0; // melee lunge toward `aim`
   aim: Vec2 | null = null; // last attack target centre, for the lunge direction
+  faceLeft = false; // sprite mirrored to face screen-left (purely presentational)
 
   constructor(kind: UnitKind, playerId: number, pos: Vec2) {
     this.kind = kind;
