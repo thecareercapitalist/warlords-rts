@@ -635,6 +635,29 @@ export class Renderer {
     ctx.textBaseline = "middle";
     ctx.fillText(u.def.glyph, bx, by);
 
+    // Per-kind weapon silhouette — read a unit's role by shape, not just letter.
+    ctx.lineWidth = Math.max(1, 1.5 * z);
+    if (u.kind === "archer") {
+      ctx.strokeStyle = "#6b4a2a"; // wooden bow on the right
+      ctx.beginPath();
+      ctx.arc(bx + r * 0.75, by, r * 0.75, -Math.PI * 0.45, Math.PI * 0.45);
+      ctx.stroke();
+    } else if (u.kind === "knight") {
+      ctx.fillStyle = "#e8c060"; // gold crest spike on top
+      ctx.beginPath();
+      ctx.moveTo(bx, by - r * 1.55);
+      ctx.lineTo(bx - 2.4 * z, by - r * 0.85);
+      ctx.lineTo(bx + 2.4 * z, by - r * 0.85);
+      ctx.closePath();
+      ctx.fill();
+    } else if (u.kind === "footman" || u.kind === "grunt") {
+      ctx.strokeStyle = "#c8d0d8"; // steel blade up-and-right
+      ctx.beginPath();
+      ctx.moveTo(bx + r * 0.5, by + r * 0.45);
+      ctx.lineTo(bx + r * 1.15, by - r * 0.75);
+      ctx.stroke();
+    }
+
     if (u.hitFlash > 0) {
       ctx.globalAlpha = Math.min(1, u.hitFlash / 0.12) * 0.7;
       ctx.fillStyle = "#fff";

@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.73.0 — Per-type weapon silhouettes _(2026-06-07)_
+- Units now read by **role silhouette**, not just a letter: archers carry a wooden
+  bow, footmen/grunts a steel blade, knights a gold helm crest (peons stay plain).
+  A step toward the North Star's "favor silhouette over detail." Verified
+  headlessly (on a contrast background): the bow is archer-only (113 px vs 0 on a
+  footman) and the crest knight-only (82 px vs 0).
+
 ## v0.72.0 — Temple healing aura _(2026-06-07)_
 - The **Temple now heals friendly units within ~5 tiles** (~3 HP/s) — so it's no
   longer just a Knight tech-gate but a position worth fighting around and pulling
