@@ -414,6 +414,7 @@ export class Hud {
     const eff = Math.round(u.def.damage * veterancyMult(u.kills)) + atkBonus;
     let s = `Atk ${eff}`;
     if (u.def.armor) s += ` · Def ${u.def.armor}`;
+    if (u.def.siegeMult && u.def.siegeMult > 1) s += ` · Siege ×${u.def.siegeMult}`;
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
     return s;

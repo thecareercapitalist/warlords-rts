@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.80.0 — Siege stat + balance check _(2026-06-07)_
+- The selection panel now shows a **"Siege ×N"** line for siege units, so the
+  Catapult's role (4× vs buildings) is legible. Verified headlessly: a catapult
+  reads "Atk 12 · Siege ×4", a footman has no siege line.
+- Ran a full self-play to confirm the recent combat additions (Catapult in the AI
+  rotation, Temple heal) didn't regress the AI: it still techs up and wins in
+  **~400s** (matching the long-standing ~392s baseline), first strike at ~232s,
+  peak army 8 — no pacing or competitiveness regression, no rebalance needed.
+
 ## v0.79.0 — Lobbed siege stone _(2026-06-07)_
 - A Catapult's projectile now **flies as a dark stone on a high arc** rather than
   an arrow, so siege reads at a glance both in flight and on impact. Verified
