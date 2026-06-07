@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.124.0 — Bigger-army economy _(2026-06-07)_
+- The game is now tuned for **roughly double-size armies**: combat units cost
+  **~50% less gold/wood** (footman 90→45, grunt 90→45, archer 80→40 +15w, knight
+  140→70, catapult 160→80 +30w) and **supply is doubled** at the source — Town Hall
+  5→10, Farm 4→8 — so the cap and affordability both scale up. Workers (peon)
+  unchanged. Applies to the AI too, so battles get bigger on both sides.
+
 ## v0.123.0 — Proportionate floaters + 3D bars _(2026-06-07)_
 - Floating resource "+N" text is now **~2× larger** (and rises further) so it reads
   at play scale.
