@@ -831,6 +831,18 @@ export class Renderer {
       const wx = p.from.x + (p.to.x - p.from.x) * k;
       const wy = p.from.y + (p.to.y - p.from.y) * k;
       const s = this.cam.worldToScreen(wx, wy);
+      // Siege: a dark stone on a high lob, not an arrow.
+      if (p.heavy) {
+        const lift2 = Math.sin(k * Math.PI) * 30 * z;
+        ctx.fillStyle = "#33302b";
+        ctx.beginPath();
+        ctx.arc(s.x, s.y - lift2, 4.5 * z, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.55)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        continue;
+      }
       const lift = Math.sin(k * Math.PI) * 16 * z;
       const sFrom = this.cam.worldToScreen(p.from.x, p.from.y);
       const sTo = this.cam.worldToScreen(p.to.x, p.to.y);

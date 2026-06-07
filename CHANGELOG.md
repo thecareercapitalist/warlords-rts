@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.79.0 — Lobbed siege stone _(2026-06-07)_
+- A Catapult's projectile now **flies as a dark stone on a high arc** rather than
+  an arrow, so siege reads at a glance both in flight and on impact. Verified
+  headlessly: the `heavy` flag is carried on the projectile, and a heavy shot
+  renders 273 px differently from an arrow at mid-flight.
+
 ## v0.78.0 — Siege impact feel _(2026-06-07)_
 - A Catapult's shot now **lands with weight**: an impact burst at the target plus a
   screen-shake jolt, so siege reads differently from an arrow. Threaded a `heavy`

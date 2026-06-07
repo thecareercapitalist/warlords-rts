@@ -9,6 +9,7 @@ interface Projectile {
   to: Vec2;
   t: number;
   dur: number;
+  heavy?: boolean; // siege: a lobbed stone rather than an arrow
 }
 
 interface DeathFx {
@@ -80,10 +81,10 @@ export class Effects {
     this.collapses.push({ x, y, size, t: 0, dur: 0.7 });
   }
 
-  spawnProjectile(from: Vec2, to: Vec2): void {
+  spawnProjectile(from: Vec2, to: Vec2, heavy = false): void {
     const d = Math.hypot(to.x - from.x, to.y - from.y);
     const dur = Math.max(0.12, Math.min(0.5, d / 600));
-    this.projectiles.push({ from: { ...from }, to: { ...to }, t: 0, dur });
+    this.projectiles.push({ from: { ...from }, to: { ...to }, t: 0, dur, heavy });
   }
 
   spawnDeath(x: number, y: number, color: string, glyph: string): void {
