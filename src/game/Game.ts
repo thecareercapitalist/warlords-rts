@@ -2,6 +2,7 @@ import { World, HUMAN_PLAYER, AI_PLAYER } from "./World.ts";
 import { Camera } from "./Camera.ts";
 import { Input } from "./Input.ts";
 import { Renderer, type RenderState } from "./render/Renderer.ts";
+import { Assets } from "./render/assets.ts";
 import { Hud, type HudAction } from "./ui/Hud.ts";
 import { Keybindings } from "./ui/Keybindings.ts";
 import { PauseMenu } from "./ui/PauseMenu.ts";
@@ -33,6 +34,7 @@ export class Game {
   private readonly cam: Camera;
   private readonly input: Input;
   private readonly renderer: Renderer;
+  private readonly assets = new Assets();
   private readonly hud: Hud;
   private readonly kb: Keybindings;
   private readonly pauseMenu = new PauseMenu();
@@ -53,6 +55,7 @@ export class Game {
   private messageTimer = 0;
 
   private gameOver: "won" | "lost" | null = null;
+  private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
   private readonly humanId = HUMAN_PLAYER;
 
@@ -63,7 +66,7 @@ export class Game {
     this.cam = new Camera();
     this.input = new Input();
     this.input.attach(canvas);
-    this.renderer = new Renderer(this.ctx, this.cam);
+    this.renderer = new Renderer(this.ctx, this.cam, this.assets);
     this.hud = new Hud(this.ctx);
     this.kb = new Keybindings();
 
@@ -73,7 +76,8 @@ export class Game {
     this.startNewGame(1337);
   }
 
-  start(): void {
+  async start(): Promise<void> {
+    await this.assets.loadAll();
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "none";
     this.lastTime = performance.now();
@@ -100,8 +104,9 @@ export class Game {
     this.world.recomputeSupply();
     this.fog.update(this.world);
 
-    // Centre the camera on the human town hall.
-    this.cam.centerOn(tileCenter(5, 5));
+    // Defer centring until the viewport has real dimensions (see frame()).
+    const th = this.world.buildingsOf(this.humanId).find((b) => b.kind === "townhall");
+    this.pendingCenter = th ? th.center() : tileCenter(5, 5);
   }
 
   private spawnBase(playerId: number, thTile: Vec2, minePref: Vec2, human: boolean): void {
@@ -156,6 +161,11 @@ export class Game {
     // resize event), so reconcile against the live window size each frame.
     if (window.innerWidth !== this.cam.viewW || window.innerHeight !== this.cam.viewH) {
       if (window.innerWidth > 0 && window.innerHeight > 0) this.resize();
+    }
+    // Apply the deferred camera centre once the viewport is real.
+    if (this.pendingCenter && this.cam.viewW > 0) {
+      this.cam.centerOn(this.pendingCenter);
+      this.pendingCenter = null;
     }
 
     const dt = clamp((now - this.lastTime) / 1000, 0, 0.05);
@@ -215,11 +225,15 @@ export class Game {
     if (k.has(this.kb.get("scrollRight"))) cdx += 1;
     if (k.has(this.kb.get("scrollUp"))) cdy -= 1;
     if (k.has(this.kb.get("scrollDown"))) cdy += 1;
+    // Edge scroll only once the pointer has actually moved into the window, so
+    // the default (0,0) position doesn't drag the camera into the corner.
     const m = this.input.mouse;
-    if (m.x < EDGE_SCROLL_MARGIN) cdx -= 1;
-    if (m.x > this.cam.viewW - EDGE_SCROLL_MARGIN) cdx += 1;
-    if (m.y < EDGE_SCROLL_MARGIN) cdy -= 1;
-    if (m.y > this.cam.viewH - EDGE_SCROLL_MARGIN && !this.hud.isOverUi(m)) cdy += 1;
+    if (this.input.moved) {
+      if (m.x < EDGE_SCROLL_MARGIN) cdx -= 1;
+      if (m.x > this.cam.viewW - EDGE_SCROLL_MARGIN) cdx += 1;
+      if (m.y < EDGE_SCROLL_MARGIN) cdy -= 1;
+      if (m.y > this.cam.viewH - EDGE_SCROLL_MARGIN && !this.hud.isOverUi(m)) cdy += 1;
+    }
     if (cdx || cdy) this.cam.move(cdx * CAMERA_SPEED * dt, cdy * CAMERA_SPEED * dt);
 
     // Keyboard commands (bound actions first, then contextual HUD hotkeys).

@@ -248,11 +248,12 @@ export class Hud {
       ctx.fillRect(r.x + t.x * sx, r.y + t.y * sy, Math.max(2, sx), Math.max(2, sy));
     }
 
-    // Camera viewport rectangle.
-    const v0x = r.x + (cam.x / (MAP_W * TILE)) * r.w;
-    const v0y = r.y + (cam.y / (MAP_H * TILE)) * r.h;
-    const vw = ((cam.viewW / cam.zoom) / (MAP_W * TILE)) * r.w;
-    const vh = ((cam.viewH / cam.zoom) / (MAP_H * TILE)) * r.h;
+    // Camera viewport rectangle (bounding tile range of the visible diamond).
+    const range = cam.visibleTileRange();
+    const v0x = r.x + (range.x0 / MAP_W) * r.w;
+    const v0y = r.y + (range.y0 / MAP_H) * r.h;
+    const vw = ((range.x1 - range.x0 + 1) / MAP_W) * r.w;
+    const vh = ((range.y1 - range.y0 + 1) / MAP_H) * r.h;
     ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.lineWidth = 1;
     ctx.strokeRect(v0x, v0y, vw, vh);

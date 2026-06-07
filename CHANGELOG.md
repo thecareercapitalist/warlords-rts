@@ -6,6 +6,21 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.4.0 — Isometric renderer _(2026-06-07)_
+- Rendering is now **isometric**, drawing real pixel-art terrain from the CC0
+  Screaming Brain Studios Overworld tiles (grass/water/forest) in `public/tiles`.
+- The simulation is untouched — it still runs on a square world grid; only
+  rendering and click/drag picking project to/from the iso plane (see
+  `render/iso.ts`). Round-trips are exact, so the game stays fully playable.
+- Camera, selection, fog, minimap viewport, and build preview are all iso-aware;
+  tiles are drawn clipped to their diamond so the no-alpha tile backgrounds
+  never leak.
+- Fixes: edge-scroll no longer drags the camera into the corner before the mouse
+  has moved; the camera now reliably centers on the town hall once the viewport
+  has real dimensions.
+- Buildings and units are still flat colored shapes (projected) — unit/building
+  sprites are a future pass.
+
 ## v0.3.0 — QoL pass _(2026-06-07)_
 - Camera can pan past the map edges (one tile each side, HUD-height at the
   bottom) so the command bar no longer hides the bottom map rows.

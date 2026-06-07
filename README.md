@@ -2,8 +2,12 @@
 
 A from-scratch real-time strategy game in the spirit of the original *Warcraft:
 Orcs & Humans* (1994). Built in TypeScript on a hand-rolled HTML5 Canvas engine —
-no game framework, no third-party assets, no Blizzard IP. All art is programmer
-art (coloured shapes + glyphs).
+no game framework, no Blizzard IP. Terrain uses CC0 isometric tiles from
+[Screaming Brain Studios](https://screamingbrainstudios.itch.io/); buildings and
+units are still programmer art (coloured shapes + glyphs) for now.
+
+Rendering is **isometric**, but the simulation runs on a plain square grid — only
+drawing and picking project to/from the iso plane (`src/game/render/iso.ts`).
 
 This is a **playable vertical slice**: gather resources, build a base, train an
 army, and destroy an AI opponent that does the same.

@@ -5,16 +5,23 @@ import { FOG_HIDDEN, FOG_VISIBLE } from "../systems/fog.ts";
 import type { BuildingKind, Vec2 } from "../types.ts";
 import { COLORS, TILE } from "../constants.ts";
 import { BUILDING_DEFS } from "../entities/defs.ts";
+import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
+import type { Assets, TileKey } from "./assets.ts";
+
+// Isometric renderer (v0.4) — projects the square-grid world onto the iso plane.
 
 export interface RenderState {
   dragBoxScreen: { x: number; y: number; w: number; h: number } | null;
   buildPreview: { kind: BuildingKind; tile: Vec2; valid: boolean } | null;
 }
 
+const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
+
 export class Renderer {
   constructor(
     private readonly ctx: CanvasRenderingContext2D,
     private readonly cam: Camera,
+    private readonly assets: Assets,
   ) {}
 
   render(world: World, fog: Fog, humanId: number, state: RenderState): void {
@@ -23,154 +30,242 @@ export class Renderer {
     ctx.fillRect(0, 0, this.cam.viewW, this.cam.viewH);
 
     this.drawTerrain(world, fog);
-    this.drawBuildings(world, fog, humanId);
-    this.drawUnits(world, fog, humanId);
-    if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
     this.drawFogOverlay(fog);
+    if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
+    this.drawEntities(world, fog, humanId);
     if (state.dragBoxScreen) this.drawDragBox(state.dragBoxScreen);
+  }
+
+  // --- Terrain ------------------------------------------------------------
+
+  private tileCenterScreen(tx: number, ty: number): Vec2 {
+    return this.cam.worldToScreen(tx * TILE + TILE / 2, ty * TILE + TILE / 2);
+  }
+
+  private diamondPath(cx: number, cy: number): void {
+    const ctx = this.ctx;
+    const hw = ISO_HALF_W * this.cam.zoom;
+    const hh = ISO_HALF_H * this.cam.zoom;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - hh);
+    ctx.lineTo(cx + hw, cy);
+    ctx.lineTo(cx, cy + hh);
+    ctx.lineTo(cx - hw, cy);
+    ctx.closePath();
   }
 
   private drawTerrain(world: World, fog: Fog): void {
     const ctx = this.ctx;
-    const { x0, y0, x1, y1 } = this.cam.visibleTileBounds();
     const z = this.cam.zoom;
-    const size = TILE * z;
+    const { x0, y0, x1, y1 } = this.cam.visibleTileRange();
+    const hw = ISO_HALF_W * z;
+    const hh = ISO_HALF_H * z;
 
-    for (let ty = y0; ty <= y1; ty++) {
+    // Back-to-front by (tx+ty) keeps any tile overhang ordering correct.
+    for (let sum = 0; sum <= x1 + y1; sum++) {
       for (let tx = x0; tx <= x1; tx++) {
+        const ty = sum - tx;
+        if (ty < y0 || ty > y1) continue;
         if (fog.level(tx, ty) === FOG_HIDDEN) continue; // stays black
-        const t = world.map.at(tx, ty)!;
-        const s = this.cam.worldToScreen(tx * TILE, ty * TILE);
-        let color: string;
-        switch (t.terrain) {
-          case "water":
-            color = COLORS.water;
-            break;
-          case "forest":
-            color = COLORS.forest;
-            break;
-          case "rock":
-            color = COLORS.rock;
-            break;
-          case "goldmine":
-            color = COLORS.goldmine;
-            break;
-          default:
-            color = (tx + ty) % 2 === 0 ? COLORS.grass : COLORS.grassAlt;
-        }
-        ctx.fillStyle = color;
-        ctx.fillRect(s.x, s.y, size + 1, size + 1);
 
-        // Simple terrain markers (programmer art).
-        if (t.terrain === "forest") {
-          ctx.fillStyle = "#1a3a1a";
-          ctx.beginPath();
-          ctx.arc(s.x + size / 2, s.y + size / 2, size * 0.28, 0, Math.PI * 2);
+        const t = world.map.at(tx, ty)!;
+        const s = this.tileCenterScreen(tx, ty);
+        const spriteKey = this.terrainSprite(t.terrain);
+        const img = spriteKey ? this.assets.get(spriteKey) : undefined;
+
+        if (img) {
+          ctx.save();
+          this.diamondPath(s.x, s.y);
+          ctx.clip();
+          ctx.drawImage(img, 0, 0, ISO_TILE_W, ISO_TILE_H, s.x - hw, s.y - hh, ISO_TILE_W * z, ISO_TILE_H * z);
+          ctx.restore();
+        } else {
+          this.diamondPath(s.x, s.y);
+          ctx.fillStyle = this.terrainColor(t.terrain, tx, ty);
           ctx.fill();
-        } else if (t.terrain === "goldmine") {
-          ctx.fillStyle = "#5a4500";
-          ctx.font = `${Math.floor(size * 0.6)}px sans-serif`;
+        }
+
+        if (t.terrain === "goldmine") {
+          ctx.fillStyle = "#3a2c00";
+          ctx.font = `bold ${Math.floor(28 * z)}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillText("$", s.x + size / 2, s.y + size / 2 + 1);
+          ctx.fillText("$", s.x, s.y);
         }
       }
     }
   }
 
-  private drawBuildings(world: World, fog: Fog, humanId: number): void {
+  private terrainSprite(terrain: string): TileKey | null {
+    if (terrain === "grass") return "grass";
+    if (terrain === "water") return "water";
+    if (terrain === "forest") return "forest";
+    return null;
+  }
+
+  private terrainColor(terrain: string, tx: number, ty: number): string {
+    switch (terrain) {
+      case "water":
+        return COLORS.water;
+      case "forest":
+        return COLORS.forest;
+      case "rock":
+        return COLORS.rock;
+      case "goldmine":
+        return COLORS.goldmine;
+      default:
+        return (tx + ty) % 2 === 0 ? COLORS.grass : COLORS.grassAlt;
+    }
+  }
+
+  private drawFogOverlay(fog: Fog): void {
     const ctx = this.ctx;
-    const z = this.cam.zoom;
+    const { x0, y0, x1, y1 } = this.cam.visibleTileRange();
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        if (fog.level(tx, ty) !== 1) continue; // only dim explored-but-not-visible
+        const s = this.tileCenterScreen(tx, ty);
+        this.diamondPath(s.x, s.y);
+        ctx.fillStyle = COLORS.fogExplored;
+        ctx.fill();
+      }
+    }
+  }
+
+  // --- Entities (depth-sorted) -------------------------------------------
+
+  private drawEntities(world: World, fog: Fog, humanId: number): void {
+    interface Drawable {
+      depth: number;
+      draw: () => void;
+    }
+    const list: Drawable[] = [];
+
     for (const b of world.buildings) {
       if (b.dead) continue;
       const isEnemy = b.playerId !== humanId;
       if (isEnemy && !this.anyTileVisible(fog, b.tile.x, b.tile.y, b.footprint)) continue;
-
-      const s = this.cam.worldToScreen(b.tile.x * TILE, b.tile.y * TILE);
-      const size = b.footprint * TILE * z;
-      const color = world.player(b.playerId).color;
-
-      // Body
-      ctx.fillStyle = b.state === "complete" ? color : this.shade(color, -0.35);
-      ctx.fillRect(s.x + 1, s.y + 1, size - 2, size - 2);
-      ctx.strokeStyle = "rgba(0,0,0,0.6)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(s.x + 1, s.y + 1, size - 2, size - 2);
-
-      // Glyph
-      ctx.fillStyle = "rgba(255,255,255,0.9)";
-      ctx.font = `bold ${Math.floor(size * 0.3)}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(b.def.glyph, s.x + size / 2, s.y + size / 2);
-
-      // Construction overlay
-      if (b.state !== "complete") {
-        ctx.fillStyle = "rgba(0,0,0,0.45)";
-        const h = size * (1 - b.construction);
-        ctx.fillRect(s.x + 1, s.y + 1, size - 2, h);
-      }
-
-      // Selection + HP
-      if (b.selected) {
-        ctx.strokeStyle = COLORS.selection;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(s.x, s.y, size, size);
-        if (b.rally) this.drawRally(b.center(), b.rally);
-      }
-      if (b.hp < b.def.maxHp || b.selected) {
-        this.drawHpBar(s.x + 2, s.y - 7 * z, size - 4, b.hp / b.def.maxHp, !isEnemy);
-      }
+      const depth = b.tile.x + b.tile.y + b.footprint; // sort by far corner
+      list.push({ depth, draw: () => this.drawBuilding(world, b, isEnemy) });
     }
-  }
-
-  private drawUnits(world: World, fog: Fog, humanId: number): void {
-    const ctx = this.ctx;
-    const z = this.cam.zoom;
     for (const u of world.units) {
       if (u.dead) continue;
       const isEnemy = u.playerId !== humanId;
       const t = u.tile();
       if (isEnemy && fog.level(t.x, t.y) !== FOG_VISIBLE) continue;
+      const depth = (u.pos.x + u.pos.y) / TILE;
+      list.push({ depth, draw: () => this.drawUnit(world, u, isEnemy) });
+    }
 
-      const s = this.cam.worldToScreen(u.pos.x, u.pos.y);
-      const r = u.radius * z;
-      const color = world.player(u.playerId).color;
+    list.sort((a, b) => a.depth - b.depth);
+    for (const d of list) d.draw();
+  }
 
-      if (u.selected) {
-        ctx.strokeStyle = COLORS.selection;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, r + 3, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      ctx.fillStyle = color;
+  private drawBuilding(world: World, b: import("../entities/Building.ts").Building, isEnemy: boolean): void {
+    const ctx = this.ctx;
+    const fp = b.footprint;
+    const corners = [
+      this.cam.worldToScreen(b.tile.x * TILE, b.tile.y * TILE),
+      this.cam.worldToScreen((b.tile.x + fp) * TILE, b.tile.y * TILE),
+      this.cam.worldToScreen((b.tile.x + fp) * TILE, (b.tile.y + fp) * TILE),
+      this.cam.worldToScreen(b.tile.x * TILE, (b.tile.y + fp) * TILE),
+    ];
+    const color = world.player(b.playerId).color;
+    const poly = () => {
       ctx.beginPath();
-      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(0,0,0,0.55)";
-      ctx.lineWidth = 1.5;
+      ctx.moveTo(corners[0].x, corners[0].y);
+      for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
+      ctx.closePath();
+    };
+
+    const center = this.cam.worldToScreen(
+      (b.tile.x + fp / 2) * TILE,
+      (b.tile.y + fp / 2) * TILE,
+    );
+    const topY = Math.min(...corners.map((c) => c.y));
+    const minX = Math.min(...corners.map((c) => c.x));
+    const maxX = Math.max(...corners.map((c) => c.x));
+
+    poly();
+    ctx.fillStyle = b.state === "complete" ? color : this.shade(color, -0.35);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (b.state !== "complete") {
+      ctx.save();
+      poly();
+      ctx.clip();
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      const bottomY = Math.max(...corners.map((c) => c.y));
+      const h = (bottomY - topY) * (1 - b.construction);
+      ctx.fillRect(minX, topY, maxX - minX, h);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(b.def.glyph, center.x, center.y);
+
+    if (b.selected) {
+      poly();
+      ctx.strokeStyle = COLORS.selection;
+      ctx.lineWidth = 2;
       ctx.stroke();
+      if (b.rally) this.drawRally(b.center(), b.rally);
+    }
+    if (b.hp < b.def.maxHp || b.selected) {
+      this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
+    }
+  }
 
-      // Glyph
-      ctx.fillStyle = "rgba(255,255,255,0.95)";
-      ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(u.def.glyph, s.x, s.y + 0.5);
+  private drawUnit(world: World, u: import("../entities/Unit.ts").Unit, isEnemy: boolean): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const s = this.cam.worldToScreen(u.pos.x, u.pos.y);
+    const r = UNIT_DRAW_R * z * (u.radius / 10);
+    const color = world.player(u.playerId).color;
 
-      // Carried resource pip
-      if (u.carrying) {
-        ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
-        ctx.beginPath();
-        ctx.arc(s.x + r * 0.7, s.y - r * 0.7, Math.max(2, r * 0.35), 0, Math.PI * 2);
-        ctx.fill();
-      }
+    // Ground shadow for a little depth.
+    ctx.fillStyle = "rgba(0,0,0,0.28)";
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y + r * 0.5, r * 1.05, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-      if (u.hp < u.def.maxHp || u.selected) {
-        this.drawHpBar(s.x - r, s.y - r - 6 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
-      }
+    if (u.selected) {
+      ctx.strokeStyle = COLORS.selection;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y + r * 0.5, r * 1.2, r * 0.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.55)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(u.def.glyph, s.x, s.y);
+
+    if (u.carrying) {
+      ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
+      ctx.beginPath();
+      ctx.arc(s.x + r * 0.8, s.y - r * 0.8, Math.max(2, r * 0.4), 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (u.hp < u.def.maxHp || u.selected) {
+      this.drawHpBar(s.x - r, s.y - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
     }
   }
 
@@ -204,29 +299,21 @@ export class Renderer {
   private drawBuildPreview(p: { kind: BuildingKind; tile: Vec2; valid: boolean }): void {
     const ctx = this.ctx;
     const fp = BUILDING_DEFS[p.kind].footprint;
-    const s = this.cam.worldToScreen(p.tile.x * TILE, p.tile.y * TILE);
-    const size = fp * TILE * this.cam.zoom;
+    const corners = [
+      this.cam.worldToScreen(p.tile.x * TILE, p.tile.y * TILE),
+      this.cam.worldToScreen((p.tile.x + fp) * TILE, p.tile.y * TILE),
+      this.cam.worldToScreen((p.tile.x + fp) * TILE, (p.tile.y + fp) * TILE),
+      this.cam.worldToScreen(p.tile.x * TILE, (p.tile.y + fp) * TILE),
+    ];
+    ctx.beginPath();
+    ctx.moveTo(corners[0].x, corners[0].y);
+    for (let i = 1; i < 4; i++) ctx.lineTo(corners[i].x, corners[i].y);
+    ctx.closePath();
     ctx.fillStyle = p.valid ? COLORS.buildOk : COLORS.buildBad;
-    ctx.fillRect(s.x, s.y, size, size);
+    ctx.fill();
     ctx.strokeStyle = p.valid ? "#3cc85a" : "#dc3c3c";
     ctx.lineWidth = 2;
-    ctx.strokeRect(s.x, s.y, size, size);
-  }
-
-  private drawFogOverlay(fog: Fog): void {
-    const ctx = this.ctx;
-    const { x0, y0, x1, y1 } = this.cam.visibleTileBounds();
-    const z = this.cam.zoom;
-    const size = TILE * z + 1;
-    for (let ty = y0; ty <= y1; ty++) {
-      for (let tx = x0; tx <= x1; tx++) {
-        const lvl = fog.level(tx, ty);
-        if (lvl === FOG_VISIBLE) continue;
-        const s = this.cam.worldToScreen(tx * TILE, ty * TILE);
-        ctx.fillStyle = lvl === FOG_HIDDEN ? COLORS.fog : COLORS.fogExplored;
-        ctx.fillRect(s.x, s.y, size, size);
-      }
-    }
+    ctx.stroke();
   }
 
   private drawDragBox(box: { x: number; y: number; w: number; h: number }): void {
@@ -247,7 +334,6 @@ export class Renderer {
     return false;
   }
 
-  /** Lighten (positive) or darken (negative) a hex colour. */
   private shade(hex: string, amt: number): string {
     const c = hex.replace("#", "");
     const n = parseInt(c, 16);

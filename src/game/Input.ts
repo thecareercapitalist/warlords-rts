@@ -13,6 +13,8 @@ export interface DragBox {
 export class Input {
   readonly keys = new Set<string>();
   mouse: Vec2 = { x: 0, y: 0 };
+  /** False until the pointer has actually moved — guards edge-scroll from the default (0,0). */
+  moved = false;
   leftDown = false;
   rightDown = false;
 
@@ -33,6 +35,7 @@ export class Input {
     canvas.addEventListener("mousemove", (e) => {
       const r = canvas.getBoundingClientRect();
       this.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+      this.moved = true;
       if (this.drag.active) this.drag.current = { ...this.mouse };
     });
 
@@ -55,6 +58,7 @@ export class Input {
       if (!this.leftDown || !this.leftDownAt) return;
       const r = canvas.getBoundingClientRect();
       this.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
+      this.moved = true;
       if (!this.drag.active) {
         const d = Math.hypot(this.mouse.x - this.leftDownAt.x, this.mouse.y - this.leftDownAt.y);
         if (d > this.dragThreshold) this.drag.active = true;
