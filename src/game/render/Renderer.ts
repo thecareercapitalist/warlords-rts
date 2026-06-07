@@ -496,11 +496,20 @@ export class Renderer {
       const frac = total > 0 ? 1 - b.productionTimer / total : 0;
       const bw = (maxX - minX) * 0.7;
       const bx = (minX + maxX) / 2 - bw / 2;
-      const yb = topY - 14;
-      ctx.fillStyle = "rgba(10,8,6,0.8)";
-      ctx.fillRect(bx, yb, bw, 4);
-      ctx.fillStyle = COLORS.uiEmber;
-      ctx.fillRect(bx, yb, bw * Math.max(0, Math.min(1, frac)), 4);
+      const bh = Math.max(6, bw * 0.06);
+      const yb = topY - 16;
+      const fw = bw * Math.max(0, Math.min(1, frac));
+      ctx.fillStyle = "#15110d"; // ink border
+      ctx.fillRect(bx - 1, yb - 1, bw + 2, bh + 2);
+      ctx.fillStyle = "#241f1a"; // recessed track
+      ctx.fillRect(bx, yb, bw, bh);
+      const grad = ctx.createLinearGradient(0, yb, 0, yb + bh);
+      grad.addColorStop(0, "#ffc15a");
+      grad.addColorStop(1, "#b5701b");
+      ctx.fillStyle = grad;
+      ctx.fillRect(bx, yb, fw, bh);
+      ctx.fillStyle = "rgba(255,255,255,0.4)"; // gloss
+      ctx.fillRect(bx, yb, fw, Math.max(1, bh * 0.3));
     }
 
     // Heavy damage: a rising smoke plume with an ember fleck.
@@ -1210,7 +1219,10 @@ export class Renderer {
     }
 
     if (u.hp < u.def.maxHp || u.selected) {
-      this.drawHpBar(bx - r, by - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
+      // Size + place the bar relative to the (large) sprite, not the tiny body.
+      const hpW = sprite ? gw * 1.7 : r * 2;
+      const hpY = sprite ? by + r * 0.55 - spriteH - 6 * z : by - r - 8 * z;
+      this.drawHpBar(bx - hpW / 2, hpY, hpW, u.hp / u.def.maxHp, !isEnemy);
     }
 
     // Veterancy rank pips (ember chevrons) above the unit.
@@ -1235,14 +1247,26 @@ export class Renderer {
 
   private drawHpBar(x: number, y: number, w: number, frac: number, friendly: boolean): void {
     const ctx = this.ctx;
-    const h = 4;
-    ctx.fillStyle = COLORS.hpBack;
+    const h = Math.max(5, w * 0.085); // thicker, scales with width
+    const f = Math.max(0, Math.min(1, frac));
+    // Inked border + dark recessed track for a beveled, 3D look.
+    ctx.fillStyle = "#15110d";
+    ctx.fillRect(x - 1, y - 1, w + 2, h + 2);
+    ctx.fillStyle = "#241f1a";
     ctx.fillRect(x, y, w, h);
-    // Color by health so wounded units read at a glance; faint friend/foe tint.
-    const col =
-      frac > 0.6 ? (friendly ? "#6bd06b" : "#54a854") : frac > 0.3 ? "#d9a832" : "#c0392b";
-    ctx.fillStyle = col;
-    ctx.fillRect(x, y, w * Math.max(0, frac), h);
+    // Health-graded fill with a top→bottom gradient.
+    const stops =
+      f > 0.6 ? (friendly ? ["#8fe88f", "#3c8a3c"] : ["#74c074", "#327032"])
+      : f > 0.3 ? ["#f2cb52", "#9a7212"]
+      : ["#e85c42", "#8c2216"];
+    const grad = ctx.createLinearGradient(0, y, 0, y + h);
+    grad.addColorStop(0, stops[0]);
+    grad.addColorStop(1, stops[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, w * f, h);
+    // Glossy top highlight.
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fillRect(x, y, w * f, Math.max(1, h * 0.3));
   }
 
   private drawRally(from: Vec2, to: Vec2): void {
@@ -1454,12 +1478,12 @@ export class Renderer {
     for (const f of fx.floaters) {
       const k = f.t / f.dur;
       const s = this.cam.worldToScreen(f.x, f.y);
-      const y = s.y - 10 * z - k * 26 * z;
+      const y = s.y - 16 * z - k * 40 * z;
       ctx.globalAlpha = Math.max(0, 1 - k);
-      ctx.font = `bold ${Math.floor(13 * z)}px 'Segoe UI', sans-serif`;
+      ctx.font = `bold ${Math.floor(24 * z)}px 'Segoe UI', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(3, 5 * z);
       ctx.strokeStyle = "#15110d";
       ctx.strokeText(f.text, s.x, y);
       ctx.fillStyle = f.color;

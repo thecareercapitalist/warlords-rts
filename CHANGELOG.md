@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.123.0 — Proportionate floaters + 3D bars _(2026-06-07)_
+- Floating resource "+N" text is now **~2× larger** (and rises further) so it reads
+  at play scale.
+- **HP bars and the production bar are thicker and 3D**: inked border, recessed
+  track, top→bottom gradient fill, and a glossy highlight. Unit HP bars are now
+  sized to the sprite and sit above it (not the tiny body radius).
+
 ## v0.122.0 — Scale/ring/control polish _(2026-06-07)_
 - **Units +20%, buildings −20%** for a better size ratio; **base/selection rings
   now scale with the sprite** (tied to its footprint width) instead of the tiny
