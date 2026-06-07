@@ -14,6 +14,7 @@ const TARGET_WORKERS = 8;
 const MAX_BARRACKS = 2;
 const MAX_TOWERS = 2;
 const ATTACK_ARMY_SIZE = 6; // launch a wave once this many fighters exist
+const GARRISON_SIZE = 2; // fighters held back to guard the base during a wave
 const DEFEND_RADIUS = 12; // tiles: enemies this close to a building trigger defense
 const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
 
@@ -218,7 +219,20 @@ export class AIController {
     if (fighters.length >= ATTACK_ARMY_SIZE) {
       const target = this.findEnemyTarget(world);
       if (target) {
-        for (const f of fighters) orderAttackMove(world, f, target);
+        // Hold a small home guard back; send the rest on the wave. The guards
+        // are the fighters nearest the base, so the wave stays cohesive.
+        const myB = world.buildingsOf(this.playerId);
+        const base = (myB.find((b) => b.kind === "townhall") ?? myB[0])?.center();
+        let wave = fighters;
+        if (base && fighters.length > GARRISON_SIZE) {
+          const byDist = [...fighters].sort(
+            (a, b) =>
+              (b.pos.x - base.x) ** 2 + (b.pos.y - base.y) ** 2 -
+              ((a.pos.x - base.x) ** 2 + (a.pos.y - base.y) ** 2),
+          );
+          wave = byDist.slice(0, fighters.length - GARRISON_SIZE); // farthest from base attack
+        }
+        for (const f of wave) orderAttackMove(world, f, target);
         this.attacking = true;
       }
     }

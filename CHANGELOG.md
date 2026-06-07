@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.83.0 — AI keeps a home guard _(2026-06-07)_
+- The AI no longer commits **its entire army** to every attack wave — it now holds
+  **2 fighters back to guard the base** (the ones nearest home), so dodging the
+  wave and counter-attacking is no longer a free win. Reactive defense still pulls
+  everyone home on a real threat. Verified headlessly: with 8 fighters, 6 are sent
+  on the wave and 2 remain on guard.
+
 ## v0.82.0 — Siege thud sound _(2026-06-07)_
 - The Catapult now fires with a **deep wooden counterweight "thud"** (low sawtooth
   + filtered noise) instead of an arrow whoosh, completing its distinct identity
