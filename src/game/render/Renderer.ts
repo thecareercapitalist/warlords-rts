@@ -327,14 +327,16 @@ export class Renderer {
       ctx.restore();
     }
 
-    if (b.kind !== "tower") {
+    if (b.kind === "tower" && b.state === "complete") {
+      this.drawTurret(center, color);
+    } else if (b.kind === "forge" && b.state === "complete") {
+      this.drawForge(center);
+    } else {
       ctx.fillStyle = "rgba(255,255,255,0.92)";
       ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(b.def.glyph, center.x, center.y);
-    } else if (b.state === "complete") {
-      this.drawTurret(center, color);
     }
 
     // Team banner on a pole at the top vertex — clear ownership cue.
@@ -407,6 +409,26 @@ export class Renderer {
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
+  }
+
+  /** A dark furnace with a flickering ember mouth — the Forge. */
+  private drawForge(center: Vec2): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const cx = center.x;
+    const cy = center.y;
+    // Furnace block.
+    ctx.fillStyle = "#2a2622";
+    ctx.fillRect(cx - 11 * z, cy - 5 * z, 22 * z, 16 * z);
+    ctx.strokeStyle = "#15110d";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx - 11 * z, cy - 5 * z, 22 * z, 16 * z);
+    // Glowing ember mouth (flickers with the clock).
+    const glow = 0.6 + 0.4 * Math.abs(Math.sin(this.now * 5 + cx * 0.1));
+    ctx.fillStyle = `rgba(255,140,40,${glow})`;
+    ctx.fillRect(cx - 7 * z, cy + 1 * z, 14 * z, 8 * z);
+    ctx.fillStyle = `rgba(255,228,150,${glow * 0.9})`;
+    ctx.fillRect(cx - 3.5 * z, cy + 2.5 * z, 7 * z, 4 * z);
   }
 
   /** A tall crenellated stone turret with team trim + flickering ember slit. */

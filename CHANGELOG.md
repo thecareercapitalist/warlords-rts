@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.59.0 — Forge furnace visual _(2026-06-07)_
+- The Forge now reads as a **dark furnace with a glowing, flickering ember mouth**
+  rather than a generic stone tile — leaning into the North Star's warm
+  ember-against-gloom. Verified headlessly: the forge shows 60 warm ember pixels;
+  a farm shows 0.
+
 ## v0.58.0 — AI builds a Forge _(2026-06-07)_
 - The AI now invests surplus into a **Forge** (after its temple, before towers) to
   buff its whole army's attack — so in longer games it tech-escalates instead of
