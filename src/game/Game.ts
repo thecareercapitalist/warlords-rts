@@ -19,6 +19,7 @@ import { tileCenter, toTile, normalizeRect, clamp } from "./util/math.ts";
 import { updateMovement } from "./systems/movement.ts";
 import { updateGather } from "./systems/gather.ts";
 import { updateCombat } from "./systems/combat.ts";
+import { updateSpells, castSpell, SPELLS, type SpellId } from "./systems/spells.ts";
 import { updateProduction, enqueueUnit, cancelQueuedUnit } from "./systems/production.ts";
 import { placeBuilding, canPlace, cancelBuilding } from "./systems/placement.ts";
 import {
@@ -68,6 +69,7 @@ export class Game {
   private buildMode: BuildingKind | null = null;
   private builder: Unit | null = null;
   private attackMoveMode = false;
+  private castMode: SpellId | null = null; // armed spell awaiting a target click
   private patrolMode = false;
 
   private message: string | null = null;
@@ -231,6 +233,7 @@ export class Game {
     updateProduction(this.world, dt);
     updateGather(this.world, dt);
     updateCombat(this.world, dt);
+    updateSpells(this.world, dt);
     updateMovement(this.world, dt);
     updateWaypoints(this.world);
     updatePatrol(this.world);
@@ -276,6 +279,15 @@ export class Game {
             this.sfx.alert();
             this.attackAlertCd = 6;
           }
+        }
+      }
+      else if (e.type === "spell") {
+        this.effects.spawnBlast(e.x, e.y, e.spell === "fireball" ? "fire" : "frost");
+        if (e.spell === "fireball") {
+          this.shake = Math.max(this.shake, 3);
+          this.sfx.collapse();
+        } else {
+          this.sfx.whoosh();
         }
       }
     }
@@ -471,6 +483,16 @@ export class Game {
 
     const world = this.cam.screenToWorld(p.x, p.y);
 
+    // Casting an armed spell at the clicked point (first mage with mana fires).
+    if (this.castMode) {
+      const sp = SPELLS[this.castMode];
+      const caster = this.selUnits.find((u) => u.kind === "mage" && u.playerId === this.humanId && u.mana >= sp.cost && u.castCd <= 0);
+      if (caster) castSpell(this.world, caster, sp, world);
+      else this.setMessage("Not enough mana");
+      this.castMode = null;
+      return;
+    }
+
     // Placing a building.
     if (this.buildMode) {
       this.tryPlaceBuilding(world);
@@ -608,7 +630,22 @@ export class Game {
 
   private onRightClick(p: Vec2): void {
     if (this.hud.isOverUi(p)) {
+      // Right-click a spell button → toggle autocast for selected mages.
+      const spellId = this.hud.spellButtonAt(p);
+      if (spellId) {
+        const mages = this.selUnits.filter((u) => u.kind === "mage" && u.playerId === this.humanId);
+        const turnOn = !mages.every((m) => m.autocast === spellId);
+        for (const m of mages) m.autocast = turnOn ? spellId : null;
+        this.sfx.click();
+        this.setMessage(`${SPELLS[spellId].label} autocast ${turnOn ? "ON" : "OFF"}`);
+        this.rebuildHudButtons();
+        return;
+      }
       if (this.hud.isOverMinimap(p)) this.commandTo(this.hud.minimapToWorld(p));
+      return;
+    }
+    if (this.castMode) {
+      this.castMode = null; // right-click cancels an armed spell
       return;
     }
     if (this.buildMode) {
@@ -818,6 +855,14 @@ export class Game {
     this.sfx.click();
     if (action.type === "stop") {
       for (const u of this.selUnits) u.stop();
+      return;
+    }
+    if (action.type === "spell") {
+      // Left-click a spell → arm targeting; the next map click casts it.
+      this.castMode = action.id;
+      this.buildMode = null;
+      this.attackMoveMode = false;
+      this.setMessage(`${SPELLS[action.id].label}: click a target`);
       return;
     }
     if (action.type === "cancel") {

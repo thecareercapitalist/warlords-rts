@@ -26,7 +26,7 @@ function advance(u: Unit, dt: number): void {
   const dx = target.x - u.pos.x;
   const dy = target.y - u.pos.y;
   const d = Math.hypot(dx, dy);
-  const step = u.def.speed * dt;
+  const step = u.def.speed * (u.slowT > 0 ? 0.5 : 1) * dt; // chilled units move at half speed
 
   if (d <= Math.max(ARRIVE_EPS, step)) {
     // Snap to this target and advance to the next.

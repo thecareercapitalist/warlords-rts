@@ -7,6 +7,7 @@ import type { BuildingKind, UnitKind, Vec2 } from "../types.ts";
 import { MAP_W, MAP_H, TILE, COLORS } from "../constants.ts";
 import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { clamp, type Rect, rectContains } from "../util/math.ts";
+import { SPELL_LIST, type SpellId } from "../systems/spells.ts";
 
 export type HudAction =
   | { type: "build"; kind: BuildingKind }
@@ -14,6 +15,7 @@ export type HudAction =
   | { type: "cancel" }
   | { type: "cancelUnit" }
   | { type: "stop" }
+  | { type: "spell"; id: SpellId }
   | { type: "denied"; label: string; reason: string };
 
 interface Button {
@@ -23,6 +25,7 @@ interface Button {
   hotkey: string;
   action: HudAction;
   enabled: boolean;
+  autocast?: boolean; // spell button: autocast is on for the selection
 }
 
 const BAR_H = 150;
@@ -108,6 +111,31 @@ export class Hud {
       return;
     }
 
+    // Mage(s) selected → spell buttons (left-click = cast, right-click = autocast).
+    const mages = units.filter((u) => u.kind === "mage" && u.playerId === humanId);
+    if (mages.length > 0) {
+      SPELL_LIST.forEach((sp, i) => {
+        this.buttons.push({
+          rect: place(i),
+          label: sp.label,
+          sub: `${sp.cost} mana`,
+          hotkey: sp.hotkey,
+          action: { type: "spell", id: sp.id },
+          enabled: true,
+          autocast: mages.some((m) => m.autocast === sp.id),
+        });
+      });
+      this.buttons.push({
+        rect: place(SPELL_LIST.length),
+        label: "Stop",
+        sub: "S",
+        hotkey: "S",
+        action: { type: "stop" },
+        enabled: true,
+      });
+      return;
+    }
+
     // Single production building selected → train buttons.
     const prod = buildings.find((b) => b.def.produces.length > 0 && b.state === "complete");
     if (prod) {
@@ -167,6 +195,14 @@ export class Hud {
   hotkeyAction(key: string): HudAction | null {
     for (const b of this.buttons) {
       if (b.enabled && b.hotkey.toLowerCase() === key.toLowerCase()) return b.action;
+    }
+    return null;
+  }
+
+  /** Spell id under a point, if any (used for right-click autocast toggle). */
+  spellButtonAt(p: Vec2): SpellId | null {
+    for (const b of this.buttons) {
+      if (rectContains(b.rect, p) && b.action.type === "spell") return b.action.id;
     }
     return null;
   }
@@ -384,6 +420,20 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "11px 'Segoe UI', sans-serif";
       ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
+      // Autocast indicator: a pulsing arcane border + an "A" badge.
+      if (b.autocast) {
+        const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.006);
+        ctx.strokeStyle = `rgba(120,180,255,${0.5 + pulse * 0.5})`;
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(b.rect.x + 1, b.rect.y + 1, b.rect.w - 2, b.rect.h - 2);
+        ctx.fillStyle = "#4a86e8";
+        ctx.beginPath();
+        ctx.arc(b.rect.x + b.rect.w - 9, b.rect.y + 9, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#eaf2ff";
+        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        ctx.fillText("A", b.rect.x + b.rect.w - 9, b.rect.y + 10);
+      }
     }
   }
 

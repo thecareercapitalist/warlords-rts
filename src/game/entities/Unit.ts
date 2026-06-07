@@ -57,12 +57,21 @@ export class Unit {
   aim: Vec2 | null = null; // last attack target centre, for the lunge direction
   faceLeft = false; // sprite mirrored to face screen-left (purely presentational)
 
+  // Spellcasting (mages). mana regenerates; castCd gates casts; autocast names a
+  // spell to fire automatically while mana lasts.
+  mana = 0;
+  castCd = 0;
+  autocast: string | null = null;
+  slowT = 0; // seconds of "chilled" movement-slow remaining
+  chillFx = 0; // blue frost tint timer (presentation)
+
   constructor(kind: UnitKind, playerId: number, pos: Vec2) {
     this.kind = kind;
     this.def = UNIT_DEFS[kind];
     this.playerId = playerId;
     this.pos = { ...pos };
     this.hp = this.def.maxHp;
+    this.mana = this.def.maxMana ?? 0;
   }
 
   get radius(): number {

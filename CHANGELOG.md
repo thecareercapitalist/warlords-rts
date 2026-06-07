@@ -6,6 +6,21 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.132.0 — Spell system: Fireball, Freeze, mana, autocast _(2026-06-07)_
+- The Mage now has **mana** (120, regen 7/s; shown as a blue bar) and two spells:
+  - **Fireball** (35 mana) — a targeted **area blast** (2-tile radius, 34 dmg) with
+    a fiery explosion FX (expanding flame ring, embers, core flash) + a camera jolt.
+  - **Freeze** (30 mana) — a targeted **frost nova** (2.6-tile radius) that **slows**
+    enemies to half speed for 4s and **tints them blue** (an icy ring + shards).
+- **Casting:** select a mage, **left-click** a spell (or its hotkey) → click a target
+  to cast. **Right-click** a spell button toggles **autocast** — the mage keeps
+  casting it at the nearest enemy in range until out of mana — shown by a pulsing
+  blue border + an "A" badge on the icon.
+- Slowed units move at half speed (movement) and render with a frost tint.
+- Art for the mage + enclave was generated via **Gemini (Composio)** last pass.
+  Verified in-game: fireball damages a cluster + spawns a fire blast; freeze slows
+  and chills four enemies; mana drains and gates on cooldown.
+
 ## v0.131.0 — First spellcaster: Mage + Mage's Enclave _(2026-06-07)_
 - New **Mage** unit — a robed arcane caster that hurls a **glowing blue bolt** (a
   proper magic projectile, not an arrow) with small **splash**; trained at the new

@@ -63,6 +63,14 @@ interface Marker {
   attack?: boolean; // red (attack-move) vs green (plain move)
 }
 
+interface Blast {
+  x: number;
+  y: number;
+  t: number;
+  dur: number;
+  kind: "fire" | "frost";
+}
+
 export class Effects {
   readonly projectiles: Projectile[] = [];
   readonly deaths: DeathFx[] = [];
@@ -71,6 +79,11 @@ export class Effects {
   readonly impacts: Impact[] = [];
   readonly decals: Decal[] = [];
   readonly markers: Marker[] = []; // move-order destination rings
+  readonly blasts: Blast[] = []; // spell impacts (fireball / freeze)
+
+  spawnBlast(x: number, y: number, kind: "fire" | "frost"): void {
+    this.blasts.push({ x, y, t: 0, dur: kind === "fire" ? 0.55 : 0.7, kind });
+  }
 
   spawnMoveMarker(x: number, y: number, attack = false): void {
     this.markers.push({ x, y, t: 0, dur: 0.5, attack });
@@ -134,6 +147,10 @@ export class Effects {
       this.markers[i].t += dt;
       if (this.markers[i].t >= this.markers[i].dur) this.markers.splice(i, 1);
     }
+    for (let i = this.blasts.length - 1; i >= 0; i--) {
+      this.blasts[i].t += dt;
+      if (this.blasts[i].t >= this.blasts[i].dur) this.blasts.splice(i, 1);
+    }
   }
 
   clear(): void {
@@ -144,5 +161,6 @@ export class Effects {
     this.impacts.length = 0;
     this.decals.length = 0;
     this.markers.length = 0;
+    this.blasts.length = 0;
   }
 }

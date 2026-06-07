@@ -24,6 +24,9 @@ export interface UnitDef {
   siegeMult?: number;
   /** Splash radius in tiles: hits enemy units near the impact (siege). */
   splash?: number;
+  /** Spellcaster mana pool + regen (per second); absent = not a caster. */
+  maxMana?: number;
+  manaRegen?: number;
 }
 
 export interface BuildingDef {
@@ -185,6 +188,8 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     canGather: false,
     canBuild: false,
     requiresBuilding: "enclave", // trained at the Mage's Enclave
+    maxMana: 120,
+    manaRegen: 7,
   },
 };
 

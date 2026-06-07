@@ -1115,6 +1115,15 @@ export class Renderer {
       }
       ctx.drawImage(sprite, bx - sw2 / 2, footY - sh2, sw2, sh2); // feet at base ring
       ctx.restore();
+      // Frost tint: a soft blue glow over the figure while chilled.
+      if (u.chillFx > 0) {
+        ctx.globalAlpha = Math.min(1, u.chillFx / 4) * 0.32;
+        ctx.fillStyle = "#7fd0ff";
+        ctx.beginPath();
+        ctx.ellipse(bx, footY - spriteH * 0.5, spriteW * 0.42, spriteH * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
     } else if (u.kind === "catapult") {
       this.drawSiegeEngine(bx, by, r);
     } else {
@@ -1293,11 +1302,23 @@ export class Renderer {
       ctx.fill();
     }
 
-    if (u.hp < u.def.maxHp || u.selected) {
+    if (u.hp < u.def.maxHp || u.selected || (u.def.maxMana && u.mana < u.def.maxMana)) {
       // Size + place the bar relative to the (large) sprite, not the tiny body.
       const hpW = sprite ? gw * 1.7 : r * 2;
       const hpY = sprite ? by + r * 0.55 - spriteH - 6 * z : by - r - 8 * z;
+      const barH = Math.max(5, Math.min(hpW * 0.07, 10));
       this.drawHpBar(bx - hpW / 2, hpY, hpW, u.hp / u.def.maxHp, !isEnemy);
+      // Mana bar (blue) just below the HP bar, for spellcasters.
+      if (u.def.maxMana) {
+        const my = hpY + barH + 2 * z;
+        const mh = Math.max(3, barH * 0.7);
+        ctx.fillStyle = "#15110d";
+        ctx.fillRect(bx - hpW / 2 - 1, my - 1, hpW + 2, mh + 2);
+        ctx.fillStyle = "#1a2440";
+        ctx.fillRect(bx - hpW / 2, my, hpW, mh);
+        ctx.fillStyle = "#4a86e8";
+        ctx.fillRect(bx - hpW / 2, my, hpW * Math.max(0, u.mana / u.def.maxMana), mh);
+      }
     }
 
     // Veterancy rank pips (ember chevrons) above the unit.
@@ -1602,6 +1623,71 @@ export class Renderer {
       ctx.fillStyle = f.color;
       ctx.fillText(f.text, s.x, y);
       ctx.globalAlpha = 1;
+    }
+
+    // Spell blasts: a fiery explosion (Fireball) or an icy nova (Freeze).
+    for (const b of fx.blasts) {
+      const k = b.t / b.dur; // 0..1
+      const c = this.cam.worldToScreen(b.x, b.y);
+      const ry = ISO_HALF_H / ISO_HALF_W; // iso squash for ground rings
+      if (b.kind === "fire") {
+        const R = (2 * TILE) * z * (0.3 + k * 0.95);
+        // Expanding fire ring.
+        const grd = ctx.createRadialGradient(c.x, c.y, R * 0.2, c.x, c.y, R);
+        grd.addColorStop(0, `rgba(255,240,180,${(1 - k) * 0.9})`);
+        grd.addColorStop(0.5, `rgba(255,140,40,${(1 - k) * 0.8})`);
+        grd.addColorStop(1, "rgba(120,30,10,0)");
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Flying embers/debris.
+        ctx.fillStyle = `rgba(255,180,60,${1 - k})`;
+        for (let i = 0; i < 9; i++) {
+          const a = (i / 9) * Math.PI * 2 + b.x;
+          const dr = R * (0.7 + (i % 3) * 0.12);
+          const ex = c.x + Math.cos(a) * dr;
+          const ey = c.y + Math.sin(a) * dr * ry - k * 14 * z;
+          ctx.beginPath();
+          ctx.arc(ex, ey, (2.4 - k * 1.6) * z + 0.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Bright core flash early on.
+        if (k < 0.4) {
+          ctx.fillStyle = `rgba(255,255,235,${(0.4 - k) * 2})`;
+          ctx.beginPath();
+          ctx.ellipse(c.x, c.y, R * 0.5, R * 0.5 * ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        const R = (2.6 * TILE) * z * (0.3 + k * 0.95);
+        // Icy nova ring.
+        ctx.strokeStyle = `rgba(150,220,255,${(1 - k) * 0.9})`;
+        ctx.lineWidth = Math.max(2, 4 * z * (1 - k));
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        const grd = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, R);
+        grd.addColorStop(0, `rgba(180,230,255,${(1 - k) * 0.35})`);
+        grd.addColorStop(1, "rgba(120,180,255,0)");
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Ice shards.
+        ctx.strokeStyle = `rgba(220,245,255,${1 - k})`;
+        ctx.lineWidth = Math.max(1, 1.6 * z);
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2;
+          const dr = R * 0.85;
+          const sx = c.x + Math.cos(a) * dr;
+          const sy = c.y + Math.sin(a) * dr * ry;
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(sx + Math.cos(a) * 6 * z, sy + Math.sin(a) * 6 * z * ry);
+          ctx.stroke();
+        }
+      }
     }
   }
 
