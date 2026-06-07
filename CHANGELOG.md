@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.140.0 — Command buttons get icons _(2026-06-07)_
+- The build/train command buttons now show the actual **building/unit sprite as an
+  icon** (left), with the name + cost beside it and a **hotkey badge** in the
+  corner; spell buttons show a glowing fire/frost **orb**. Disabled buttons dim the
+  icon. Much more readable and gothic than the old text-only buttons.
+
 ## v0.139.0 — Top-bar overhaul + corner posts _(2026-06-07)_
 - **Fixed the top-bar overlap:** transient messages now render as a centered banner
   *below* the bars instead of colliding with the idle indicators.

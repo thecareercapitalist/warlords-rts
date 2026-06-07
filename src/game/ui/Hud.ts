@@ -8,6 +8,7 @@ import { MAP_W, MAP_H, TILE, COLORS } from "../constants.ts";
 import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { clamp, type Rect, rectContains } from "../util/math.ts";
 import { SPELL_LIST, type SpellId } from "../systems/spells.ts";
+import type { Assets } from "../render/assets.ts";
 
 export type HudAction =
   | { type: "build"; kind: BuildingKind }
@@ -39,6 +40,8 @@ export class Hud {
   private idleWorkerRect: Rect | null = null;
   private idleBuildingRect: Rect | null = null;
   private groupChips: { n: number; rect: Rect }[] = [];
+  /** Set by Game once loaded — lets command buttons show sprite icons. */
+  assets: Assets | null = null;
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {}
 
@@ -512,6 +515,17 @@ export class Hud {
     }
   }
 
+  /** Fit a sprite into a box (preserve aspect, bottom-anchored). */
+  private drawIcon(sprite: CanvasImageSource, x: number, y: number, w: number, h: number): void {
+    const ctx = this.ctx;
+    const sw = (sprite as HTMLCanvasElement).width || 1;
+    const sh = (sprite as HTMLCanvasElement).height || 1;
+    const s = Math.min(w / sw, h / sh);
+    const dw = sw * s;
+    const dh = sh * s;
+    ctx.drawImage(sprite, x + (w - dw) / 2, y + (h - dh), dw, dh);
+  }
+
   private renderButtons(): void {
     const ctx = this.ctx;
     for (const b of this.buttons) {
@@ -533,28 +547,79 @@ export class Hud {
       ctx.fillRect(x, y + h - 2, w, 2);
       ctx.strokeStyle = b.enabled ? COLORS.uiEmber : COLORS.uiPanelEdge;
       ctx.lineWidth = 1;
-      ctx.strokeRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
-      ctx.fillStyle = b.enabled ? COLORS.uiText : COLORS.uiTextDim;
-      ctx.font = "13px 'Segoe UI', sans-serif";
+      ctx.strokeRect(x, y, w, h);
+
+      // Icon: building/unit sprite, or a colored spell orb. Sits on the left.
+      const a = b.action;
+      let icon: CanvasImageSource | undefined;
+      if (a.type === "build") icon = this.assets?.buildingSprite(a.kind);
+      else if (a.type === "train") icon = this.assets?.unitSprite(a.kind);
+      const iconBox = 30;
+      ctx.save();
+      if (!b.enabled) ctx.globalAlpha = 0.45;
+      if (icon) {
+        this.drawIcon(icon, x + 3, y + 3, iconBox, h - 6);
+      } else if (a.type === "spell") {
+        const fire = a.id === "fireball";
+        const cx = x + 3 + iconBox / 2;
+        const cy = y + h / 2;
+        const grd = ctx.createRadialGradient(cx, cy, 1, cx, cy, 12);
+        grd.addColorStop(0, fire ? "#ffe7b0" : "#dff0ff");
+        grd.addColorStop(0.5, fire ? "#ff8a2e" : "#5aa0ff");
+        grd.addColorStop(1, fire ? "rgba(150,40,10,0)" : "rgba(60,90,220,0)");
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      const hasIcon = !!icon || a.type === "spell";
+      if (hasIcon) {
+        // Name + cost to the right of the icon.
+        const tx = x + iconBox + 7;
+        ctx.fillStyle = b.enabled ? COLORS.uiText : COLORS.uiTextDim;
+        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(b.label.length > 9 ? b.label.slice(0, 8) + "…" : b.label, tx, y + h / 2 - 7);
+        ctx.fillStyle = COLORS.uiTextDim;
+        ctx.font = "10px 'Segoe UI', sans-serif";
+        ctx.fillText(b.sub, tx, y + h / 2 + 8);
+      } else {
+        // No icon (Stop / Cancel): centered label + sub.
+        ctx.fillStyle = b.enabled ? COLORS.uiText : COLORS.uiTextDim;
+        ctx.font = "13px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(b.label, x + w / 2, y + h / 2 - 6);
+        ctx.fillStyle = COLORS.uiTextDim;
+        ctx.font = "11px 'Segoe UI', sans-serif";
+        ctx.fillText(b.sub, x + w / 2, y + h / 2 + 9);
+      }
+
+      // Hotkey badge (top-left).
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillRect(x + 1, y + 1, 14, 13);
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.font = "bold 10px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(b.label, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 - 6);
-      ctx.fillStyle = COLORS.uiTextDim;
-      ctx.font = "11px 'Segoe UI', sans-serif";
-      ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
+      ctx.fillText(b.hotkey, x + 8, y + 8);
+
       // Autocast indicator: a pulsing arcane border + an "A" badge.
       if (b.autocast) {
         const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.006);
         ctx.strokeStyle = `rgba(120,180,255,${0.5 + pulse * 0.5})`;
         ctx.lineWidth = 2.5;
-        ctx.strokeRect(b.rect.x + 1, b.rect.y + 1, b.rect.w - 2, b.rect.h - 2);
+        ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
         ctx.fillStyle = "#4a86e8";
         ctx.beginPath();
-        ctx.arc(b.rect.x + b.rect.w - 9, b.rect.y + 9, 7, 0, Math.PI * 2);
+        ctx.arc(x + w - 9, y + 9, 7, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#eaf2ff";
         ctx.font = "bold 11px 'Segoe UI', sans-serif";
-        ctx.fillText("A", b.rect.x + b.rect.w - 9, b.rect.y + 10);
+        ctx.fillText("A", x + w - 9, y + 9);
       }
     }
   }

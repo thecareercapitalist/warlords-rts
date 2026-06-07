@@ -107,6 +107,7 @@ export class Game {
 
   async start(): Promise<void> {
     await this.assets.loadAll();
+    this.hud.assets = this.assets; // command buttons can now show sprite icons
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "none";
     this.lastTime = performance.now();
