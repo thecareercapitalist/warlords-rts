@@ -70,7 +70,8 @@ export class Game {
   private gameOver: "won" | "lost" | null = null;
   private elapsed = 0; // seconds of active play
   private shake = 0; // screen-shake magnitude (px), decays each frame
-  private kills = 0; // enemy units/buildings destroyed by the human
+  private kills = 0; // enemy units slain by the human
+  private razed = 0; // enemy buildings destroyed by the human
   private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
@@ -116,6 +117,7 @@ export class Game {
     this.gameOver = null;
     this.elapsed = 0;
     this.kills = 0;
+    this.razed = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.paused = false;
@@ -246,7 +248,7 @@ export class Game {
         this.effects.spawnCollapse(e.x, e.y, e.size);
         this.sfx.collapse();
         this.shake = Math.max(this.shake, 7); // jolt the camera on a collapse
-        if (e.by === this.humanId) this.kills++;
+        if (e.by === this.humanId) this.razed++;
       } else if (e.type === "attack") this.sfx.attack(e.ranged, e.heavy);
       else if (e.type === "build") this.sfx.build();
       else if (e.type === "trained" && e.playerId === this.humanId) this.sfx.ready();
@@ -692,6 +694,7 @@ export class Game {
     this.gameOver = null;
     this.elapsed = 0;
     this.kills = 0;
+    this.razed = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.world.recomputeSupply();
@@ -960,6 +963,6 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb);
-    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills);
+    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }

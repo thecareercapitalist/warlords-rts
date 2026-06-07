@@ -450,7 +450,7 @@ export class Hud {
       .join(" · ");
   }
 
-  renderEndScreen(cam: Camera, won: boolean, elapsed = 0, kills = 0): void {
+  renderEndScreen(cam: Camera, won: boolean, elapsed = 0, kills = 0, razed = 0): void {
     const ctx = this.ctx;
     ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
@@ -464,7 +464,7 @@ export class Hud {
     ctx.fillStyle = COLORS.uiEmber;
     ctx.font = "18px 'Segoe UI', sans-serif";
     ctx.fillText(
-      `Time: ${mins}m ${secs.toString().padStart(2, "0")}s    Enemies slain: ${kills}`,
+      `Time: ${mins}m ${secs.toString().padStart(2, "0")}s    Slain: ${kills}    Razed: ${razed}`,
       cam.viewW / 2,
       cam.viewH / 2 + 20,
     );

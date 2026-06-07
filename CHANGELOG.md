@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.93.0 — Buildings-razed stat _(2026-06-07)_
+- The end screen now reports **Slain** (enemy units) and **Razed** (enemy
+  buildings) as separate tallies, where before razings were lumped into the kill
+  count. Verified headlessly: a collapse event bumps `razed`, a death bumps
+  `kills`, independently.
+
 ## v0.92.0 — Stance in selection panel _(2026-06-07)_
 - A single selected unit's panel now appends its **stance** ("Holding" /
   "Patrolling") to the state line, so orders are legible without watching the
