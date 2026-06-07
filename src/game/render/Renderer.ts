@@ -3,7 +3,7 @@ import type { Camera } from "../Camera.ts";
 import type { Fog } from "../systems/fog.ts";
 import { FOG_HIDDEN, FOG_VISIBLE } from "../systems/fog.ts";
 import type { BuildingKind, Vec2 } from "../types.ts";
-import { COLORS, TILE } from "../constants.ts";
+import { COLORS, TILE, FOREST_TILE_WOOD, GOLDMINE_AMOUNT } from "../constants.ts";
 import { BUILDING_DEFS, UNIT_DEFS } from "../entities/defs.ts";
 import { veterancyRank } from "../entities/Unit.ts";
 import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
@@ -119,6 +119,20 @@ export class Renderer {
           this.diamondPath(s.x, s.y);
           ctx.fillStyle = this.terrainColor(t.terrain, tx, ty);
           ctx.fill();
+        }
+
+        // Depletion: darken a resource tile as it's harvested toward empty.
+        if (t.terrain === "forest" || t.terrain === "goldmine") {
+          const max = t.terrain === "forest" ? FOREST_TILE_WOOD : GOLDMINE_AMOUNT;
+          const frac = Math.max(0, Math.min(1, t.resource / max));
+          if (frac < 0.999) {
+            ctx.save();
+            this.diamondPath(s.x, s.y);
+            ctx.clip();
+            ctx.fillStyle = `rgba(0,0,0,${(1 - frac) * 0.55})`;
+            ctx.fillRect(s.x - hw, s.y - hh, ISO_TILE_W * z, ISO_TILE_H * z);
+            ctx.restore();
+          }
         }
 
         if (t.terrain === "goldmine") {

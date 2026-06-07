@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.38.0 — Resource depletion visual _(2026-06-07)_
+- Forests and goldmines now visibly **darken as they're harvested toward empty**
+  (overlay ∝ 1 − resource/max), so you can spot dwindling nodes at a glance and
+  plan expansions. Verified headlessly: a near-empty forest renders darker (lum
+  29) than a full one (56).
+
 ## v0.37.0 — Banner flutter _(2026-06-07)_
 - Building team pennants now **flutter in the wind** (phase-offset per building),
   bringing the banners — a core North-Star ownership cue — to life. Verified
