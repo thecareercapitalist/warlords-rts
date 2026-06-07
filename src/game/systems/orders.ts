@@ -69,6 +69,7 @@ export function orderMove(world: World, u: Unit, pixel: Vec2): void {
   const t = toTile(pixel.x, pixel.y);
   u.attackTarget = null;
   u.attackMove = false;
+  u.holdGround = false; // repositioning cancels the hold stance
   u.resourceTile = null;
   u.buildTarget = null;
   // Any carried resources are kept; the worker is just relocating.
@@ -116,6 +117,7 @@ export function orderAttackMove(world: World, u: Unit, pixel: Vec2): void {
   const t = toTile(pixel.x, pixel.y);
   u.attackTarget = null;
   u.attackMove = true;
+  u.holdGround = false; // attack-move overrides the hold stance
   u.attackMoveDest = { ...pixel };
   u.resourceTile = null;
   u.buildTarget = null;

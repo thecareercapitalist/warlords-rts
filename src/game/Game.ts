@@ -346,6 +346,15 @@ export class Game {
         this.attackMoveMode = true;
       } else if (key === this.kb.get("patrol") && this.selUnits.some((u) => u.def.damage > 0)) {
         this.patrolMode = true;
+      } else if (key === this.kb.get("holdGround") && this.selUnits.some((u) => u.def.damage > 0)) {
+        const fighters = this.selUnits.filter((u) => u.def.damage > 0 && u.playerId === this.humanId);
+        const turnOn = fighters.some((u) => !u.holdGround); // toggle as a group
+        for (const u of fighters) {
+          u.holdGround = turnOn;
+          if (turnOn) u.attackTarget = null; // stop any current chase immediately
+        }
+        this.setMessage(turnOn ? "Holding position" : "Hold released");
+        this.sfx.click();
       } else if (key === this.kb.get("stop") && this.selUnits.length > 0) {
         for (const u of this.selUnits) u.stop();
       } else if (key === this.kb.get("idleWorker")) {

@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.90.0 — Hold-position stance _(2026-06-07)_
+- New **Hold Position** stance (`Z` to toggle): held units fire at anything in
+  range but **never chase or advance** — keep archers and Catapults safely back,
+  hold a defensive line, stop your siege from wandering into melee. Cleared by any
+  move/attack-move order; AI behavior untouched (default off). Verified headlessly:
+  a held archer advances 0px at an out-of-range foe while a free one closes in.
+
 ## v0.89.0 — Town Hall hearth glow _(2026-06-07)_
 - The completed **Town Hall now glows with a flickering hearth window** — home-fire
   warmth at the heart of the base, a selective ember accent against the gothic

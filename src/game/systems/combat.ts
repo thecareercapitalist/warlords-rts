@@ -88,7 +88,11 @@ export function updateCombat(world: World, dt: number): void {
       if (u.state === "attackMoving" || u.state === "idle") {
         const aggro = u.state === "attackMoving" ? u.def.visionRadius + 1 : u.def.visionRadius;
         const tgt = acquireTarget(world, u, aggro);
-        if (tgt) u.attackTarget = tgt;
+        // Hold-ground units only engage foes already within firing range — they
+        // never chase. Everyone else acquires normally.
+        if (tgt && !(u.holdGround && distToTarget(u, tgt) > effectiveRangePx(u, tgt))) {
+          u.attackTarget = tgt;
+        }
       }
     }
 
@@ -195,6 +199,12 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
         resumeAfterKill(world, u);
       }
     }
+  } else if (u.holdGround) {
+    // Stance: never advance — drop the target and stay put until one comes close.
+    u.attackTarget = null;
+    u.state = "idle";
+    u.path = [];
+    u.finalTarget = null;
   } else {
     // Out of range: chase, repathing periodically. For buildings, head to the
     // nearest open adjacent tile so attackers spread around the footprint.
