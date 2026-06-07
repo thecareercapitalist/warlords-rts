@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.64.0 — Append to control group _(2026-06-07)_
+- **Shift + 1…9** now adds the current selection to an existing control group
+  (deduped), instead of replacing it — standard RTS muscle memory alongside
+  Ctrl-assign. Verified headlessly: a 2-unit group grows to 3 on Shift-add and
+  stays 3 when the same unit is re-added.
+
 ## v0.63.0 — Damage smoke _(2026-06-07)_
 - Buildings below 35% HP now belch a **rising smoke plume with an ember fleck**,
   so a base under siege visibly burns — clear damage feedback and grimdark decay.

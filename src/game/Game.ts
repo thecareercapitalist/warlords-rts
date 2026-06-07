@@ -328,6 +328,7 @@ export class Game {
       if (/^[1-9]$/.test(key)) {
         const n = Number(key);
         if (this.input.ctrl) this.assignControlGroup(n);
+        else if (this.input.shift) this.addToControlGroup(n);
         else this.recallControlGroup(n);
         continue;
       }
@@ -737,6 +738,16 @@ export class Game {
     const units = this.selUnits.filter((u) => !u.dead && u.playerId === this.humanId);
     if (units.length === 0) return;
     this.controlGroups.set(n, [...units]);
+    this.sfx.click();
+  }
+
+  /** Shift+digit: add the current selection to an existing group (dedup). */
+  private addToControlGroup(n: number): void {
+    const sel = this.selUnits.filter((u) => !u.dead && u.playerId === this.humanId);
+    if (sel.length === 0) return;
+    const grp = (this.controlGroups.get(n) ?? []).filter((u) => !u.dead);
+    for (const u of sel) if (!grp.includes(u)) grp.push(u);
+    this.controlGroups.set(n, grp);
     this.sfx.click();
   }
 
