@@ -367,7 +367,11 @@ export class Renderer {
       ctx.restore();
     }
 
-    if (b.kind === "tower" && b.state === "complete") {
+    const bSprite = b.state === "complete" ? this.assets.buildingSprite(b.kind) : undefined;
+    if (bSprite) {
+      // Prefer a generated isometric building sprite (Pixelcut).
+      this.drawBuildingSprite(bSprite, corners, center);
+    } else if (b.kind === "tower" && b.state === "complete") {
       this.drawTurret(center, color);
     } else if (b.kind === "forge" && b.state === "complete") {
       this.drawForge(center);
@@ -504,6 +508,21 @@ export class Renderer {
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
+  }
+
+  /** Blit a generated building sprite, scaled to the footprint and standing on it. */
+  private drawBuildingSprite(sprite: CanvasImageSource, corners: Vec2[], center: Vec2): void {
+    const ctx = this.ctx;
+    const xs = corners.map((c) => c.x);
+    const ys = corners.map((c) => c.y);
+    const fpW = Math.max(...xs) - Math.min(...xs);
+    const cw = (sprite as HTMLCanvasElement).width;
+    const ch = (sprite as HTMLCanvasElement).height;
+    const scale = (fpW / cw) * 1.18; // buildings overhang their footprint a little
+    const dw = cw * scale;
+    const dh = ch * scale;
+    const bottomY = Math.max(...ys); // footprint front (south) vertex
+    ctx.drawImage(sprite, center.x - dw / 2, bottomY - dh + (Math.max(...ys) - center.y) * 0.15, dw, dh);
   }
 
   /** A small wheeled wooden siege frame (the catapult's chassis). */

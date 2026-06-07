@@ -17,18 +17,37 @@ const SHEET_URLS: Record<SheetKey, string> = {
   roofs: "/buildings-roofs.png",
 };
 
-// Generated (Pixelcut) unit sheet: a 2×2 grid on flat magenta, sliced into four
-// trimmed sprites. Cell order matches the generation prompt.
+// Generated (Pixelcut) sheets: grids on flat magenta, sliced into trimmed sprites.
+// Cell order matches the generation prompt (row-major).
 const UNIT_SHEET_URL = "/gen_units.png";
 const UNIT_SHEET_ORDER = ["peon", "footman", "archer", "knight"];
+const BUILDING_SHEET_URL = "/gen_buildings.png";
+const BUILDING_SHEET_ORDER = [
+  "townhall", "barracks", "farm",
+  "sawmill", "temple", "forge",
+  "tower", "catapult", "wall",
+];
+// The generator baked a text label under each building; trim the bottom band of
+// each cell before measuring the sprite bbox so labels are excluded.
+const BUILDING_LABEL_TRIM = 0.15;
 
 /** True for the magenta/pink chroma-key backdrop (incl. tinted soft shadows). */
 function isMagenta(r: number, g: number, b: number): boolean {
   return r - g > 40 && b - g > 25;
 }
 
-/** Magenta-key a generated sheet and slice its 2×2 grid into trimmed sprites. */
-function sliceUnitSheet(img: HTMLImageElement): Map<string, CanvasImageSource> {
+/**
+ * Magenta-key a generated sheet and slice its `cols`×`rows` grid into trimmed,
+ * transparent sprites named by `order` (row-major). `trimBottom` drops a fraction
+ * of each cell's bottom before measuring, to exclude baked-in text labels.
+ */
+function sliceGrid(
+  img: HTMLImageElement,
+  cols: number,
+  rows: number,
+  order: string[],
+  trimBottom = 0,
+): Map<string, CanvasImageSource> {
   const out = new Map<string, CanvasImageSource>();
   const W = img.width;
   const H = img.height;
@@ -49,14 +68,15 @@ function sliceUnitSheet(img: HTMLImageElement): Map<string, CanvasImageSource> {
     if (isMagenta(p[i], p[i + 1], p[i + 2])) p[i + 3] = 0;
   }
   fx.putImageData(data, 0, 0);
-  const hw = Math.floor(W / 2);
-  const hh = Math.floor(H / 2);
-  const quads: [number, number][] = [[0, 0], [hw, 0], [0, hh], [hw, hh]];
-  UNIT_SHEET_ORDER.forEach((kind, idx) => {
-    const [qx, qy] = quads[idx];
+  const cw = Math.floor(W / cols);
+  const ch = Math.floor(H / rows);
+  order.forEach((name, idx) => {
+    const qx = (idx % cols) * cw;
+    const qy = Math.floor(idx / cols) * ch;
+    const yEnd = qy + Math.floor(ch * (1 - trimBottom));
     let minx = 1e9, miny = 1e9, maxx = -1, maxy = -1;
-    for (let y = qy; y < qy + hh; y++) {
-      for (let x = qx; x < qx + hw; x++) {
+    for (let y = qy; y < yEnd; y++) {
+      for (let x = qx; x < qx + cw; x++) {
         if (p[(y * W + x) * 4 + 3] > 40) {
           if (x < minx) minx = x;
           if (x > maxx) maxx = x;
@@ -72,7 +92,7 @@ function sliceUnitSheet(img: HTMLImageElement): Map<string, CanvasImageSource> {
     c.width = w;
     c.height = h;
     c.getContext("2d")?.drawImage(full, minx, miny, w, h, 0, 0, w, h);
-    out.set(kind, c);
+    out.set(name, c);
   });
   return out;
 }
@@ -109,6 +129,7 @@ export class Assets {
   private images = new Map<TileKey, HTMLImageElement>();
   private sheets = new Map<SheetKey, CanvasImageSource>();
   private unitSprites = new Map<string, CanvasImageSource>();
+  private buildingSprites = new Map<string, CanvasImageSource>();
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -123,6 +144,11 @@ export class Assets {
   /** A trimmed, transparent generated unit sprite for a kind (or undefined). */
   unitSprite(kind: string): CanvasImageSource | undefined {
     return this.unitSprites.get(kind);
+  }
+
+  /** A trimmed, transparent generated building sprite for a kind (or undefined). */
+  buildingSprite(kind: string): CanvasImageSource | undefined {
+    return this.buildingSprites.get(kind);
   }
 
   async loadAll(): Promise<void> {
@@ -144,9 +170,21 @@ export class Assets {
     for (const [key, url] of Object.entries(SHEET_URLS) as [SheetKey, string][]) {
       jobs.push(load(inlined?.[key] ?? url).then((img) => { if (img) this.sheets.set(key, chromaKey(img)); }));
     }
+    const inl = inlined as Record<string, string> | undefined;
     jobs.push(
-      load((inlined as Record<string, string> | undefined)?.units ?? UNIT_SHEET_URL).then((img) => {
-        if (img) this.unitSprites = sliceUnitSheet(img);
+      load(inl?.units ?? UNIT_SHEET_URL).then((img) => {
+        if (!img) return;
+        for (const [k, v] of sliceGrid(img, 2, 2, UNIT_SHEET_ORDER)) this.unitSprites.set(k, v);
+      }),
+    );
+    jobs.push(
+      load(inl?.buildings ?? BUILDING_SHEET_URL).then((img) => {
+        if (!img) return;
+        const sliced = sliceGrid(img, 3, 3, BUILDING_SHEET_ORDER, BUILDING_LABEL_TRIM);
+        for (const [name, spr] of sliced) {
+          if (name === "catapult") this.unitSprites.set(name, spr); // mobile unit
+          else this.buildingSprites.set(name, spr);
+        }
       }),
     );
     await Promise.all(jobs);

@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.118.0 — Generated building sprites (Pixelcut) _(2026-06-07)_
+- All eight buildings (Town Hall, Barracks, Farm, Sawmill, Temple, Forge, Guard
+  Tower, Wall) now render as **generated gothic isometric sprites** from a single
+  3×3 sheet, matching the unit art. The loader magenta-keys and slices each cell as
+  a trimmed sprite, dropping the generator's baked-in text label via a bottom-band
+  trim; the catapult cell routes to the unit sprites. `drawBuildingSprite` scales
+  each onto its footprint with the team banner kept for ownership. CC0 roofs +
+  code-art remain the fallback. Verified in-game (`screenshots/base_sprited2.png`):
+  all 8 building sprites + the catapult load and render.
+
 ## v0.117.0 — Generated unit sprites (Pixelcut) _(2026-06-07)_
 - Peon, Footman, Archer, and Knight now render as **real generated gothic sprites**
   (Pixelcut / Nano-Banana, one 2×2 sheet). The loader magenta-keys the flat
