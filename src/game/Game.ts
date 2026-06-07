@@ -29,7 +29,7 @@ import {
   orderBuild,
   nearestWalkable,
 } from "./systems/orders.ts";
-import { entityAt, unitsInRect } from "./systems/selection.ts";
+import { entityAt, unitAt, unitsInRect } from "./systems/selection.ts";
 import { saveGame, loadGame } from "./systems/persistence.ts";
 
 export class Game {
@@ -300,6 +300,10 @@ export class Game {
     for (const click of this.input.leftClicks) {
       this.onLeftClick(click);
     }
+    // Double-clicks: select all visible units of the clicked unit's type.
+    for (const click of this.input.doubleClicks) {
+      this.onDoubleClick(click);
+    }
 
     // Drag-select release.
     const drag = this.input.consumeDragRelease();
@@ -343,6 +347,25 @@ export class Game {
     const ent = entityAt(this.world, world);
     if (!this.input.shift) this.clearSelection();
     if (ent) this.addToSelection(ent);
+  }
+
+  private onDoubleClick(p: Vec2): void {
+    if (this.hud.isOverUi(p)) return;
+    const world = this.cam.screenToWorld(p.x, p.y);
+    const u = unitAt(this.world, world);
+    if (!u || u.playerId !== this.humanId) return;
+    // Select every friendly unit of the same kind currently in view.
+    const r = this.cam.visibleTileRange();
+    this.clearSelection();
+    for (const o of this.world.units) {
+      if (o.dead || o.playerId !== this.humanId || o.kind !== u.kind) continue;
+      const t = o.tile();
+      if (t.x < r.x0 || t.x > r.x1 || t.y < r.y0 || t.y > r.y1) continue;
+      o.selected = true;
+      this.selUnits.push(o);
+    }
+    this.selBuildings = [];
+    this.rebuildHudButtons();
   }
 
   private onBoxSelect(a: Vec2, b: Vec2): void {

@@ -21,7 +21,9 @@ export class Input {
   // One-shot event queues, drained by the Game each frame.
   leftClicks: Vec2[] = [];
   rightClicks: Vec2[] = [];
+  doubleClicks: Vec2[] = [];
   pressedKeys: string[] = [];
+  private lastLeftUp: { t: number; x: number; y: number } | null = null;
   /** Accumulated mouse-wheel delta since last frame (negative = scroll up). */
   wheel = 0;
 
@@ -84,6 +86,15 @@ export class Input {
       const p = { x: e.clientX - r.left, y: e.clientY - r.top };
       if (e.button === 0) {
         if (!this.drag.active && this.leftDownAt) {
+          const now = performance.now();
+          if (
+            this.lastLeftUp &&
+            now - this.lastLeftUp.t < 350 &&
+            Math.hypot(p.x - this.lastLeftUp.x, p.y - this.lastLeftUp.y) < 8
+          ) {
+            this.doubleClicks.push({ ...p });
+          }
+          this.lastLeftUp = { t: now, x: p.x, y: p.y };
           this.leftClicks.push({ ...p });
         }
         // If it was a drag, Game reads drag box before we clear it.
@@ -124,6 +135,7 @@ export class Input {
   clearOneShots(): void {
     this.leftClicks.length = 0;
     this.rightClicks.length = 0;
+    this.doubleClicks.length = 0;
     this.pressedKeys.length = 0;
     this.wheel = 0;
   }

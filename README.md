@@ -39,6 +39,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Select a unit/building | Left-click |
 | Select multiple units | Left-drag a box |
 | Add to selection | Shift + click |
+| Select all of a type in view | Double-click a unit |
 | Move / gather / attack | Right-click (context-sensitive) |
 | Attack-move | Press `A`, then left-click a location |
 | Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `H` Town Hall, then click to place |

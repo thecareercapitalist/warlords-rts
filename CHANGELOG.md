@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.15.0 — Double-click select-all-of-type _(2026-06-07)_
+- Double-click a unit to select every friendly unit of that same kind currently
+  in view — the standard RTS shortcut for grabbing your whole footman line or
+  worker pool fast. Verified headlessly (selects the in-view peons, excludes the
+  footman and off-screen units).
+
 ## v0.14.0 — "Under attack" alert _(2026-06-07)_
 - When your units or buildings take damage you now get a throttled warning — an
   on-screen "⚔ Your forces are under attack!" message plus an ominous low
