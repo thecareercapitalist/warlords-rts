@@ -670,13 +670,30 @@ export class Renderer {
       ctx.arc(bx + r * 0.75, by, r * 0.75, -Math.PI * 0.45, Math.PI * 0.45);
       ctx.stroke();
     } else if (u.kind === "knight") {
-      ctx.fillStyle = "#e8c060"; // gold crest spike on top
-      ctx.beginPath();
-      ctx.moveTo(bx, by - r * 1.55);
-      ctx.lineTo(bx - 2.4 * z, by - r * 0.85);
-      ctx.lineTo(bx + 2.4 * z, by - r * 0.85);
-      ctx.closePath();
-      ctx.fill();
+      if (isEnemy) {
+        // Enemy champion: a pair of dark, curved horns instead of a gold crest.
+        ctx.fillStyle = "#332e29";
+        ctx.beginPath();
+        ctx.moveTo(bx - r * 0.5, by - r * 0.8);
+        ctx.lineTo(bx - r * 0.95, by - r * 1.5);
+        ctx.lineTo(bx - r * 0.18, by - r * 0.95);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(bx + r * 0.5, by - r * 0.8);
+        ctx.lineTo(bx + r * 0.95, by - r * 1.5);
+        ctx.lineTo(bx + r * 0.18, by - r * 0.95);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "#e8c060"; // human gold crest spike on top
+        ctx.beginPath();
+        ctx.moveTo(bx, by - r * 1.55);
+        ctx.lineTo(bx - 2.4 * z, by - r * 0.85);
+        ctx.lineTo(bx + 2.4 * z, by - r * 0.85);
+        ctx.closePath();
+        ctx.fill();
+      }
     } else if (u.kind === "footman" || u.kind === "grunt") {
       if (isEnemy) {
         // Enemy faction wields a broad, dark orcish cleaver (vs human steel).

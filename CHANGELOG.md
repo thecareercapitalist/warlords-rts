@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.95.0 — Enemy knight horns _(2026-06-07)_
+- Extending the faction look: **enemy knights wear dark curved horns** in place of
+  the human gold crest, so the enemy army reads as its own host across melee and
+  champions. Verified headlessly: a friendly knight's crest region shows 122 gold
+  px, the enemy 0 (horns), region differs 522 px.
+
 ## v0.94.0 — Enemy faction cleaver _(2026-06-07)_
 - A first step toward faction identity: **enemy melee carry a broad, dark orcish
   cleaver** while your footmen wield a steel blade — so the two armies read apart
