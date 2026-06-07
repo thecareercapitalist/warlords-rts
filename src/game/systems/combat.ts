@@ -170,7 +170,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
-      const raw = u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId);
+      const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;
+      const raw = (u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId)) * siege;
       t.hp -= Math.max(1, raw - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
       u.attackCooldown = u.def.attackCooldown;

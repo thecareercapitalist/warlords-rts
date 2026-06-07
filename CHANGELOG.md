@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.76.0 — Catapult siege unit _(2026-06-07)_
+- New **Catapult** unit: a slow, long-range (6 tiles) siege engine that's modest
+  vs troops but does **4× damage to buildings**, unlocked at the Barracks once you
+  own a **Forge**. Gives the human a real way to crack a fortified, tower-walled
+  base. Drawn with a wooden throwing-arm silhouette. Verified headlessly: it hits
+  a building for 48 vs a unit for 12 (4×), and its train button is gated
+  "needs Forge" until a Forge stands. (AI doesn't field catapults yet — next.)
+
 ## v0.75.0 — Idle-production indicator _(2026-06-07)_
 - The resource bar now shows a **"⚑ N idle bldg"** count when complete production
   buildings (Town Hall, Barracks) sit with an empty queue — a macro nudge so you

@@ -20,6 +20,8 @@ export interface UnitDef {
   canBuild: boolean;
   /** Tech gate: a completed building of this kind is required to train. */
   requiresBuilding?: BuildingKind;
+  /** Damage multiplier vs buildings (siege weapons); 1 if omitted. */
+  siegeMult?: number;
 }
 
 export interface BuildingDef {
@@ -139,6 +141,26 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     canBuild: false,
     requiresBuilding: "temple",
   },
+  catapult: {
+    kind: "catapult",
+    label: "Catapult",
+    glyph: "C",
+    maxHp: 70,
+    speed: 55, // slow and ponderous
+    radius: 12,
+    damage: 12, // modest vs units...
+    siegeMult: 4, // ...devastating vs buildings
+    attackRange: 6, // long siege reach
+    attackCooldown: 2.4,
+    visionRadius: 5,
+    supply: 3,
+    costGold: 160,
+    costWood: 60,
+    buildTime: 32,
+    canGather: false,
+    canBuild: false,
+    requiresBuilding: "forge", // a Forge unlocks siege engineering
+  },
 };
 
 export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
@@ -168,8 +190,8 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     buildTime: 40,
     providesSupply: 0,
     accepts: [],
-    // Knight is gated behind a Temple (see UnitDef.requiresBuilding).
-    produces: ["footman", "archer", "knight"],
+    // Knight gated behind a Temple, Catapult behind a Forge (UnitDef.requiresBuilding).
+    produces: ["footman", "archer", "knight", "catapult"],
   },
   farm: {
     kind: "farm",

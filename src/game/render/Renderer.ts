@@ -664,6 +664,17 @@ export class Renderer {
       ctx.stroke();
       ctx.fillStyle = "#8a8f96"; // small steel head
       ctx.fillRect(bx + r * 0.15, by - r * 0.9, 3 * z, 2.4 * z);
+    } else if (u.kind === "catapult") {
+      ctx.strokeStyle = "#5a3d22"; // heavy wooden throwing arm
+      ctx.lineWidth = Math.max(1.5, 2.2 * z);
+      ctx.beginPath();
+      ctx.moveTo(bx - r * 0.7, by + r * 0.5);
+      ctx.lineTo(bx + r * 0.7, by - r * 0.8);
+      ctx.stroke();
+      ctx.fillStyle = "#8a8f96"; // loaded stone
+      ctx.beginPath();
+      ctx.arc(bx + r * 0.7, by - r * 0.85, 3 * z, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     if (u.hitFlash > 0) {

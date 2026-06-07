@@ -22,7 +22,7 @@ export type UnitState =
 
 export type BuildingState = "site" | "constructing" | "complete";
 
-export type UnitKind = "peon" | "footman" | "grunt" | "archer" | "knight";
+export type UnitKind = "peon" | "footman" | "grunt" | "archer" | "knight" | "catapult";
 
 export type BuildingKind =
   | "townhall"

@@ -77,7 +77,9 @@ workers left to rebuild.
   slowly **heals friendly units standing nearby**.
 - **Guard Tower** is a cheap defensive building that auto-fires at enemies in
   range — fortify your chokepoints and resource lines.
-- **Forge** is a tech building — while it stands, all your units gain +2 attack.
+- **Forge** is a tech building — while it stands, all your units gain +2 attack,
+  and it unlocks the **Catapult** (slow siege unit; 4× damage to buildings) at
+  the Barracks.
 - The **enemy AI** grows its economy, builds a barracks, and sends attack waves
   once its army is big enough.
 - **Veterancy:** units gain rank from kills (ember chevrons) — rank 1 at 2 kills
