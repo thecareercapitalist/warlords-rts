@@ -46,6 +46,14 @@ export class Game {
   private readonly kb: Keybindings;
   private readonly pauseMenu = new PauseMenu();
   private paused = false;
+  // Edge-of-screen camera scrolling, off by default (a setting in the pause menu).
+  private edgeScroll = ((): boolean => {
+    try {
+      return localStorage.getItem("warlords.edgeScroll") === "1";
+    } catch {
+      return false;
+    }
+  })();
 
   private world!: World;
   private fog!: Fog;
@@ -324,7 +332,7 @@ export class Game {
     // Edge scroll only once the pointer has actually moved into the window, so
     // the default (0,0) position doesn't drag the camera into the corner.
     const m = this.input.mouse;
-    if (this.input.moved) {
+    if (this.edgeScroll && this.input.moved) {
       if (m.x < EDGE_SCROLL_MARGIN) cdx -= 1;
       if (m.x > this.cam.viewW - EDGE_SCROLL_MARGIN) cdx += 1;
       if (m.y < EDGE_SCROLL_MARGIN) cdy -= 1;
@@ -626,13 +634,19 @@ export class Game {
       u.patrolB = null;
     }
 
-    // Drop a quick destination ring so the move order reads clearly.
-    if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y);
+    // Combat units treat a right-click on open ground as attack-move (engage
+    // anything en route); workers just walk. Red marker when aggressive.
+    const isFighter = (u: Unit): boolean => u.def.damage > 0 && !u.def.canGather;
+    const aggressive = movers.some(isFighter);
+    if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y, aggressive);
 
     // Plain group move → spread into a loose grid so units don't pile on one tile.
     if (plainMove && movers.length > 1) {
       const pts = this.formationPoints(worldPt, movers.length);
-      movers.forEach((u, i) => orderMove(this.world, u, pts[i]));
+      movers.forEach((u, i) => {
+        if (isFighter(u)) orderAttackMove(this.world, u, pts[i]);
+        else orderMove(this.world, u, pts[i]);
+      });
       return;
     }
 
@@ -646,6 +660,8 @@ export class Game {
       } else if (u.def.canGather && node && node.resource > 0 &&
         (node.terrain === "forest" || node.terrain === "goldmine")) {
         orderGather(this.world, u, tile);
+      } else if (isFighter(u)) {
+        orderAttackMove(this.world, u, worldPt); // combat units engage en route
       } else {
         orderMove(this.world, u, worldPt);
       }
@@ -737,7 +753,14 @@ export class Game {
       } else if (res.type === "load") {
         this.doLoad();
       } else if (res.type === "reset") this.kb.reset();
-      else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
+      else if (res.type === "toggleEdgeScroll") {
+        this.edgeScroll = !this.edgeScroll;
+        try {
+          localStorage.setItem("warlords.edgeScroll", this.edgeScroll ? "1" : "0");
+        } catch {
+          /* storage blocked */
+        }
+      } else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
     }
   }
 
@@ -970,7 +993,7 @@ export class Game {
     this.ctx.fillStyle = this.sfx.muted ? "#ff8888" : "#9fb2c2";
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
-    if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb);
+    if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }

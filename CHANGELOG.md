@@ -6,6 +6,19 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.122.0 — Scale/ring/control polish _(2026-06-07)_
+- **Units +20%, buildings −20%** for a better size ratio; **base/selection rings
+  now scale with the sprite** (tied to its footprint width) instead of the tiny
+  body radius, so they read clearly under the bigger troops.
+- **Right-click = attack-move** for combat units (engage en route); workers still
+  just walk/gather. Red destination ring when the order is aggressive.
+- **Edge-of-screen camera scrolling is now off by default**, with an **"Edge-scroll
+  camera: ON/OFF"** toggle in the Esc pause menu (persisted to localStorage).
+- **Drag-select reliability fix:** the selection box now arms from the canvas
+  mousemove handler too (not only the window one), so box-select starts
+  consistently. Verified: footman right-click → attackMove, worker → plain move;
+  edge-scroll defaults off.
+
 ## v0.121.0 — Orc enemy faction + map props (Pixelcut) _(2026-06-07)_
 - The **enemy is now a distinct orc horde**: generated orc unit sprites
   (peon/grunt/archer/warlord) and orc building sprites (stronghold, war barracks,

@@ -538,7 +538,7 @@ export class Renderer {
     const fpW = Math.max(...xs) - Math.min(...xs);
     const cw = (sprite as HTMLCanvasElement).width;
     const ch = (sprite as HTMLCanvasElement).height;
-    const scale = (fpW / cw) * 1.05; // buildings sit close to their footprint
+    const scale = (fpW / cw) * 0.84; // buildings sit close to their footprint
     const dw = cw * scale;
     const dh = ch * scale;
     const bottomY = Math.max(...ys); // footprint front (south) vertex
@@ -895,24 +895,39 @@ export class Renderer {
     const r = UNIT_DRAW_R * z * (u.radius / 10);
     const color = world.player(u.playerId).color;
 
+    // Generated sprite (if any) + its on-screen size, computed up front so the
+    // ground ellipses can scale proportionally to the (large) sprite.
+    const sprite = this.assets.unitSprite(u.kind, isEnemy);
+    let spriteW = 0;
+    let spriteH = 0;
+    if (sprite) {
+      const cw = (sprite as HTMLCanvasElement).width;
+      const ch = (sprite as HTMLCanvasElement).height;
+      spriteH = r * 15.6; // unit sprite height relative to radius
+      spriteW = spriteH * (cw / ch);
+    }
+    // Ground ellipse half-width: tied to the sprite footprint, else the body.
+    const gw = sprite ? spriteW * 0.34 : r * 1.15;
+    const ringY = s.y + r * 0.55;
+
     // Ground shadow for a little depth.
     ctx.fillStyle = "rgba(0,0,0,0.28)";
     ctx.beginPath();
-    ctx.ellipse(s.x, s.y + r * 0.5, r * 1.05, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(s.x, ringY, gw, gw * 0.46, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Team-colored base ring (ownership reads from the ring, not just the body).
     ctx.strokeStyle = color;
-    ctx.lineWidth = Math.max(1.5, 2 * z);
+    ctx.lineWidth = Math.max(1.5, 2.4 * z);
     ctx.beginPath();
-    ctx.ellipse(s.x, s.y + r * 0.55, r * 1.15, r * 0.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(s.x, ringY, gw, gw * 0.5, 0, 0, Math.PI * 2);
     ctx.stroke();
 
     if (u.selected) {
       ctx.strokeStyle = COLORS.selection;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = Math.max(2, 2.4 * z);
       ctx.beginPath();
-      ctx.ellipse(s.x, s.y + r * 0.5, r * 1.2, r * 0.6, 0, 0, Math.PI * 2);
+      ctx.ellipse(s.x, ringY, gw * 1.1, gw * 0.55, 0, 0, Math.PI * 2);
       ctx.stroke();
 
       // Planned route: current leg + queued waypoints as a dashed line + dots.
@@ -998,7 +1013,6 @@ export class Renderer {
     }
 
     // Prefer a generated sprite (Pixelcut). Fall back to the code-art figure.
-    const sprite = this.assets.unitSprite(u.kind, isEnemy);
     const pal = UNIT_BODY[u.kind] ?? { tunic: "#6b5e48", head: "#c9a06a" };
     const ink = "#15110d";
     if (sprite) {
@@ -1009,17 +1023,13 @@ export class Renderer {
         if (fs.x < s.x - 1) u.faceLeft = true;
         else if (fs.x > s.x + 1) u.faceLeft = false;
       }
-      const cw = (sprite as HTMLCanvasElement).width;
-      const ch = (sprite as HTMLCanvasElement).height;
-      const sh = r * 13; // sprite height relative to unit radius (readable scale)
-      const sw = sh * (cw / ch);
       const footY = by + r * 0.55;
       ctx.save();
       if (u.faceLeft) {
         ctx.translate(bx * 2, 0); // mirror across the unit's vertical axis
         ctx.scale(-1, 1);
       }
-      ctx.drawImage(sprite, bx - sw / 2, footY - sh, sw, sh); // feet at base ring
+      ctx.drawImage(sprite, bx - spriteW / 2, footY - spriteH, spriteW, spriteH); // feet at base ring
       ctx.restore();
     } else if (u.kind === "catapult") {
       this.drawSiegeEngine(bx, by, r);

@@ -51,6 +51,12 @@ export class Input {
       const r = canvas.getBoundingClientRect();
       this.mouse = { x: e.clientX - r.left, y: e.clientY - r.top };
       this.moved = true;
+      // Arm the drag here too (not only in the window handler) so a box select
+      // reliably starts regardless of which mousemove event fires first.
+      if (this.leftDown && this.leftDownAt && !this.drag.active) {
+        const d = Math.hypot(this.mouse.x - this.leftDownAt.x, this.mouse.y - this.leftDownAt.y);
+        if (d > this.dragThreshold) this.drag.active = true;
+      }
       if (this.drag.active) this.drag.current = { ...this.mouse };
     });
 

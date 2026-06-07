@@ -9,6 +9,7 @@ export type MenuResult =
   | { type: "save" }
   | { type: "load" }
   | { type: "reset" }
+  | { type: "toggleEdgeScroll" }
   | { type: "rebind"; action: ActionId };
 
 interface Layout {
@@ -17,6 +18,7 @@ interface Layout {
   restart: Rect;
   save: Rect;
   load: Rect;
+  edgeToggle: Rect;
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
 }
@@ -30,7 +32,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 460;
-    const ph = 164 + ACTION_ORDER.length * 40 + 70;
+    const ph = 208 + ACTION_ORDER.length * 40 + 70;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -40,15 +42,16 @@ export class PauseMenu {
     const restart = btn(px + pw - 210, py + 56, 180);
     const save = btn(px + 30, py + 98, 180);
     const load = btn(px + pw - 210, py + 98, 180);
+    const edgeToggle = btn(px + 30, py + 140, pw - 60);
 
     const rows: Layout["rows"] = [];
-    let ry = py + 154;
+    let ry = py + 202;
     for (const a of ACTION_ORDER) {
       rows.push({ action: a.id, label: a.label, keyBox: { x: px + pw - 150, y: ry, w: 110, h: 28 } });
       ry += 40;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, save, load, reset, rows };
+    return { panel, resume, restart, save, load, edgeToggle, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -57,6 +60,7 @@ export class PauseMenu {
     if (rectContains(l.restart, p)) return { type: "restart" };
     if (rectContains(l.save, p)) return { type: "save" };
     if (rectContains(l.load, p)) return { type: "load" };
+    if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
     if (rectContains(l.reset, p)) return { type: "reset" };
     for (const row of l.rows) {
       if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
@@ -64,7 +68,7 @@ export class PauseMenu {
     return null;
   }
 
-  render(ctx: CanvasRenderingContext2D, cam: Camera, kb: Keybindings): void {
+  render(ctx: CanvasRenderingContext2D, cam: Camera, kb: Keybindings, edgeScroll = false): void {
     const l = this.layoutFor(cam);
 
     // Dim the whole screen.
@@ -88,6 +92,7 @@ export class PauseMenu {
     this.button(ctx, l.restart, "Restart", true);
     this.button(ctx, l.save, "Save Game", true);
     this.button(ctx, l.load, "Load Game", true);
+    this.button(ctx, l.edgeToggle, `Edge-scroll camera: ${edgeScroll ? "ON" : "OFF"}`, true);
 
     // Controls header.
     ctx.fillStyle = "#9fb2c2";
