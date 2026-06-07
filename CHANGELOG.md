@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.145.0 — Bigger projectiles + trails _(2026-06-07)_
+- Arrows are **much bigger and clearer** with a zoom floor (`ps`) so they no longer
+  shrink to a dot when zoomed out, plus a faint motion streak. Mage/dragon bolts
+  get a **comet trail** of fading orbs. Siege stones enlarged too.
+
 ## v0.144.0 — Wall corners: stone bastions _(2026-06-07)_
 - Wall junctions (bends / T / cross) are now a dedicated **corner bastion** — a
   square crenellated stone tower (Gemini sprite) that the straight wall arms run

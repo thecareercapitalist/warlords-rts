@@ -1636,86 +1636,113 @@ export class Renderer {
     }
 
     // Arrows / projectiles: travel along the line with a slight upward arc.
+    // `ps` floors the on-screen size so projectiles stay readable when zoomed out.
+    const ps = Math.max(z, 0.85);
     for (const p of fx.projectiles) {
       const k = p.t / p.dur;
       const wx = p.from.x + (p.to.x - p.from.x) * k;
       const wy = p.from.y + (p.to.y - p.from.y) * k;
       const s = this.cam.worldToScreen(wx, wy);
-      // Mage: a glowing arcane bolt (blue orb + halo + sparkle trail).
+      // Mage / dragon: a glowing bolt with a comet trail.
       if (p.magic || p.fire) {
-        const lift3 = Math.sin(k * Math.PI) * 10 * z;
-        const oy = s.y - lift3;
-        const R = (p.fire ? 11 : 9) * z;
-        const grd = ctx.createRadialGradient(s.x, oy, 0, s.x, oy, R);
+        const arc = (kk: number): { x: number; y: number } => {
+          const px = this.cam.worldToScreen(
+            p.from.x + (p.to.x - p.from.x) * kk,
+            p.from.y + (p.to.y - p.from.y) * kk,
+          );
+          return { x: px.x, y: px.y - Math.sin(kk * Math.PI) * 10 * ps };
+        };
+        const R = (p.fire ? 13 : 11) * ps;
+        // Comet trail: fading orbs behind the head.
+        for (let i = 4; i >= 1; i--) {
+          const tk = Math.max(0, k - i * 0.05);
+          const tp = arc(tk);
+          const tr = R * (0.85 - i * 0.13);
+          ctx.globalAlpha = 0.32 * (1 - i / 5);
+          ctx.fillStyle = p.fire ? "#ff8a2e" : "#5aa0ff";
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, Math.max(1, tr), 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        const o = arc(k);
+        const grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, R);
         if (p.fire) {
           grd.addColorStop(0, "rgba(255,240,190,0.97)");
           grd.addColorStop(0.4, "rgba(255,140,40,0.9)");
           grd.addColorStop(1, "rgba(150,40,10,0)");
         } else {
-          grd.addColorStop(0, "rgba(200,235,255,0.95)");
-          grd.addColorStop(0.4, "rgba(90,160,255,0.85)");
+          grd.addColorStop(0, "rgba(210,238,255,0.97)");
+          grd.addColorStop(0.4, "rgba(90,160,255,0.88)");
           grd.addColorStop(1, "rgba(60,90,220,0)");
         }
         ctx.fillStyle = grd;
         ctx.beginPath();
-        ctx.arc(s.x, oy, R, 0, Math.PI * 2);
+        ctx.arc(o.x, o.y, R, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = p.fire ? "#fff2d6" : "#eaf4ff";
         ctx.beginPath();
-        ctx.arc(s.x, oy, 3 * z, 0, Math.PI * 2);
+        ctx.arc(o.x, o.y, 4 * ps, 0, Math.PI * 2);
         ctx.fill();
         continue;
       }
       // Siege: a dark stone on a high lob, not an arrow.
       if (p.heavy) {
-        const lift2 = Math.sin(k * Math.PI) * 34 * z;
+        const lift2 = Math.sin(k * Math.PI) * 34 * ps;
         ctx.fillStyle = "#33302b";
         ctx.beginPath();
-        ctx.arc(s.x, s.y - lift2, 7 * z, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y - lift2, 9 * ps, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.55)";
         ctx.lineWidth = 1.5;
         ctx.stroke();
         continue;
       }
-      const lift = Math.sin(k * Math.PI) * 18 * z;
+      const lift = Math.sin(k * Math.PI) * 18 * ps;
       const sFrom = this.cam.worldToScreen(p.from.x, p.from.y);
       const sTo = this.cam.worldToScreen(p.to.x, p.to.y);
       const ang = Math.atan2(sTo.y - sFrom.y, sTo.x - sFrom.x);
       ctx.save();
       ctx.translate(s.x, s.y - lift);
       ctx.rotate(ang);
-      // Shaft (inked, with a lighter wood highlight) — larger and clearer.
-      ctx.strokeStyle = "#15110d";
-      ctx.lineWidth = 4.5 * z;
+      // Faint motion streak behind the arrow.
+      ctx.strokeStyle = "rgba(230,236,242,0.28)";
+      ctx.lineWidth = 2 * ps;
       ctx.beginPath();
-      ctx.moveTo(-16 * z, 0);
-      ctx.lineTo(11 * z, 0);
+      ctx.moveTo(-46 * ps, 0);
+      ctx.lineTo(-20 * ps, 0);
+      ctx.stroke();
+      // Shaft (inked, with a lighter wood highlight) — bigger + clearer.
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 6 * ps;
+      ctx.beginPath();
+      ctx.moveTo(-22 * ps, 0);
+      ctx.lineTo(15 * ps, 0);
       ctx.stroke();
       ctx.strokeStyle = "#d8c074";
-      ctx.lineWidth = 2.4 * z;
+      ctx.lineWidth = 3.2 * ps;
       ctx.beginPath();
-      ctx.moveTo(-16 * z, 0);
-      ctx.lineTo(11 * z, 0);
+      ctx.moveTo(-22 * ps, 0);
+      ctx.lineTo(15 * ps, 0);
       ctx.stroke();
       // Steel head.
       ctx.fillStyle = "#e6ecf2";
       ctx.strokeStyle = "#15110d";
-      ctx.lineWidth = 1 * z;
+      ctx.lineWidth = 1.4 * ps;
       ctx.beginPath();
-      ctx.moveTo(17 * z, 0);
-      ctx.lineTo(8 * z, -5 * z);
-      ctx.lineTo(8 * z, 5 * z);
+      ctx.moveTo(24 * ps, 0);
+      ctx.lineTo(11 * ps, -7 * ps);
+      ctx.lineTo(11 * ps, 7 * ps);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
       // Fletching feathers at the tail.
       ctx.fillStyle = "#c45a3a";
       ctx.beginPath();
-      ctx.moveTo(-16 * z, 0);
-      ctx.lineTo(-22 * z, -4 * z);
-      ctx.lineTo(-13 * z, 0);
-      ctx.lineTo(-22 * z, 4 * z);
+      ctx.moveTo(-22 * ps, 0);
+      ctx.lineTo(-30 * ps, -6 * ps);
+      ctx.lineTo(-18 * ps, 0);
+      ctx.lineTo(-30 * ps, 6 * ps);
       ctx.closePath();
       ctx.fill();
       ctx.restore();
