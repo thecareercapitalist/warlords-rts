@@ -6,6 +6,20 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.121.0 — Orc enemy faction + map props (Pixelcut) _(2026-06-07)_
+- The **enemy is now a distinct orc horde**: generated orc unit sprites
+  (peon/grunt/archer/warlord) and orc building sprites (stronghold, war barracks,
+  hide farm, lumber pit, blood altar, war forge, watchtower, catapult, spiked wall),
+  selected by `isEnemy` in the renderer. The two sides read apart instantly beyond
+  the team ring/banner.
+- **Map decoration props**: forests now render generated **pine / dead-tree**
+  sprites and gold mines a generated **ore-outcrop** (replacing the "$" glyph), via
+  `assets.propSprite` + `drawTileProp`. Boulders/ruins/logs/rubble/graves/stump are
+  in the prop sheet too, ready for future placement.
+- All five generated sheets are inlined into the offline `Warlords.html`. Verified
+  in-game (`screenshots/factions_props.png`): orc faction, trees, and gold mine all
+  render.
+
 ## v0.120.0 — Bigger units
 - Doubled the unit sprite scale again (6.6→13 × radius) per playtest feedback; troops now read clearly at the default play zoom.
 

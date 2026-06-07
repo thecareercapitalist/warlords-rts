@@ -177,15 +177,35 @@ export class Renderer {
           }
         }
 
-        if (t.terrain === "goldmine") {
-          ctx.fillStyle = "#3a2c00";
-          ctx.font = `bold ${Math.floor(28 * z)}px sans-serif`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("$", s.x, s.y);
+        // Map-decoration props: trees on forest tiles, an ore outcrop on goldmines.
+        if (t.terrain === "forest") {
+          const tree = this.assets.propSprite(((tx * 7 + ty * 13) & 3) === 0 ? "deadtree" : "pines");
+          if (tree) this.drawTileProp(tree, s.x, s.y, 0.95);
+        } else if (t.terrain === "goldmine") {
+          const gm = this.assets.propSprite("goldmine");
+          if (gm) {
+            this.drawTileProp(gm, s.x, s.y, 1.0);
+          } else {
+            ctx.fillStyle = "#3a2c00";
+            ctx.font = `bold ${Math.floor(28 * z)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("$", s.x, s.y);
+          }
         }
       }
     }
+  }
+
+  /** Blit a decoration prop standing on a tile, bottom-centre near the tile front. */
+  private drawTileProp(sprite: CanvasImageSource, sx: number, sy: number, tilesWide: number): void {
+    const z = this.cam.zoom;
+    const cw = (sprite as HTMLCanvasElement).width;
+    const ch = (sprite as HTMLCanvasElement).height;
+    const dw = ISO_TILE_W * z * tilesWide;
+    const dh = dw * (ch / cw);
+    const bottomY = sy + ISO_HALF_H * z * 0.85; // sit near the tile's front edge
+    this.ctx.drawImage(sprite, sx - dw / 2, bottomY - dh, dw, dh);
   }
 
   /**
@@ -367,7 +387,7 @@ export class Renderer {
       ctx.restore();
     }
 
-    const bSprite = b.state === "complete" ? this.assets.buildingSprite(b.kind) : undefined;
+    const bSprite = b.state === "complete" ? this.assets.buildingSprite(b.kind, isEnemy) : undefined;
     if (bSprite) {
       // Prefer a generated isometric building sprite (Pixelcut).
       this.drawBuildingSprite(bSprite, corners, center);
@@ -978,7 +998,7 @@ export class Renderer {
     }
 
     // Prefer a generated sprite (Pixelcut). Fall back to the code-art figure.
-    const sprite = this.assets.unitSprite(u.kind);
+    const sprite = this.assets.unitSprite(u.kind, isEnemy);
     const pal = UNIT_BODY[u.kind] ?? { tunic: "#6b5e48", head: "#c9a06a" };
     const ink = "#15110d";
     if (sprite) {

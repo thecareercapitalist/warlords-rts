@@ -31,6 +31,16 @@ const BUILDING_SHEET_ORDER = [
 // each cell before measuring the sprite bbox so labels are excluded.
 const BUILDING_LABEL_TRIM = 0.15;
 
+// Enemy (orc) faction sheets + map decoration props.
+const ENEMY_UNIT_SHEET_URL = "/gen_units_enemy.png";
+const ENEMY_BUILDING_SHEET_URL = "/gen_buildings_enemy.png";
+const PROP_SHEET_URL = "/gen_props.png";
+const PROP_SHEET_ORDER = [
+  "pines", "deadtree", "goldmine",
+  "boulders", "ruin", "logs",
+  "rubble", "graves", "stump",
+];
+
 /** True for the magenta/pink chroma-key backdrop (incl. tinted soft shadows). */
 function isMagenta(r: number, g: number, b: number): boolean {
   return r - g > 40 && b - g > 25;
@@ -130,6 +140,9 @@ export class Assets {
   private sheets = new Map<SheetKey, CanvasImageSource>();
   private unitSprites = new Map<string, CanvasImageSource>();
   private buildingSprites = new Map<string, CanvasImageSource>();
+  private enemyUnitSprites = new Map<string, CanvasImageSource>();
+  private enemyBuildingSprites = new Map<string, CanvasImageSource>();
+  private propSprites = new Map<string, CanvasImageSource>();
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -141,14 +154,19 @@ export class Assets {
     return this.sheets.get(key);
   }
 
-  /** A trimmed, transparent generated unit sprite for a kind (or undefined). */
-  unitSprite(kind: string): CanvasImageSource | undefined {
-    return this.unitSprites.get(kind);
+  /** A trimmed generated unit sprite for a kind (enemy = orc variant). */
+  unitSprite(kind: string, enemy = false): CanvasImageSource | undefined {
+    return (enemy ? this.enemyUnitSprites : this.unitSprites).get(kind);
   }
 
-  /** A trimmed, transparent generated building sprite for a kind (or undefined). */
-  buildingSprite(kind: string): CanvasImageSource | undefined {
-    return this.buildingSprites.get(kind);
+  /** A trimmed generated building sprite for a kind (enemy = orc variant). */
+  buildingSprite(kind: string, enemy = false): CanvasImageSource | undefined {
+    return (enemy ? this.enemyBuildingSprites : this.buildingSprites).get(kind);
+  }
+
+  /** A trimmed generated map-decoration prop sprite (or undefined). */
+  propSprite(name: string): CanvasImageSource | undefined {
+    return this.propSprites.get(name);
   }
 
   async loadAll(): Promise<void> {
@@ -185,6 +203,28 @@ export class Assets {
           if (name === "catapult") this.unitSprites.set(name, spr); // mobile unit
           else this.buildingSprites.set(name, spr);
         }
+      }),
+    );
+    jobs.push(
+      load(inl?.unitsEnemy ?? ENEMY_UNIT_SHEET_URL).then((img) => {
+        if (!img) return;
+        for (const [k, v] of sliceGrid(img, 2, 2, UNIT_SHEET_ORDER)) this.enemyUnitSprites.set(k, v);
+      }),
+    );
+    jobs.push(
+      load(inl?.buildingsEnemy ?? ENEMY_BUILDING_SHEET_URL).then((img) => {
+        if (!img) return;
+        const sliced = sliceGrid(img, 3, 3, BUILDING_SHEET_ORDER, BUILDING_LABEL_TRIM);
+        for (const [name, spr] of sliced) {
+          if (name === "catapult") this.enemyUnitSprites.set(name, spr);
+          else this.enemyBuildingSprites.set(name, spr);
+        }
+      }),
+    );
+    jobs.push(
+      load(inl?.props ?? PROP_SHEET_URL).then((img) => {
+        if (!img) return;
+        for (const [k, v] of sliceGrid(img, 3, 3, PROP_SHEET_ORDER)) this.propSprites.set(k, v);
       }),
     );
     await Promise.all(jobs);

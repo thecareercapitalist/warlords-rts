@@ -35,6 +35,10 @@ tileData.roofs = `data:image/png;base64,${readFileSync(resolve(root, "public", "
 tileData.units = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_units.png")).toString("base64")}`;
 // Generated building sprite sheet (Assets reads window.__TILES.buildings).
 tileData.buildings = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_buildings.png")).toString("base64")}`;
+// Enemy (orc) faction sheets + map-decoration props.
+tileData.unitsEnemy = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_units_enemy.png")).toString("base64")}`;
+tileData.buildingsEnemy = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_buildings_enemy.png")).toString("base64")}`;
+tileData.props = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_props.png")).toString("base64")}`;
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");
