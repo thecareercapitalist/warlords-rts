@@ -1476,34 +1476,54 @@ export class Renderer {
       const s = this.cam.worldToScreen(wx, wy);
       // Siege: a dark stone on a high lob, not an arrow.
       if (p.heavy) {
-        const lift2 = Math.sin(k * Math.PI) * 30 * z;
+        const lift2 = Math.sin(k * Math.PI) * 34 * z;
         ctx.fillStyle = "#33302b";
         ctx.beginPath();
-        ctx.arc(s.x, s.y - lift2, 4.5 * z, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y - lift2, 7 * z, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = "rgba(0,0,0,0.55)";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
         continue;
       }
-      const lift = Math.sin(k * Math.PI) * 16 * z;
+      const lift = Math.sin(k * Math.PI) * 18 * z;
       const sFrom = this.cam.worldToScreen(p.from.x, p.from.y);
       const sTo = this.cam.worldToScreen(p.to.x, p.to.y);
       const ang = Math.atan2(sTo.y - sFrom.y, sTo.x - sFrom.x);
       ctx.save();
       ctx.translate(s.x, s.y - lift);
       ctx.rotate(ang);
-      ctx.strokeStyle = "#efe3b0";
-      ctx.lineWidth = 2;
+      // Shaft (inked, with a lighter wood highlight) — larger and clearer.
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 4.5 * z;
       ctx.beginPath();
-      ctx.moveTo(-8 * z, 0);
-      ctx.lineTo(6 * z, 0);
+      ctx.moveTo(-16 * z, 0);
+      ctx.lineTo(11 * z, 0);
       ctx.stroke();
-      ctx.fillStyle = "#fff";
+      ctx.strokeStyle = "#d8c074";
+      ctx.lineWidth = 2.4 * z;
       ctx.beginPath();
-      ctx.moveTo(8 * z, 0);
-      ctx.lineTo(3 * z, -3 * z);
-      ctx.lineTo(3 * z, 3 * z);
+      ctx.moveTo(-16 * z, 0);
+      ctx.lineTo(11 * z, 0);
+      ctx.stroke();
+      // Steel head.
+      ctx.fillStyle = "#e6ecf2";
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 1 * z;
+      ctx.beginPath();
+      ctx.moveTo(17 * z, 0);
+      ctx.lineTo(8 * z, -5 * z);
+      ctx.lineTo(8 * z, 5 * z);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      // Fletching feathers at the tail.
+      ctx.fillStyle = "#c45a3a";
+      ctx.beginPath();
+      ctx.moveTo(-16 * z, 0);
+      ctx.lineTo(-22 * z, -4 * z);
+      ctx.lineTo(-13 * z, 0);
+      ctx.lineTo(-22 * z, 4 * z);
       ctx.closePath();
       ctx.fill();
       ctx.restore();

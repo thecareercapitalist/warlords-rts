@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.130.0 — Drag-select fix + bigger arrows _(2026-06-07)_
+- **Fast drag-select fixed:** a quick flick could fire mousedown→mouseup with no
+  mousemove between, so the box never armed and it registered as a click (clearing
+  the selection). Mouseup now treats any release past the drag threshold as a box
+  select. This is the real cause behind "drag doesn't work half the time, esp.
+  fast."
+- **Bigger arrows:** archer/tower projectiles are larger and clearer — inked shaft
+  with a wood highlight, a steel head, and red fletching. Siege stones bigger too.
+
 ## v0.129.0 — Procedural animation polish _(2026-06-07)_
 - Richer life on the single sprites (no new art): a fuller **walk cycle** (bigger
   footfall bob + gentle side-to-side sway) and a **hit-react flinch** — units drop

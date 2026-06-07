@@ -95,7 +95,16 @@ export class Input {
       const r = canvas.getBoundingClientRect();
       const p = { x: e.clientX - r.left, y: e.clientY - r.top };
       if (e.button === 0) {
-        if (!this.drag.active && this.leftDownAt) {
+        // A fast flick can fire mousedown→mouseup with no mousemove in between, so
+        // the drag never armed. Catch it here by distance from the press point.
+        const movedFar =
+          this.leftDownAt &&
+          Math.hypot(p.x - this.leftDownAt.x, p.y - this.leftDownAt.y) > this.dragThreshold;
+        if (movedFar && this.leftDownAt) {
+          this.drag.start = { ...this.leftDownAt };
+          this.drag.current = { ...p };
+          this.drag.active = true; // Game consumes the box this frame
+        } else if (!this.drag.active && this.leftDownAt) {
           const now = performance.now();
           if (
             this.lastLeftUp &&
