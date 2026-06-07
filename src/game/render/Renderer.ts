@@ -1058,11 +1058,16 @@ export class Renderer {
     let bx = s.x;
     let by = s.y;
     if (moving) {
-      by -= Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z; // walk bob
+      const ph = (u.pos.x + u.pos.y) * 0.13;
+      by -= Math.abs(Math.sin(ph)) * 4.5 * z; // walk bob (footfalls)
+      bx += Math.sin(ph * 0.5) * 2.2 * z; // gentle side-to-side sway
     } else if (u.state !== "gathering") {
       // Idle breathing — gentle, phase-offset per unit so they don't pulse in unison.
       by -= Math.sin(this.now * 2 + (u.pos.x + u.pos.y) * 0.5) * 1.2 * z;
     }
+    // Hit-react: a brief flinch (drop + squash) the instant a unit is struck.
+    const hitReact = u.hitFlash > 0 ? Math.min(1, u.hitFlash / 0.12) : 0;
+    if (hitReact) by += hitReact * 2.5 * z;
 
     // Gather swing: workers rhythmically lurch toward the resource they harvest.
     if (u.state === "gathering" && u.resourceTile) {
@@ -1100,9 +1105,9 @@ export class Renderer {
         else if (fs.x > s.x + 1) u.faceLeft = false;
       }
       const footY = by + r * 0.55;
-      // Squash/stretch on the attack swing for weight (feet stay planted).
-      const sw2 = spriteW * (1 + 0.16 * strikeSwing);
-      const sh2 = spriteH * (1 - 0.09 * strikeSwing);
+      // Squash/stretch: stretch toward the target on a swing; compress on a hit.
+      const sw2 = spriteW * (1 + 0.16 * strikeSwing + 0.1 * hitReact);
+      const sh2 = spriteH * (1 - 0.09 * strikeSwing - 0.12 * hitReact);
       ctx.save();
       if (u.faceLeft) {
         ctx.translate(bx * 2, 0); // mirror across the unit's vertical axis

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.129.0 — Procedural animation polish _(2026-06-07)_
+- Richer life on the single sprites (no new art): a fuller **walk cycle** (bigger
+  footfall bob + gentle side-to-side sway) and a **hit-react flinch** — units drop
+  and compress for an instant when struck (folded into the squash/stretch). Builds
+  on the v0.128 attack lunge.
+
 ## v0.128.0 — Attack lunge + squash _(2026-06-07)_
 - Attacking units now play a real **strike**: a melee unit lunges ~0.5 tile toward
   its target (ranged units recoil back) on an out-and-back swing, with a squash/
