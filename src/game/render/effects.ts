@@ -59,6 +59,7 @@ interface Marker {
   y: number;
   t: number;
   dur: number;
+  attack?: boolean; // red (attack-move) vs green (plain move)
 }
 
 export class Effects {
@@ -70,8 +71,8 @@ export class Effects {
   readonly decals: Decal[] = [];
   readonly markers: Marker[] = []; // move-order destination rings
 
-  spawnMoveMarker(x: number, y: number): void {
-    this.markers.push({ x, y, t: 0, dur: 0.5 });
+  spawnMoveMarker(x: number, y: number, attack = false): void {
+    this.markers.push({ x, y, t: 0, dur: 0.5, attack });
   }
 
   spawnImpact(x: number, y: number): void {

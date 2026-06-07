@@ -403,6 +403,7 @@ export class Game {
     // Attack-move targeting.
     if (this.attackMoveMode) {
       for (const u of this.selUnits) if (u.def.damage > 0) orderAttackMove(this.world, u, world);
+      this.effects.spawnMoveMarker(world.x, world.y, true);
       this.attackMoveMode = false;
       return;
     }

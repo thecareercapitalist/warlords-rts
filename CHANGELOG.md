@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.88.0 — Attack-move marker _(2026-06-07)_
+- Attack-move (A + click) now drops a **red** destination ring, distinct from the
+  **green** plain-move ring, so aggressive vs passive orders read at a glance.
+  Verified headlessly: the plain-move marker carries attack=false, the attack-move
+  marker attack=true.
+
 ## v0.87.0 — Move-order marker _(2026-06-07)_
 - Right-clicking open ground to move now drops a **quick expanding ring** at the
   destination, so orders read clearly (classic RTS feedback). Only plain moves get

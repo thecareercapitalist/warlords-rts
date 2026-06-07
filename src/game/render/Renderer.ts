@@ -841,7 +841,7 @@ export class Renderer {
       const s = this.cam.worldToScreen(m.x, m.y);
       const rr = (4 + k * 12) * z;
       ctx.globalAlpha = Math.max(0, 1 - k);
-      ctx.strokeStyle = COLORS.selection;
+      ctx.strokeStyle = m.attack ? "#dc3c3c" : COLORS.selection;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.ellipse(s.x, s.y, rr, rr * (ISO_HALF_H / ISO_HALF_W), 0, 0, Math.PI * 2);
