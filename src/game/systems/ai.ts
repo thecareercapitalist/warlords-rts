@@ -6,11 +6,13 @@ import { enqueueUnit } from "./production.ts";
 import { placeBuilding, canPlace } from "./placement.ts";
 import { orderGather, orderAttackMove } from "./orders.ts";
 import { BUILDING_DEFS } from "../entities/defs.ts";
+import { TILE } from "../constants.ts";
 import { toTile } from "../util/math.ts";
 
 const TICK = 1.0; // seconds between AI decisions
 const TARGET_WORKERS = 8;
 const ATTACK_ARMY_SIZE = 6; // launch a wave once this many fighters exist
+const DEFEND_RADIUS = 12; // tiles: enemies this close to a building trigger defense
 const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
 
 /**
@@ -106,6 +108,16 @@ export class AIController {
 
   private manageArmy(world: World, units: Unit[]): void {
     const fighters = this.fighters(units);
+
+    // Defense first: if enemies are near the base, pull the whole army home,
+    // interrupting any offensive wave.
+    const threat = this.findThreatNearBase(world);
+    if (threat) {
+      for (const f of fighters) orderAttackMove(world, f, threat);
+      this.attacking = false;
+      return;
+    }
+
     if (this.attacking) {
       // Keep the wave going; if it's been whittled down, regroup.
       if (fighters.length < 2) this.attacking = false;
@@ -118,6 +130,27 @@ export class AIController {
         this.attacking = true;
       }
     }
+  }
+
+  /** Nearest enemy unit within DEFEND_RADIUS of any of my buildings, or null. */
+  private findThreatNearBase(world: World): Vec2 | null {
+    const myBuildings = world.buildingsOf(this.playerId);
+    if (myBuildings.length === 0) return null;
+    const r2 = (DEFEND_RADIUS * TILE) ** 2;
+    let best: Vec2 | null = null;
+    let bestD = Infinity;
+    for (const u of world.units) {
+      if (u.dead || u.playerId === this.playerId) continue;
+      for (const b of myBuildings) {
+        const c = b.center();
+        const d = (u.pos.x - c.x) ** 2 + (u.pos.y - c.y) ** 2;
+        if (d < r2 && d < bestD) {
+          bestD = d;
+          best = { x: u.pos.x, y: u.pos.y };
+        }
+      }
+    }
+    return best;
   }
 
   private tryBuild(world: World, kind: BuildingKind, townhall: Building, workers: Unit[]): void {

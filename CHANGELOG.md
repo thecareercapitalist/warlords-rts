@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.9.0 — AI base defense _(2026-06-07)_
+- The enemy AI now **defends**: when your units come within ~12 tiles of any of
+  its buildings, it pulls its whole army home (interrupting an offensive wave) to
+  meet the threat, then resumes attacking once the area is clear. Sieging the AI
+  while its army marches at you is no longer free. Verified headlessly (an
+  away-marching wave redirects home when attackers appear at the base).
+
 ## v0.8.0 — Control groups _(2026-06-07)_
 - **Ctrl+1…9** assigns the current unit selection to a numbered control group;
   **1…9** recalls it. Dead units are pruned on recall. Standard RTS muscle
