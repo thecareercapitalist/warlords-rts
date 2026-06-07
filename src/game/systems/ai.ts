@@ -4,7 +4,7 @@ import type { Building } from "../entities/Building.ts";
 import type { BuildingKind, ResourceKind, UnitKind, Vec2 } from "../types.ts";
 import { enqueueUnit } from "./production.ts";
 import { placeBuilding, canPlace } from "./placement.ts";
-import { orderGather, orderAttackMove, orderMove } from "./orders.ts";
+import { orderGather, orderAttackMove, orderMove, orderBuild } from "./orders.ts";
 import { BUILDING_DEFS } from "../entities/defs.ts";
 import { TILE } from "../constants.ts";
 import { toTile, dist2 } from "../util/math.ts";
@@ -43,9 +43,27 @@ export class AIController {
     if (!townhall) return; // base destroyed; AI is effectively done
 
     this.manageWorkerSafety(world, this.workers(units), townhall);
+    this.manageRepair(world, this.workers(units), buildings);
     this.manageEconomy(world, units, buildings, townhall);
     this.manageBuildOrder(world, p, units, buildings, townhall);
     this.manageArmy(world, units);
+  }
+
+  /** Pull a worker to repair the most-damaged building (cap 2 repairers). */
+  private manageRepair(world: World, workers: Unit[], buildings: Building[]): void {
+    if (world.player(this.playerId).gold < 20) return; // repair costs gold
+    let worst: Building | null = null;
+    for (const b of buildings) {
+      if (b.state !== "complete" || b.hp >= b.def.maxHp * 0.8) continue;
+      if (!worst || b.hp / b.def.maxHp < worst.hp / worst.def.maxHp) worst = b;
+    }
+    if (!worst) return;
+    const repairing = workers.filter((w) => w.buildTarget === worst).length;
+    if (repairing >= 2) return;
+    const w = workers.find(
+      (u) => !u.fleeing && !u.buildTarget && u.state !== "building",
+    );
+    if (w) orderBuild(world, w, worst);
   }
 
   /** Workers flee to the town hall when an enemy soldier is raiding the base. */

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.70.0 — AI repairs its buildings _(2026-06-07)_
+- The AI now **pulls workers to repair its most-damaged building** (up to 2, gold
+  permitting), so its base mends under siege instead of crumbling for free —
+  another step toward a defending opponent. Verified headlessly: a damaged AI
+  town hall (480 HP) gets a repairer assigned and climbs to 759.
+
 ## v0.69.0 — Unaffordable-action feedback _(2026-06-07)_
 - Clicking a **disabled** build/train button now surfaces *why* it's unavailable
   (its cost or prerequisite, e.g. "Farm: 80g 20w" or "Knight: needs Temple")
