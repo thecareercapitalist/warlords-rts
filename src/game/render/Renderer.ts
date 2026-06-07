@@ -347,6 +347,8 @@ export class Renderer {
       this.drawTurret(center, color);
     } else if (b.kind === "forge" && b.state === "complete") {
       this.drawForge(center);
+    } else if (b.kind === "wall" && b.state === "complete") {
+      this.drawWall(center);
     } else {
       // A warm, flickering hearth window on the completed Town Hall — home-fire
       // glow at the heart of the base, against the gloom.
@@ -370,7 +372,7 @@ export class Renderer {
     }
 
     // Team banner on a pole at the top vertex — clear ownership cue.
-    if (b.state === "complete" && b.kind !== "tower") {
+    if (b.state === "complete" && b.kind !== "tower" && b.kind !== "wall") {
       const z = this.cam.zoom;
       const topV = corners.reduce((a, c) => (c.y < a.y ? c : a), corners[0]);
       const poleH = 20 * z;
@@ -470,6 +472,31 @@ export class Renderer {
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
+  }
+
+  /** A low crenellated stone wall segment — a barrier, no banner. */
+  private drawWall(center: Vec2): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const cx = center.x;
+    const cy = center.y;
+    ctx.fillStyle = "#6b6358"; // stone
+    ctx.fillRect(cx - 10 * z, cy - 5 * z, 20 * z, 14 * z);
+    ctx.strokeStyle = "#15110d";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx - 10 * z, cy - 5 * z, 20 * z, 14 * z);
+    // Crenellations along the top.
+    ctx.fillStyle = "#837a6d";
+    for (let i = -1; i <= 1; i++) {
+      ctx.fillRect(cx + i * 7 * z - 2.4 * z, cy - 9 * z, 4.8 * z, 4 * z);
+    }
+    // Mortar courses.
+    ctx.strokeStyle = "rgba(0,0,0,0.3)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10 * z, cy + 2 * z);
+    ctx.lineTo(cx + 10 * z, cy + 2 * z);
+    ctx.stroke();
   }
 
   /** A dark furnace with a flickering ember mouth — the Forge. */

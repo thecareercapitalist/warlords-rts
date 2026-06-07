@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.111.0 — Wall stone silhouette _(2026-06-07)_
+- The Wall now draws as a **low crenellated stone block** (mortar courses, inked
+  outline) instead of a glyph, and flies **no banner** — it reads as a barrier, not
+  a building. Verified headlessly: a wall renders ~429 stone px with zero banner
+  pixels, while a farm flies its team banner (286).
+
 ## v0.110.0 — Walls _(2026-06-07)_
 - New cheap **Wall** building (`L`, 20g/10w, 1×1, 350 HP) — a pure barrier to seal
   chokepoints and screen your base; pair with Guard Towers behind it. Siege
