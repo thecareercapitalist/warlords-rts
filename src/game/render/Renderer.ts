@@ -514,8 +514,22 @@ export class Renderer {
     ctx.beginPath();
     ctx.arc(bx, by, r, 0, Math.PI * 2);
     ctx.fill();
+    // Soft drop-shadow on the lower-right for form.
+    ctx.strokeStyle = "rgba(0,0,0,0.35)";
+    ctx.lineWidth = Math.max(1, 1.6 * z);
+    ctx.beginPath();
+    ctx.arc(bx, by, r - 1, Math.PI * 0.1, Math.PI * 0.7);
+    ctx.stroke();
     ctx.strokeStyle = "#15110d"; // heavy inked outline
     ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(bx, by, r, 0, Math.PI * 2);
+    ctx.stroke();
+    // Dramatic rim light along the upper-left edge (North-Star painted look).
+    ctx.strokeStyle = "rgba(255,244,214,0.6)";
+    ctx.lineWidth = Math.max(1, 1.6 * z);
+    ctx.beginPath();
+    ctx.arc(bx, by, r - 1, Math.PI * 1.05, Math.PI * 1.6);
     ctx.stroke();
 
     ctx.fillStyle = "rgba(255,255,255,0.95)";
