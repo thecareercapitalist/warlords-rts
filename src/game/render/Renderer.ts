@@ -477,6 +477,27 @@ export class Renderer {
       ctx.globalAlpha = 1;
     }
 
+    // Building collapse: expanding dust cloud + scattered debris.
+    for (const col of fx.collapses) {
+      const k = col.t / col.dur;
+      const s = this.cam.worldToScreen(col.x, col.y);
+      const baseR = col.size * 0.5 * z;
+      const r = baseR * (0.4 + k * 0.9);
+      ctx.globalAlpha = (1 - k) * 0.5;
+      ctx.fillStyle = "#6b6258";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      // Debris specks flying outward.
+      ctx.fillStyle = "#3a322a";
+      for (let i = 0; i < 6; i++) {
+        const ang = (i / 6) * Math.PI * 2;
+        const dr = r * (0.6 + (i % 3) * 0.15);
+        ctx.fillRect(s.x + Math.cos(ang) * dr, s.y + Math.sin(ang) * dr * 0.6, 3 * z, 3 * z);
+      }
+      ctx.globalAlpha = 1;
+    }
+
     // Floating "+N" resource gain text, rising and fading.
     for (const f of fx.floaters) {
       const k = f.t / f.dur;

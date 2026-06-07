@@ -12,6 +12,7 @@ export const AI_PLAYER = 1;
 export type GameEvent =
   | { type: "projectile"; from: Vec2; to: Vec2 }
   | { type: "death"; x: number; y: number; color: string; glyph: string }
+  | { type: "collapse"; x: number; y: number; size: number }
   | { type: "attack"; ranged: boolean }
   | { type: "damaged"; playerId: number; x: number; y: number }
   | { type: "gain"; playerId: number; x: number; y: number; kind: ResourceKind; amount: number }

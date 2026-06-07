@@ -29,13 +29,26 @@ interface Floater {
   dur: number;
 }
 
+interface Collapse {
+  x: number;
+  y: number;
+  size: number;
+  t: number;
+  dur: number;
+}
+
 export class Effects {
   readonly projectiles: Projectile[] = [];
   readonly deaths: DeathFx[] = [];
   readonly floaters: Floater[] = [];
+  readonly collapses: Collapse[] = [];
 
   spawnFloater(x: number, y: number, text: string, color: string): void {
     this.floaters.push({ x, y, text, color, t: 0, dur: 1.0 });
+  }
+
+  spawnCollapse(x: number, y: number, size: number): void {
+    this.collapses.push({ x, y, size, t: 0, dur: 0.7 });
   }
 
   spawnProjectile(from: Vec2, to: Vec2): void {
@@ -61,11 +74,16 @@ export class Effects {
       this.floaters[i].t += dt;
       if (this.floaters[i].t >= this.floaters[i].dur) this.floaters.splice(i, 1);
     }
+    for (let i = this.collapses.length - 1; i >= 0; i--) {
+      this.collapses[i].t += dt;
+      if (this.collapses[i].t >= this.collapses[i].dur) this.collapses.splice(i, 1);
+    }
   }
 
   clear(): void {
     this.projectiles.length = 0;
     this.deaths.length = 0;
     this.floaters.length = 0;
+    this.collapses.length = 0;
   }
 }

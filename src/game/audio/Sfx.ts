@@ -90,6 +90,13 @@ export class Sfx {
     this.tone({ freq: 660, type: "square", dur: 0.04, gain: 0.18 });
   }
 
+  /** Low rumble + debris for a building collapse. */
+  collapse(): void {
+    if (!this.gate("collapse", 120)) return;
+    this.tone({ freq: 110, type: "sawtooth", dur: 0.4, gain: 0.5, slideTo: 50 });
+    this.noise({ dur: 0.45, gain: 0.4, filter: 600 });
+  }
+
   /** Ominous low two-tone "under attack" warning. */
   alert(): void {
     if (!this.gate("alert", 800)) return;

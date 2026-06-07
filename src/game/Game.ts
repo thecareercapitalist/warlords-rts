@@ -215,6 +215,9 @@ export class Game {
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
         this.sfx.death();
+      } else if (e.type === "collapse") {
+        this.effects.spawnCollapse(e.x, e.y, e.size);
+        this.sfx.collapse();
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
       else if (e.type === "gain" && e.playerId === this.humanId) {
