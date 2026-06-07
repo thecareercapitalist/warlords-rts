@@ -39,6 +39,7 @@ tileData.buildings = `data:image/png;base64,${readFileSync(resolve(root, "public
 tileData.unitsEnemy = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_units_enemy.png")).toString("base64")}`;
 tileData.buildingsEnemy = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_buildings_enemy.png")).toString("base64")}`;
 tileData.props = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_props.png")).toString("base64")}`;
+tileData.mountains = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_mountains.png")).toString("base64")}`;
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");

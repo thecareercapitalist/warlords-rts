@@ -6,6 +6,17 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.127.0 — Forest map: lush grass, mountains, lakes _(2026-06-07)_
+- **Ground is now mostly lush grass** (They-Are-Billions vibe): grass tiles favour
+  the greenest sheet variants (n² bias over the patch-noise), with only occasional
+  dry/rocky patches — far less random-looking.
+- **Forest map:** generation is forest-heavy now (forest blobs 10–16 → 20–30,
+  larger), with **bigger lakes** (radius 3–7, 4–7 of them).
+- **Mountains drawn:** rock tiles render generated **isometric mountain sprites**
+  (peak / hill / cliff / boulders), so rock clusters read as mountain ranges
+  instead of flat grey.
+- **Resource floaters 75% larger again** (46→80px).
+
 ## v0.126.0 — Auto-attack, vision, bars, terrain regions _(2026-06-07)_
 - **Auto-attack aggro:** idle/moving combat units now engage enemies within a
   generous radius (visionRadius + 3; +2 while attack-moving), so troops — and the

@@ -151,7 +151,7 @@ export class Renderer {
         const img = spriteKey ? this.assets.get(spriteKey) : undefined;
 
         if (img) {
-          const v = this.tileVariant(tx, ty, img);
+          const v = this.tileVariant(tx, ty, img, t.terrain === "grass");
           ctx.save();
           this.diamondPath(s.x, s.y);
           ctx.clip();
@@ -177,10 +177,13 @@ export class Renderer {
           }
         }
 
-        // Map-decoration props: trees on forest tiles, an ore outcrop on goldmines.
+        // Map-decoration props: trees on forest, ore on goldmines, mountains on rock.
         if (t.terrain === "forest") {
           const tree = this.assets.propSprite(((tx * 7 + ty * 13) & 3) === 0 ? "deadtree" : "pines");
           if (tree) this.drawTileProp(tree, s.x, s.y, 0.95);
+        } else if (t.terrain === "rock") {
+          const mtn = this.assets.propSprite("mtn" + (((tx * 7 + ty * 13) % 4 + 4) % 4));
+          if (mtn) this.drawTileProp(mtn, s.x, s.y, 1.35);
         } else if (t.terrain === "goldmine") {
           const gm = this.assets.propSprite("goldmine");
           if (gm) {
@@ -213,21 +216,70 @@ export class Renderer {
    * keeps a stable variant (no per-frame flicker) while the field looks varied.
    * The SBS sheets are grids of same-biome variations, so any cell fits.
    */
-  private tileVariant(tx: number, ty: number, img: HTMLImageElement): { sx: number; sy: number } {
+  private grassRank: number[] | null = null; // grass-sheet cell indices, greenest first
+
+  /** Low-frequency value noise (0..1) → coherent terrain patches, soft seams. */
+  private patchNoise(tx: number, ty: number): number {
+    const vnoise = (gx: number, gy: number): number => {
+      const h = Math.sin(gx * 127.1 + gy * 311.7) * 43758.5453;
+      return h - Math.floor(h);
+    };
+    const SCALE = 5;
+    const a = vnoise(Math.floor(tx / SCALE), Math.floor(ty / SCALE));
+    const b = vnoise(Math.floor((tx + 2) / (SCALE * 2)), Math.floor((ty + 2) / (SCALE * 2)));
+    return (a * 0.65 + b * 0.35) % 1;
+  }
+
+  /** Rank the grass sheet's cells by greenness, so we can favour lush cells. */
+  private ensureGrassRank(img: HTMLImageElement, cols: number, rows: number): void {
+    if (this.grassRank) return;
+    const cv = document.createElement("canvas");
+    cv.width = img.width;
+    cv.height = img.height;
+    const cx = cv.getContext("2d");
+    if (!cx) {
+      this.grassRank = [...Array(cols * rows).keys()];
+      return;
+    }
+    cx.drawImage(img, 0, 0);
+    const scored: { i: number; green: number }[] = [];
+    for (let i = 0; i < cols * rows; i++) {
+      const sx = (i % cols) * ISO_TILE_W + ISO_TILE_W / 2 - 24;
+      const sy = Math.floor(i / cols) * ISO_TILE_H + ISO_TILE_H / 2 - 12;
+      let r = 0, g = 0, b = 0, n = 0;
+      try {
+        const d = cx.getImageData(sx, sy, 48, 24).data;
+        for (let p = 0; p < d.length; p += 4) {
+          if (d[p + 3] > 10) { r += d[p]; g += d[p + 1]; b += d[p + 2]; n++; }
+        }
+      } catch { /* tainted — leave neutral */ }
+      n = n || 1;
+      scored.push({ i, green: g / n - (r / n + b / n) / 2 });
+    }
+    scored.sort((a, c) => c.green - a.green);
+    this.grassRank = scored.map((s) => s.i);
+  }
+
+  private tileVariant(
+    tx: number,
+    ty: number,
+    img: HTMLImageElement,
+    grass = false,
+  ): { sx: number; sy: number } {
     const cols = Math.max(1, Math.floor(img.width / ISO_TILE_W));
     const rows = Math.max(1, Math.floor(img.height / ISO_TILE_H));
     const count = cols * rows;
-    // Pick the variant from a low-frequency value-noise field so the same variant
-    // covers a coherent PATCH (an area of grass, then a dry area, etc.) instead of
-    // per-tile static. Two octaves at different scales break up hard square seams.
-    const vnoise = (gx: number, gy: number): number => {
-      const h = Math.sin(gx * 127.1 + gy * 311.7) * 43758.5453;
-      return h - Math.floor(h); // 0..1
-    };
-    const SCALE = 5; // ~5-tile patches
-    const a = vnoise(Math.floor(tx / SCALE), Math.floor(ty / SCALE));
-    const b = vnoise(Math.floor((tx + 2) / (SCALE * 2)), Math.floor((ty + 2) / (SCALE * 2)));
-    const cell = Math.floor(((a * 0.65 + b * 0.35) % 1) * count) % count;
+    const n = this.patchNoise(tx, ty);
+    let cell: number;
+    if (grass) {
+      // Favour the greenest cells (n²) so the field is mostly lush grass with the
+      // occasional dry/rocky patch — a They-Are-Billions-ish look.
+      this.ensureGrassRank(img, cols, rows);
+      const rank = this.grassRank!;
+      cell = rank[Math.min(rank.length - 1, Math.floor(n * n * rank.length))];
+    } else {
+      cell = Math.floor(n * count) % count;
+    }
     return { sx: (cell % cols) * ISO_TILE_W, sy: Math.floor(cell / cols) * ISO_TILE_H };
   }
 
@@ -1488,12 +1540,12 @@ export class Renderer {
     for (const f of fx.floaters) {
       const k = f.t / f.dur;
       const s = this.cam.worldToScreen(f.x, f.y);
-      const y = s.y - 20 * z - k * 50 * z;
+      const y = s.y - 24 * z - k * 60 * z;
       ctx.globalAlpha = Math.max(0, 1 - k);
-      ctx.font = `bold ${Math.floor(46 * z)}px 'Segoe UI', sans-serif`;
+      ctx.font = `bold ${Math.floor(80 * z)}px 'Segoe UI', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.lineWidth = Math.max(3, 7 * z);
+      ctx.lineWidth = Math.max(3, 10 * z);
       ctx.strokeStyle = "#15110d";
       ctx.strokeText(f.text, s.x, y);
       ctx.fillStyle = f.color;

@@ -59,31 +59,31 @@ export class TileMap {
   }
 
   private generate(rng: Rng): void {
-    // 1. Lakes — a few blobs of water.
-    const lakeCount = rng.int(3, 6);
+    // 1. Lakes — several blobs of water, a couple of them large.
+    const lakeCount = rng.int(4, 7);
     for (let i = 0; i < lakeCount; i++) {
       const cx = rng.int(6, this.w - 6);
       const cy = rng.int(6, this.h - 6);
-      const r = rng.int(2, 5);
+      const r = rng.int(3, 7);
       this.blob(cx, cy, r, rng, (x, y) => this.set(x, y, "water"));
     }
 
-    // 2. Rock ridges — scattered impassable clusters.
-    const rockCount = rng.int(8, 14);
+    // 2. Mountains — a few clustered rock ranges (impassable), edges of the map.
+    const rockCount = rng.int(6, 10);
     for (let i = 0; i < rockCount; i++) {
       const cx = rng.int(2, this.w - 2);
       const cy = rng.int(2, this.h - 2);
-      this.blob(cx, cy, rng.int(1, 3), rng, (x, y) => {
+      this.blob(cx, cy, rng.int(1, 4), rng, (x, y) => {
         if (this.at(x, y)?.terrain === "grass") this.set(x, y, "rock");
       });
     }
 
-    // 3. Forests — large blobs of harvestable trees.
-    const forestCount = rng.int(10, 16);
+    // 3. Forests — this is a forest map: many large blobs of harvestable trees.
+    const forestCount = rng.int(20, 30);
     for (let i = 0; i < forestCount; i++) {
       const cx = rng.int(3, this.w - 3);
       const cy = rng.int(3, this.h - 3);
-      this.blob(cx, cy, rng.int(2, 5), rng, (x, y) => {
+      this.blob(cx, cy, rng.int(2, 6), rng, (x, y) => {
         if (this.at(x, y)?.terrain === "grass") this.set(x, y, "forest", FOREST_TILE_WOOD);
       });
     }

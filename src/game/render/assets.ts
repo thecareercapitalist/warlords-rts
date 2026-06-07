@@ -35,6 +35,8 @@ const BUILDING_LABEL_TRIM = 0.15;
 const ENEMY_UNIT_SHEET_URL = "/gen_units_enemy.png";
 const ENEMY_BUILDING_SHEET_URL = "/gen_buildings_enemy.png";
 const PROP_SHEET_URL = "/gen_props.png";
+const MOUNTAIN_SHEET_URL = "/gen_mountains.png";
+const MOUNTAIN_ORDER = ["mtn0", "mtn1", "mtn2", "mtn3"]; // peak, hill, cliff, boulders
 const PROP_SHEET_ORDER = [
   "pines", "deadtree", "goldmine",
   "boulders", "ruin", "logs",
@@ -225,6 +227,12 @@ export class Assets {
       load(inl?.props ?? PROP_SHEET_URL).then((img) => {
         if (!img) return;
         for (const [k, v] of sliceGrid(img, 3, 3, PROP_SHEET_ORDER)) this.propSprites.set(k, v);
+      }),
+    );
+    jobs.push(
+      load(inl?.mountains ?? MOUNTAIN_SHEET_URL).then((img) => {
+        if (!img) return;
+        for (const [k, v] of sliceGrid(img, 2, 2, MOUNTAIN_ORDER)) this.propSprites.set(k, v);
       }),
     );
     await Promise.all(jobs);
