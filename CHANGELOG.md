@@ -6,6 +6,17 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.131.0 — First spellcaster: Mage + Mage's Enclave _(2026-06-07)_
+- New **Mage** unit — a robed arcane caster that hurls a **glowing blue bolt** (a
+  proper magic projectile, not an arrow) with small **splash**; trained at the new
+  **Mage's Enclave** tower (`C` to build, 180g/80w). Strong ranged damage (16),
+  range 5, 50 HP. Gated behind the Enclave.
+- Art generated via **Gemini (Nano-Banana Pro) through Composio** — the new image
+  pipeline: a hooded mage and a runed arcane tower, magenta-keyed and sliced like
+  the Pixelcut sheets. Shared by both factions (team identity stays on ring/banner).
+- Verified in-game: mage + enclave sprites load and render; the arcane bolt draws
+  as a glowing orb.
+
 ## v0.130.0 — Drag-select fix + bigger arrows _(2026-06-07)_
 - **Fast drag-select fixed:** a quick flick could fire mousedown→mouseup with no
   mousemove between, so the box never armed and it registered as a click (clearing

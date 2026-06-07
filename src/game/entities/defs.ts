@@ -166,6 +166,26 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     canBuild: false,
     requiresBuilding: "forge", // a Forge unlocks siege engineering
   },
+  mage: {
+    kind: "mage",
+    label: "Mage",
+    glyph: "M",
+    maxHp: 50,
+    speed: 85,
+    radius: 10,
+    damage: 16, // potent arcane bolt
+    splash: 1.3, // the bolt bursts — small area of effect
+    attackRange: 5,
+    attackCooldown: 1.9,
+    visionRadius: 8,
+    supply: 2,
+    costGold: 90,
+    costWood: 20,
+    buildTime: 30,
+    canGather: false,
+    canBuild: false,
+    requiresBuilding: "enclave", // trained at the Mage's Enclave
+  },
 };
 
 export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
@@ -286,5 +306,19 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     providesSupply: 0,
     accepts: [],
     produces: [], // purely a barrier — blocks movement at a chokepoint
+  },
+  enclave: {
+    kind: "enclave",
+    label: "Mage's Enclave",
+    glyph: "EN",
+    maxHp: 600,
+    footprint: 2,
+    visionRadius: 6,
+    costGold: 180,
+    costWood: 80,
+    buildTime: 45,
+    providesSupply: 0,
+    accepts: [],
+    produces: ["mage"], // the arcane tower trains Mages
   },
 };

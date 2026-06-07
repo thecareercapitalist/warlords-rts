@@ -174,7 +174,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       const heavy = (u.def.siegeMult ?? 1) > 1; // siege engines lob a weighty shot
       world.events.push({ type: "attack", ranged, heavy });
       if (ranged) {
-        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y }, heavy });
+        const magic = u.kind === "mage";
+        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y }, heavy, magic });
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
       const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;

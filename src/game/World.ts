@@ -10,7 +10,7 @@ export const AI_PLAYER = 1;
 
 /** Transient gameplay events emitted by systems and drained for FX/sound. */
 export type GameEvent =
-  | { type: "projectile"; from: Vec2; to: Vec2; heavy?: boolean }
+  | { type: "projectile"; from: Vec2; to: Vec2; heavy?: boolean; magic?: boolean }
   | { type: "death"; x: number; y: number; color: string; glyph: string; by: number }
   | { type: "collapse"; x: number; y: number; size: number; by: number }
   | { type: "attack"; ranged: boolean; heavy?: boolean }

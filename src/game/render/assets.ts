@@ -235,6 +235,22 @@ export class Assets {
         for (const [k, v] of sliceGrid(img, 2, 2, MOUNTAIN_ORDER)) this.propSprites.set(k, v);
       }),
     );
+    // Mage unit + Mage's Enclave building (Gemini, single-figure sheets). Shared by
+    // both factions for now (team identity stays on the ring/banner).
+    jobs.push(
+      load(inl?.mage ?? "/gen_mage.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 1, 1, ["mage"]).get("mage");
+        if (m) { this.unitSprites.set("mage", m); this.enemyUnitSprites.set("mage", m); }
+      }),
+    );
+    jobs.push(
+      load(inl?.enclave ?? "/gen_enclave.jpg").then((img) => {
+        if (!img) return;
+        const e = sliceGrid(img, 1, 1, ["enclave"]).get("enclave");
+        if (e) { this.buildingSprites.set("enclave", e); this.enemyBuildingSprites.set("enclave", e); }
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }

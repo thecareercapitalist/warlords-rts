@@ -1474,6 +1474,24 @@ export class Renderer {
       const wx = p.from.x + (p.to.x - p.from.x) * k;
       const wy = p.from.y + (p.to.y - p.from.y) * k;
       const s = this.cam.worldToScreen(wx, wy);
+      // Mage: a glowing arcane bolt (blue orb + halo + sparkle trail).
+      if (p.magic) {
+        const lift3 = Math.sin(k * Math.PI) * 10 * z;
+        const oy = s.y - lift3;
+        const grd = ctx.createRadialGradient(s.x, oy, 0, s.x, oy, 9 * z);
+        grd.addColorStop(0, "rgba(200,235,255,0.95)");
+        grd.addColorStop(0.4, "rgba(90,160,255,0.85)");
+        grd.addColorStop(1, "rgba(60,90,220,0)");
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(s.x, oy, 9 * z, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#eaf4ff";
+        ctx.beginPath();
+        ctx.arc(s.x, oy, 3 * z, 0, Math.PI * 2);
+        ctx.fill();
+        continue;
+      }
       // Siege: a dark stone on a high lob, not an arrow.
       if (p.heavy) {
         const lift2 = Math.sin(k * Math.PI) * 34 * z;
