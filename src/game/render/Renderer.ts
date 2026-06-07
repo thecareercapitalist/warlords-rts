@@ -348,11 +348,25 @@ export class Renderer {
     } else if (b.kind === "forge" && b.state === "complete") {
       this.drawForge(center);
     } else {
+      // A warm, flickering hearth window on the completed Town Hall — home-fire
+      // glow at the heart of the base, against the gloom.
+      if (b.kind === "townhall" && b.state === "complete") {
+        const z = this.cam.zoom;
+        const glow = 0.5 + 0.35 * Math.abs(Math.sin(this.now * 3 + center.x * 0.08));
+        ctx.fillStyle = `rgba(255,150,55,${glow.toFixed(3)})`;
+        ctx.fillRect(center.x - 4.5 * z, center.y + 3 * z, 9 * z, 7 * z);
+        ctx.fillStyle = `rgba(255,226,150,${(glow * 0.85).toFixed(3)})`;
+        ctx.fillRect(center.x - 2 * z, center.y + 4.4 * z, 4 * z, 4 * z);
+      }
       ctx.fillStyle = "rgba(255,255,255,0.92)";
       ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(b.def.glyph, center.x, center.y);
+      // Town Hall glyph nudges up so the hearth window below stays clear.
+      const glyphY = b.kind === "townhall" && b.state === "complete"
+        ? center.y - 6 * this.cam.zoom
+        : center.y;
+      ctx.fillText(b.def.glyph, center.x, glyphY);
     }
 
     // Team banner on a pole at the top vertex — clear ownership cue.

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.89.0 — Town Hall hearth glow _(2026-06-07)_
+- The completed **Town Hall now glows with a flickering hearth window** — home-fire
+  warmth at the heart of the base, a selective ember accent against the gothic
+  gloom. Verified headlessly: ~300 warm px at the hall (flickering across the
+  clock), zero on a farm.
+
 ## v0.88.0 — Attack-move marker _(2026-06-07)_
 - Attack-move (A + click) now drops a **red** destination ring, distinct from the
   **green** plain-move ring, so aggressive vs passive orders read at a glance.
