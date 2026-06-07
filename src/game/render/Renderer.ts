@@ -910,10 +910,11 @@ export class Renderer {
     }
   }
 
-  /** A solid crenellated stone rampart — a real iso volume that auto-connects. */
+  /** A generated iso stone rampart, drawn at the correct diagonal per connection. */
   private drawWall(world: World, b: import("../entities/Building.ts").Building): void {
     const ctx = this.ctx;
-    const z = this.cam.zoom;
+    const sprite = this.assets.wallSprite;
+    if (!sprite) return; // footprint poly already drawn as a fallback foundation
     const gx = b.tile.x;
     const gy = b.tile.y;
     const has = (nx: number, ny: number): boolean =>
@@ -925,88 +926,40 @@ export class Renderer {
     const N = has(gx, gy - 1);
     const S = has(gx, gy + 1);
     const ws = (wx: number, wy: number): Vec2 => this.cam.worldToScreen(wx, wy);
-    const H = 36 * z; // rampart height (px)
-    const TOP = "#6e6557";
-    const RIGHT = "#544c41"; // +x face (east)
-    const LEFT = "#453f37"; // +y face (south)
-    const ink = "#15110d";
+    const corners = [
+      ws(gx * TILE, gy * TILE),
+      ws((gx + 1) * TILE, gy * TILE),
+      ws((gx + 1) * TILE, (gy + 1) * TILE),
+      ws(gx * TILE, (gy + 1) * TILE),
+    ];
+    const minX = Math.min(...corners.map((c) => c.x));
+    const maxX = Math.max(...corners.map((c) => c.x));
+    const maxY = Math.max(...corners.map((c) => c.y));
+    const center = ws((gx + 0.5) * TILE, (gy + 0.5) * TILE);
+    const cw = (sprite as HTMLCanvasElement).width;
+    const ch = (sprite as HTMLCanvasElement).height;
+    // Scale so a segment is ~1.45 tiles wide → adjacent walls overlap into a run.
+    const scale = ((maxX - minX) / cw) * 1.45;
+    const dw = cw * scale;
+    const dh = ch * scale;
 
-    // Draw an extruded box over world rect [x0,y0]-[x1,y1], from base height hb to
-    // top height ht (px). Shows the two camera-facing faces + the top.
-    const vbox = (x0: number, y0: number, x1: number, y1: number, hb: number, ht: number): void => {
-      const NW = ws(x0, y0), NE = ws(x1, y0), SE = ws(x1, y1), SW = ws(x0, y1);
-      const up = (p: Vec2, h: number): [number, number] => [p.x, p.y - h];
-      // East (+x) face: NE→SE.
-      ctx.beginPath();
-      ctx.moveTo(...up(NE, hb));
-      ctx.lineTo(...up(SE, hb));
-      ctx.lineTo(...up(SE, ht));
-      ctx.lineTo(...up(NE, ht));
-      ctx.closePath();
-      ctx.fillStyle = RIGHT;
-      ctx.fill();
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      // South (+y) face: SW→SE.
-      ctx.beginPath();
-      ctx.moveTo(...up(SW, hb));
-      ctx.lineTo(...up(SE, hb));
-      ctx.lineTo(...up(SE, ht));
-      ctx.lineTo(...up(SW, ht));
-      ctx.closePath();
-      ctx.fillStyle = LEFT;
-      ctx.fill();
-      ctx.stroke();
-      // Top face.
-      ctx.beginPath();
-      ctx.moveTo(...up(NW, ht));
-      ctx.lineTo(...up(NE, ht));
-      ctx.lineTo(...up(SE, ht));
-      ctx.lineTo(...up(SW, ht));
-      ctx.closePath();
-      ctx.fillStyle = TOP;
-      ctx.fill();
-      ctx.stroke();
-      // Rim light on the top's upper edges.
-      ctx.strokeStyle = "rgba(255,244,214,0.35)";
-      ctx.lineWidth = Math.max(1, 1.2 * z);
-      ctx.beginPath();
-      ctx.moveTo(...up(SW, ht));
-      ctx.lineTo(...up(NW, ht));
-      ctx.lineTo(...up(NE, ht));
-      ctx.stroke();
-    };
-
-    // Crenellated merlons along a run between world params t0..t1 on the given axis.
-    const merlonsAlong = (axis: "x" | "y"): void => {
-      ctx.fillStyle = TOP;
-      const n = 3;
-      for (let i = 0; i < n; i++) {
-        const f = (i + 0.5) / n; // center fraction along the tile
-        if (axis === "x") {
-          const cxw = (gx + f) * TILE;
-          vbox(cxw - 0.12 * TILE, (gy + 0.28) * TILE, cxw + 0.12 * TILE, (gy + 0.72) * TILE, H, H + 11 * z);
-        } else {
-          const cyw = (gy + f) * TILE;
-          vbox((gx + 0.28) * TILE, cyw - 0.12 * TILE, (gx + 0.72) * TILE, cyw + 0.12 * TILE, H, H + 11 * z);
-        }
+    // The sprite runs "/" (lower-left → upper-right) = a N–S wall. Mirror → "\" = E–W.
+    const blit = (mirror: boolean): void => {
+      const dx = center.x - dw / 2;
+      const dy = maxY - dh + (maxY - center.y) * 0.55; // base sits on the tile
+      ctx.save();
+      if (mirror) {
+        ctx.translate(center.x * 2, 0);
+        ctx.scale(-1, 1);
       }
+      ctx.drawImage(sprite, dx, dy, dw, dh);
+      ctx.restore();
     };
 
-    // Thick band centered on the tile; span the dominant axis (full tile length),
-    // junctions draw both, isolated → default E-W. half = band half-thickness.
-    const half = 0.3;
-    const ew = E || W || (!N && !S);
     const ns = N || S;
-    if (ns) {
-      vbox((gx + 0.5 - half) * TILE, gy * TILE, (gx + 0.5 + half) * TILE, (gy + 1) * TILE, 0, H);
-    }
-    if (ew) {
-      vbox(gx * TILE, (gy + 0.5 - half) * TILE, (gx + 1) * TILE, (gy + 0.5 + half) * TILE, 0, H);
-    }
-    if (ns) merlonsAlong("y");
-    if (ew) merlonsAlong("x");
+    const ew = E || W || (!N && !S && !E && !W); // isolated → default E–W ("\")
+    if (ns) blit(false); // "/" segment
+    if (ew) blit(true); // "\" segment (mirrored) — corners draw both
   }
 
   /** A dark furnace with a flickering ember mouth — the Forge. */

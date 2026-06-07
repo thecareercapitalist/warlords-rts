@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.138.0 — Hand-painted iso walls _(2026-06-07)_
+- Replaced the code-art walls with a **generated gothic stone rampart** (Gemini),
+  rendered at the two isometric diagonals — the sprite as-drawn is a N–S wall, and
+  it's mirrored for E–W. Corners draw both, overlapping into an L. Segments are
+  scaled to overlap so a run reads as one continuous battlemented wall. Matches the
+  tower/building art quality.
+
 ## v0.137.0 — Proper stone walls + no box in build mode _(2026-06-07)_
 - **Walls look good again:** replaced the flat slab "beams" with real isometric
   **volumes** — a lit top face, two shaded side faces, an inked outline, rim light,

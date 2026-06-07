@@ -145,6 +145,8 @@ export class Assets {
   private enemyUnitSprites = new Map<string, CanvasImageSource>();
   private enemyBuildingSprites = new Map<string, CanvasImageSource>();
   private propSprites = new Map<string, CanvasImageSource>();
+  /** Single iso wall segment ("/" diagonal); mirror it in code for "\". */
+  wallSprite: CanvasImageSource | undefined;
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -249,6 +251,12 @@ export class Assets {
         if (!img) return;
         const e = sliceGrid(img, 1, 1, ["enclave"]).get("enclave");
         if (e) { this.buildingSprites.set("enclave", e); this.enemyBuildingSprites.set("enclave", e); }
+      }),
+    );
+    jobs.push(
+      load(inl?.wall ?? "/gen_wall.jpg").then((img) => {
+        if (!img) return;
+        this.wallSprite = sliceGrid(img, 1, 1, ["wall"]).get("wall");
       }),
     );
     await Promise.all(jobs);
