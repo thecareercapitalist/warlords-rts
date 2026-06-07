@@ -31,7 +31,8 @@ export type BuildingKind =
   | "sawmill"
   | "temple"
   | "tower"
-  | "forge";
+  | "forge"
+  | "wall";
 
 export interface PlayerState {
   id: number;

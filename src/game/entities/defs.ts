@@ -273,4 +273,18 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     attackRange: 6,
     attackCooldown: 1.1,
   },
+  wall: {
+    kind: "wall",
+    label: "Wall",
+    glyph: "▦",
+    maxHp: 350, // sturdy, but siege (Catapult ×4) chews through it
+    footprint: 1,
+    visionRadius: 1,
+    costGold: 20,
+    costWood: 10,
+    buildTime: 8,
+    providesSupply: 0,
+    accepts: [],
+    produces: [], // purely a barrier — blocks movement at a chokepoint
+  },
 };

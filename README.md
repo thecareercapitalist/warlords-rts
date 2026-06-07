@@ -45,7 +45,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Attack-move | Press `A`, then left-click a location |
 | Patrol | Press `P`, then left-click a point (marches back and forth) |
 | Hold position | Press `Z` to toggle (selected units fire in range but never chase) |
-| Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `G` Forge · `T` Guard Tower · `H` Town Hall, then click to place |
+| Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `G` Forge · `T` Guard Tower · `L` Wall · `H` Town Hall, then click to place |
 | Help build / assign worker | Right-click an unfinished building with worker(s) selected |
 | Repair a building | Right-click a damaged friendly building with worker(s) selected |
 | Cancel a building (full refund) | Select the unfinished building, click Cancel (`C`) |

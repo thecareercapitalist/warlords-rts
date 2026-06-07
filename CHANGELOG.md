@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.110.0 — Walls _(2026-06-07)_
+- New cheap **Wall** building (`L`, 20g/10w, 1×1, 350 HP) — a pure barrier to seal
+  chokepoints and screen your base; pair with Guard Towers behind it. Siege
+  (Catapult ×4) is the counter. Verified headlessly: placing a wall flips its tile
+  from walkable to blocked (A* routes around), and the build button appears
+  ("20g 10w", hotkey L).
+
 ## v0.109.0 — Escalating AI attack waves _(2026-06-07)_
 - Each attack wave the AI commits now **raises the muster threshold for the next**
   (6 → 8 → 10 … capped at 14), so its assaults grow larger and more dangerous as a
