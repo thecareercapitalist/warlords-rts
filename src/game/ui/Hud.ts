@@ -78,6 +78,7 @@ export class Hud {
         { kind: "barracks", key: "B" },
         { kind: "sawmill", key: "W" },
         { kind: "temple", key: "E" },
+        { kind: "tower", key: "T" },
         { kind: "townhall", key: "H" },
       ];
       builds.forEach(({ kind, key }, i) => {

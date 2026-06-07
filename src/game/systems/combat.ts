@@ -86,6 +86,50 @@ export function updateCombat(world: World, dt: number): void {
       fightTarget(world, u, dt);
     }
   }
+
+  updateTowers(world, dt);
+}
+
+/** Defensive buildings (towers) auto-fire at the nearest enemy unit in range. */
+function updateTowers(world: World, dt: number): void {
+  for (const b of world.buildings) {
+    if (b.dead || b.state !== "complete" || b.def.damage === undefined) continue;
+    if (b.attackCooldown > 0) {
+      b.attackCooldown -= dt;
+      continue;
+    }
+    const rPx = (b.def.attackRange ?? 0) * TILE;
+    const r2 = rPx * rPx;
+    const c = b.center();
+    let best: Unit | null = null;
+    let bestD = Infinity;
+    for (const o of world.units) {
+      if (o.dead || o.playerId === b.playerId) continue;
+      const d = dist2(c, o.pos);
+      if (d < r2 && d < bestD) {
+        bestD = d;
+        best = o;
+      }
+    }
+    if (!best) continue;
+    world.events.push({ type: "projectile", from: { x: c.x, y: c.y }, to: { x: best.pos.x, y: best.pos.y } });
+    world.events.push({ type: "attack", ranged: true });
+    best.hp -= b.def.damage;
+    best.hitFlash = 0.12;
+    world.events.push({ type: "damaged", playerId: best.playerId, x: best.pos.x, y: best.pos.y });
+    b.attackCooldown = b.def.attackCooldown ?? 1.2;
+    if (best.hp <= 0) {
+      world.events.push({
+        type: "death",
+        x: best.pos.x,
+        y: best.pos.y,
+        color: world.player(best.playerId).color,
+        glyph: best.def.glyph,
+        by: b.playerId,
+      });
+      best.state = "dead";
+    }
+  }
 }
 
 function fightTarget(world: World, u: Unit, _dt: number): void {

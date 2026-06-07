@@ -42,7 +42,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Select all of a type in view | Double-click a unit |
 | Move / gather / attack | Right-click (context-sensitive) |
 | Attack-move | Press `A`, then left-click a location |
-| Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `H` Town Hall, then click to place |
+| Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `T` Guard Tower · `H` Town Hall, then click to place |
 | Help build / assign worker | Right-click an unfinished building with worker(s) selected |
 | Repair a building | Right-click a damaged friendly building with worker(s) selected |
 | Cancel a building (full refund) | Select the unfinished building, click Cancel (`C`) |
@@ -72,6 +72,8 @@ workers left to rebuild.
 - **Barracks** train Footmen (melee) and Archers (ranged, cost wood).
 - **Temple** is a tech building — once built, it unlocks **Knights** (heavy
   melee) at the Barracks.
+- **Guard Tower** is a cheap defensive building that auto-fires at enemies in
+  range — fortify your chokepoints and resource lines.
 - The **enemy AI** grows its economy, builds a barracks, and sends attack waves
   once its army is big enough.
 - **Veterancy:** units gain rank from kills (ember chevrons) — rank 1 at 2 kills

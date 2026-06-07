@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.40.0 — Guard Tower _(2026-06-07)_
+- New defensive building: the **Guard Tower** (`T`, 120g/40w, 1×1) auto-fires
+  arrows at the nearest enemy unit within 6 tiles — finally a way to fortify
+  chokepoints and your economy (very They Are Billions). Verified headlessly:
+  a tower kills an in-range enemy, ignores out-of-range enemies, and never hits
+  friendly units.
+
 ## v0.39.0 — AI workers flee raids _(2026-06-07)_
 - The AI is smarter on defense: its **workers now retreat to the town hall** when
   an enemy soldier comes within ~3.5 tiles, then return to gathering once the

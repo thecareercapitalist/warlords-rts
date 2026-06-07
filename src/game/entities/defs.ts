@@ -36,6 +36,10 @@ export interface BuildingDef {
   accepts: ResourceKind[];
   // What this building can produce, by faction-neutral kind.
   produces: UnitKind[];
+  // Defensive buildings (towers) fire at enemies in range.
+  damage?: number;
+  attackRange?: number; // tiles
+  attackCooldown?: number; // seconds between shots
 }
 
 // Two mirror factions ("humans"/"orcs" in spirit) share stats; only the worker
@@ -206,5 +210,23 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     providesSupply: 0,
     accepts: [],
     produces: [], // a tech building; unlocks Knights at the Barracks
+  },
+  tower: {
+    kind: "tower",
+    label: "Guard Tower",
+    glyph: "GT",
+    maxHp: 450,
+    footprint: 1,
+    visionRadius: 7,
+    costGold: 120,
+    costWood: 40,
+    buildTime: 25,
+    providesSupply: 0,
+    accepts: [],
+    produces: [],
+    // Defensive: fires arrows at the nearest enemy in range.
+    damage: 12,
+    attackRange: 6,
+    attackCooldown: 1.1,
   },
 };
