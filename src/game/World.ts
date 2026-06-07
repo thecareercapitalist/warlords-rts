@@ -11,7 +11,9 @@ export const AI_PLAYER = 1;
 /** Transient gameplay events emitted by systems and drained for FX/sound. */
 export type GameEvent =
   | { type: "projectile"; from: Vec2; to: Vec2 }
-  | { type: "death"; x: number; y: number; color: string; glyph: string };
+  | { type: "death"; x: number; y: number; color: string; glyph: string }
+  | { type: "attack"; ranged: boolean }
+  | { type: "build" };
 
 export class World {
   readonly map: TileMap;

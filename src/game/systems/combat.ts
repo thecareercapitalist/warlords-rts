@@ -107,7 +107,9 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       u.attackAnim = 0.18;
       u.aim = { x: c.x, y: c.y };
       t.hitFlash = 0.12;
-      if (u.def.attackRange > 1) {
+      const ranged = u.def.attackRange > 1;
+      world.events.push({ type: "attack", ranged });
+      if (ranged) {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
       t.hp -= u.def.damage;

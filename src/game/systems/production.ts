@@ -37,6 +37,7 @@ function updateConstruction(world: World, dt: number): void {
     if (b.construction >= 1) {
       b.state = "complete";
       b.hp = b.def.maxHp;
+      world.events.push({ type: "build" });
       world.recomputeSupply();
       // Release builders.
       for (const u of world.units) {

@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.6.0 — Sound, zoom & launcher _(2026-06-07)_
+- **Procedural sound effects** via the Web Audio API (no audio files): sword
+  clang, arrow whoosh, build-complete chime, death, UI click — synthesized in
+  code and driven off the `World.events` bus. AudioContext unlocks on first
+  input; `M` toggles mute (persisted); a 🔊/🔇 indicator shows state.
+- **Mouse-wheel zoom** toward the cursor, clamped (0.35×–1.8×).
+- **`Play Warlords.cmd`** — one-click launcher that installs deps if needed,
+  starts the dev server, and opens the browser. Make a desktop shortcut to it.
+
 ## v0.5.0 — Combat juice _(2026-06-07)_
 - Added a presentation event bus (`World.events`) drained each frame into an
   `Effects` layer — gameplay stays decoupled from visuals.

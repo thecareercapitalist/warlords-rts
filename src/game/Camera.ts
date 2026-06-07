@@ -65,6 +65,19 @@ export class Camera {
     this.clampToWorld();
   }
 
+  /** Zoom by `factor` while keeping the world point under (sx,sy) fixed. */
+  zoomAt(sx: number, sy: number, factor: number): void {
+    const isoX = sx / this.zoom + this.x;
+    const isoY = sy / this.zoom + this.y;
+    this.zoom = clamp(this.zoom * factor, Camera.MIN_ZOOM, Camera.MAX_ZOOM);
+    this.x = isoX - sx / this.zoom;
+    this.y = isoY - sy / this.zoom;
+    this.clampToWorld();
+  }
+
+  private static readonly MIN_ZOOM = 0.35;
+  private static readonly MAX_ZOOM = 1.8;
+
   centerOn(p: Vec2): void {
     const iso = project(p.x, p.y);
     this.x = iso.x - this.viewW / this.zoom / 2;

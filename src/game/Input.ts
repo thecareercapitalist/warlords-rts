@@ -22,6 +22,8 @@ export class Input {
   leftClicks: Vec2[] = [];
   rightClicks: Vec2[] = [];
   pressedKeys: string[] = [];
+  /** Accumulated mouse-wheel delta since last frame (negative = scroll up). */
+  wheel = 0;
 
   drag: DragBox = { start: { x: 0, y: 0 }, current: { x: 0, y: 0 }, active: false };
   shift = false;
@@ -31,6 +33,16 @@ export class Input {
 
   attach(canvas: HTMLCanvasElement): void {
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    canvas.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        this.wheel += e.deltaY;
+        this.moved = true;
+      },
+      { passive: false },
+    );
 
     canvas.addEventListener("mousemove", (e) => {
       const r = canvas.getBoundingClientRect();
@@ -107,5 +119,6 @@ export class Input {
     this.leftClicks.length = 0;
     this.rightClicks.length = 0;
     this.pressedKeys.length = 0;
+    this.wheel = 0;
   }
 }

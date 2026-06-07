@@ -4,6 +4,7 @@ import { Input } from "./Input.ts";
 import { Renderer, type RenderState } from "./render/Renderer.ts";
 import { Assets } from "./render/assets.ts";
 import { Effects } from "./render/effects.ts";
+import { Sfx } from "./audio/Sfx.ts";
 import { Hud, type HudAction } from "./ui/Hud.ts";
 import { Keybindings } from "./ui/Keybindings.ts";
 import { PauseMenu } from "./ui/PauseMenu.ts";
@@ -37,6 +38,7 @@ export class Game {
   private readonly renderer: Renderer;
   private readonly assets = new Assets();
   private readonly effects = new Effects();
+  private readonly sfx = new Sfx();
   private readonly hud: Hud;
   private readonly kb: Keybindings;
   private readonly pauseMenu = new PauseMenu();
@@ -198,7 +200,11 @@ export class Game {
     // death positions are still valid), then advance effect animations.
     for (const e of this.world.events) {
       if (e.type === "projectile") this.effects.spawnProjectile(e.from, e.to);
-      else if (e.type === "death") this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
+      else if (e.type === "death") {
+        this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
+        this.sfx.death();
+      } else if (e.type === "attack") this.sfx.attack(e.ranged);
+      else if (e.type === "build") this.sfx.build();
     }
     this.world.events.length = 0;
     this.effects.update(dt);
@@ -220,6 +226,12 @@ export class Game {
       this.startNewGame((Math.floor(performance.now()) % 100000) + 1);
       return;
     }
+
+    // Any input is a user gesture — unlock audio (browsers require this).
+    if (this.input.leftClicks.length || this.input.rightClicks.length || this.input.pressedKeys.length) {
+      this.sfx.unlock();
+    }
+    if (this.input.pressedKeys.includes("m")) this.sfx.toggleMute();
 
     // Escape: cancel a pending action, or toggle the pause menu.
     if (this.input.pressedKeys.includes("escape")) this.onEscape();
@@ -247,6 +259,12 @@ export class Game {
       if (m.y > this.cam.viewH - EDGE_SCROLL_MARGIN && !this.hud.isOverUi(m)) cdy += 1;
     }
     if (cdx || cdy) this.cam.move(cdx * CAMERA_SPEED * dt, cdy * CAMERA_SPEED * dt);
+
+    // Mouse-wheel zoom toward the cursor (scroll up = zoom in).
+    if (this.input.wheel !== 0) {
+      const factor = this.input.wheel < 0 ? 1.12 : 1 / 1.12;
+      this.cam.zoomAt(this.input.mouse.x, this.input.mouse.y, factor);
+    }
 
     // Keyboard commands (bound actions first, then contextual HUD hotkeys).
     for (const key of this.input.pressedKeys) {
@@ -347,6 +365,7 @@ export class Game {
 
   /** Issue a context-sensitive command to the current selection. */
   private commandTo(worldPt: Vec2): void {
+    if (this.selUnits.length > 0 || this.selBuildings.length === 1) this.sfx.click();
     // Rally point for a single selected production building.
     if (this.selUnits.length === 0 && this.selBuildings.length === 1) {
       const b = this.selBuildings[0];
@@ -431,6 +450,7 @@ export class Game {
   // --- Commands -----------------------------------------------------------
 
   private applyHudAction(action: HudAction): void {
+    this.sfx.click();
     if (action.type === "stop") {
       for (const u of this.selUnits) u.stop();
       return;
@@ -567,6 +587,13 @@ export class Game {
       this.fog.vis,
       this.attackMoveMode ? "Attack-move: click a target location" : this.message,
     );
+
+    // Audio mute indicator (top-right of the resource bar).
+    this.ctx.font = "14px 'Segoe UI', sans-serif";
+    this.ctx.textAlign = "right";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillStyle = this.sfx.muted ? "#ff8888" : "#9fb2c2";
+    this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won");
