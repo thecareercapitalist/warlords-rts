@@ -14,6 +14,7 @@ export type GameEvent =
   | { type: "death"; x: number; y: number; color: string; glyph: string }
   | { type: "attack"; ranged: boolean }
   | { type: "damaged"; playerId: number; x: number; y: number }
+  | { type: "gain"; playerId: number; x: number; y: number; kind: ResourceKind; amount: number }
   | { type: "build" };
 
 export class World {

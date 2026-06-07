@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.22.0 — Floating resource gains _(2026-06-07)_
+- Depositing gold/wood now pops a rising, fading **"+N"** in the resource's color
+  (with an inked outline) above the drop-off — small but satisfying economy
+  feedback. Verified headlessly: a wood deposit spawned a "+8" floater.
+
 ## v0.21.0 — Formation move _(2026-06-07)_
 - Right-clicking empty ground with several units selected now spreads them into a
   centered grid instead of sending everyone to the exact same tile (where they'd

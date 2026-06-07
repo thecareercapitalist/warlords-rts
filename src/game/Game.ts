@@ -217,6 +217,9 @@ export class Game {
         this.sfx.death();
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
+      else if (e.type === "gain" && e.playerId === this.humanId) {
+        this.effects.spawnFloater(e.x, e.y, `+${e.amount}`, e.kind === "gold" ? "#e8c060" : "#b07a45");
+      }
       else if (e.type === "damaged" && e.playerId === this.humanId) {
         this.attackPing = { x: e.x, y: e.y, t: 0 }; // keep ping fresh during an assault
         if (this.attackAlertCd <= 0) {

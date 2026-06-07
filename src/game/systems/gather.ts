@@ -119,8 +119,11 @@ function deposit(world: World, u: Unit): void {
 
   if (u.carrying) {
     const p = world.player(u.playerId);
-    if (u.carrying.kind === "gold") p.gold += u.carrying.amount;
-    else p.wood += u.carrying.amount;
+    const { kind, amount } = u.carrying;
+    if (kind === "gold") p.gold += amount;
+    else p.wood += amount;
+    const c = drop.center();
+    world.events.push({ type: "gain", playerId: u.playerId, x: c.x, y: c.y, kind, amount });
     u.carrying = null;
   }
 

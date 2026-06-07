@@ -476,6 +476,23 @@ export class Renderer {
       ctx.fillText(d.glyph, s.x, y);
       ctx.globalAlpha = 1;
     }
+
+    // Floating "+N" resource gain text, rising and fading.
+    for (const f of fx.floaters) {
+      const k = f.t / f.dur;
+      const s = this.cam.worldToScreen(f.x, f.y);
+      const y = s.y - 10 * z - k * 26 * z;
+      ctx.globalAlpha = Math.max(0, 1 - k);
+      ctx.font = `bold ${Math.floor(13 * z)}px 'Segoe UI', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#15110d";
+      ctx.strokeText(f.text, s.x, y);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.text, s.x, y);
+      ctx.globalAlpha = 1;
+    }
   }
 
   private drawDragBox(box: { x: number; y: number; w: number; h: number }): void {
