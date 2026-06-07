@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.104.0 — Siege dust shockwave _(2026-06-07)_
+- A Catapult's shot now kicks up a **dusty crater shockwave** on impact (atop the
+  spark burst + screen jolt), giving the splash a readable area-blast. Verified
+  headlessly: a catapult hit spawns a dust effect, an archer's does not.
+
 ## v0.103.0 — Catapult splash damage _(2026-06-07)_
 - The Catapult's shot now deals **splash damage** (0.6× its base) to enemy units
   within 1.5 tiles of the impact — so massing infantry against siege is punished,

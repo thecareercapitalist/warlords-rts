@@ -234,8 +234,9 @@ export class Game {
         this.effects.spawnProjectile(e.from, e.to, e.heavy);
         this.effects.spawnImpact(e.from.x, e.from.y); // muzzle flash at the shooter
         if (e.heavy) {
-          // Siege shot lands with weight: a burst at the impact + a jolt.
+          // Siege shot lands with weight: a spark burst, a dust shockwave, a jolt.
           this.effects.spawnImpact(e.to.x, e.to.y);
+          this.effects.spawnCollapse(e.to.x, e.to.y, 22); // dusty crater puff
           this.shake = Math.max(this.shake, 4);
         }
       }
