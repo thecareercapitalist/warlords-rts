@@ -13,7 +13,8 @@ export type HudAction =
   | { type: "train"; kind: UnitKind }
   | { type: "cancel" }
   | { type: "cancelUnit" }
-  | { type: "stop" };
+  | { type: "stop" }
+  | { type: "denied"; label: string; reason: string };
 
 interface Button {
   rect: Rect;
@@ -153,7 +154,10 @@ export class Hud {
 
   hitTestCommand(p: Vec2): HudAction | null {
     for (const b of this.buttons) {
-      if (b.enabled && rectContains(b.rect, p)) return b.action;
+      if (!rectContains(b.rect, p)) continue;
+      if (b.enabled) return b.action;
+      // Disabled button → explain why (cost / prerequisite) instead of ignoring.
+      return { type: "denied", label: b.label, reason: b.sub };
     }
     return null;
   }

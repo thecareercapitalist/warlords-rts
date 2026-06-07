@@ -714,6 +714,10 @@ export class Game {
   // --- Commands -----------------------------------------------------------
 
   private applyHudAction(action: HudAction): void {
+    if (action.type === "denied") {
+      this.setMessage(`${action.label}: ${action.reason}`);
+      return;
+    }
     this.sfx.click();
     if (action.type === "stop") {
       for (const u of this.selUnits) u.stop();

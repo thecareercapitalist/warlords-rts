@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.69.0 — Unaffordable-action feedback _(2026-06-07)_
+- Clicking a **disabled** build/train button now surfaces *why* it's unavailable
+  (its cost or prerequisite, e.g. "Farm: 80g 20w" or "Knight: needs Temple")
+  instead of doing nothing. Verified headlessly: a disabled Farm button returns a
+  denied action and posts the cost message.
+
 ## v0.68.0 — Under-attack screen pulse _(2026-06-07)_
 - When your forces take damage, the **screen edges now flash crimson** (fading
   over ~1.5s, re-triggered on each hit) — a visceral urgency cue layered on the
