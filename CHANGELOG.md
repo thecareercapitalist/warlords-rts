@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.51.0 — Waypoint queue _(2026-06-07)_
+- Hold **Shift + right-click** on open ground to queue a series of move
+  waypoints; units walk them in order (great for scouting routes or skirting
+  danger). Any fresh, non-shift command clears the queue. Verified headlessly: 3
+  shift-clicks queued 3 points, the unit visited all in sequence, and a normal
+  order cleared the queue.
+
 ## v0.50.0 — Selection combat stats _(2026-06-07)_
 - The single-unit selection panel now shows an **Atk / Def / Vet** line, surfacing
   damage, armor, and veterancy rank at a glance. Verified headlessly: footman

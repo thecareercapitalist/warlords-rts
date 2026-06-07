@@ -23,6 +23,7 @@ export class Unit {
   path: Vec2[] = [];
   /** Final pixel destination once the path is consumed. */
   finalTarget: Vec2 | null = null;
+  waypoints: Vec2[] = []; // queued move destinations (shift-click), visited in order
 
   attackTarget: Targetable | null = null;
   /** When true, the unit engages enemies encountered en route. */
@@ -79,6 +80,7 @@ export class Unit {
   stop(): void {
     this.path = [];
     this.finalTarget = null;
+    this.waypoints = [];
     this.attackTarget = null;
     this.attackMove = false;
     this.resourceTile = null;

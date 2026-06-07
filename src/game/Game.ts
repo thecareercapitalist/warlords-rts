@@ -28,6 +28,7 @@ import {
   orderGather,
   orderBuild,
   nearestWalkable,
+  updateWaypoints,
 } from "./systems/orders.ts";
 import { entityAt, unitAt, unitsInRect } from "./systems/selection.ts";
 import { saveGame, loadGame } from "./systems/persistence.ts";
@@ -217,6 +218,7 @@ export class Game {
     updateGather(this.world, dt);
     updateCombat(this.world, dt);
     updateMovement(this.world, dt);
+    updateWaypoints(this.world);
 
     // Drain gameplay events into the presentation layer (before cleanup so
     // death positions are still valid), then advance effect animations.
@@ -551,12 +553,23 @@ export class Game {
         ? ownBuilding
         : null;
 
-    // Plain group move → spread into a loose grid so units don't pile on one tile.
     const isEnemyTarget = !!(target && target.playerId !== this.humanId);
     const isResource =
       !!node && node.resource > 0 && (node.terrain === "forest" || node.terrain === "goldmine");
     const movers = this.selUnits.filter((u) => u.playerId === this.humanId);
-    if (!workTarget && !isEnemyTarget && !isResource && movers.length > 1) {
+    const plainMove = !workTarget && !isEnemyTarget && !isResource;
+
+    // Shift + right-click on open ground queues a waypoint instead of replacing
+    // the current order; units visit queued points in sequence.
+    if (plainMove && this.input.shift) {
+      for (const u of movers) u.waypoints.push({ ...worldPt });
+      return;
+    }
+    // A fresh (non-queued) command clears any pending waypoints.
+    for (const u of movers) u.waypoints = [];
+
+    // Plain group move → spread into a loose grid so units don't pile on one tile.
+    if (plainMove && movers.length > 1) {
       const pts = this.formationPoints(worldPt, movers.length);
       movers.forEach((u, i) => orderMove(this.world, u, pts[i]));
       return;

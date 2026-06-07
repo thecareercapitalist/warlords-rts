@@ -76,6 +76,21 @@ export function orderMove(world: World, u: Unit, pixel: Vec2): void {
   pathTo(world, u, t.x, t.y, pixel);
 }
 
+/**
+ * Advance queued shift-click waypoints: an idle unit with a pending waypoint
+ * moves to the next one. orderMove leaves `waypoints` untouched, so the rest of
+ * the queue survives until each leg completes.
+ */
+export function updateWaypoints(world: World): void {
+  for (const u of world.units) {
+    if (u.dead || u.waypoints.length === 0) continue;
+    if (u.state === "idle" && u.finalTarget === null && u.path.length === 0) {
+      const next = u.waypoints.shift()!;
+      orderMove(world, u, next);
+    }
+  }
+}
+
 export function orderAttackMove(world: World, u: Unit, pixel: Vec2): void {
   const t = toTile(pixel.x, pixel.y);
   u.attackTarget = null;
