@@ -51,7 +51,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Zoom in / out | Mouse wheel (toward the cursor) |
 | Mute / unmute sound | `M` |
 | Jump the camera | Click/right-click the minimap |
-| Pause / open menu | `Esc` |
+| Pause / open menu | `Esc` (Save Game / Load Game live here) |
 | Rebind keys | `Esc`, then click a control's key box and press a new key (saved automatically) |
 | Restart (after win/loss) | `R` |
 

@@ -30,6 +30,7 @@ import {
   nearestWalkable,
 } from "./systems/orders.ts";
 import { entityAt, unitsInRect } from "./systems/selection.ts";
+import { saveGame, loadGame } from "./systems/persistence.ts";
 
 export class Game {
   private readonly ctx: CanvasRenderingContext2D;
@@ -434,6 +435,33 @@ export class Game {
     this.pauseMenu.awaiting = null;
   }
 
+  private doLoad(): void {
+    const res = loadGame();
+    if (!res) {
+      this.setMessage("No saved game");
+      return;
+    }
+    this.world = res.world;
+    this.fog = new Fog(this.humanId);
+    this.fog.importExplored(res.explored);
+    this.ai = new AIController(AI_PLAYER);
+    this.selUnits = [];
+    this.selBuildings = [];
+    this.controlGroups.clear();
+    this.buildMode = null;
+    this.builder = null;
+    this.attackMoveMode = false;
+    this.effects.clear();
+    this.gameOver = null;
+    this.world.recomputeSupply();
+    this.fog.update(this.world);
+    const th = this.world.buildingsOf(this.humanId).find((b) => b.kind === "townhall");
+    this.pendingCenter = th ? th.center() : tileCenter(5, 5);
+    this.rebuildHudButtons();
+    this.setPaused(false);
+    this.setMessage("Game loaded");
+  }
+
   private handleMenuInput(): void {
     // Capture the next key press as a new binding.
     if (this.pauseMenu.awaiting) {
@@ -451,6 +479,11 @@ export class Game {
       else if (res.type === "restart") {
         this.setPaused(false);
         this.startNewGame((Math.floor(performance.now()) % 100000) + 1);
+      } else if (res.type === "save") {
+        const ok = saveGame(this.world, this.fog.exportExplored());
+        this.setMessage(ok ? "Game saved" : "Save failed");
+      } else if (res.type === "load") {
+        this.doLoad();
       } else if (res.type === "reset") this.kb.reset();
       else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
     }

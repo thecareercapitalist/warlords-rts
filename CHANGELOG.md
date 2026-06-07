@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.10.0 — Save / Load _(2026-06-07)_
+- **Save Game / Load Game** buttons in the Esc pause menu. State persists to
+  localStorage: resources, every unit (kind/pos/HP/carried load), every building
+  (kind/footprint/state/construction/HP/queue/rally), terrain resource amounts,
+  and the explored fog mask. Transient orders/targets reset to idle on load so a
+  save can never hold a dangling reference. Verified headlessly via the menu
+  buttons (save → mutate → load restores exactly).
+
 ## v0.9.0 — AI base defense _(2026-06-07)_
 - The enemy AI now **defends**: when your units come within ~12 tiles of any of
   its buildings, it pulls its whole army home (interrupting an offensive wave) to

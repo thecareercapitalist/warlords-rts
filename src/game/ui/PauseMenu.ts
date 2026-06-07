@@ -6,6 +6,8 @@ import { ACTION_ORDER, type ActionId, type Keybindings } from "./Keybindings.ts"
 export type MenuResult =
   | { type: "resume" }
   | { type: "restart" }
+  | { type: "save" }
+  | { type: "load" }
   | { type: "reset" }
   | { type: "rebind"; action: ActionId };
 
@@ -13,6 +15,8 @@ interface Layout {
   panel: Rect;
   resume: Rect;
   restart: Rect;
+  save: Rect;
+  load: Rect;
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
 }
@@ -26,7 +30,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 460;
-    const ph = 120 + ACTION_ORDER.length * 40 + 70;
+    const ph = 164 + ACTION_ORDER.length * 40 + 70;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -34,21 +38,25 @@ export class PauseMenu {
     const btn = (x: number, y: number, w: number): Rect => ({ x, y, w, h: 34 });
     const resume = btn(px + 30, py + 56, 180);
     const restart = btn(px + pw - 210, py + 56, 180);
+    const save = btn(px + 30, py + 98, 180);
+    const load = btn(px + pw - 210, py + 98, 180);
 
     const rows: Layout["rows"] = [];
-    let ry = py + 110;
+    let ry = py + 154;
     for (const a of ACTION_ORDER) {
       rows.push({ action: a.id, label: a.label, keyBox: { x: px + pw - 150, y: ry, w: 110, h: 28 } });
       ry += 40;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, reset, rows };
+    return { panel, resume, restart, save, load, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
     const l = this.layoutFor(cam);
     if (rectContains(l.resume, p)) return { type: "resume" };
     if (rectContains(l.restart, p)) return { type: "restart" };
+    if (rectContains(l.save, p)) return { type: "save" };
+    if (rectContains(l.load, p)) return { type: "load" };
     if (rectContains(l.reset, p)) return { type: "reset" };
     for (const row of l.rows) {
       if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
@@ -78,12 +86,14 @@ export class PauseMenu {
 
     this.button(ctx, l.resume, "Resume", true);
     this.button(ctx, l.restart, "Restart", true);
+    this.button(ctx, l.save, "Save Game", true);
+    this.button(ctx, l.load, "Load Game", true);
 
     // Controls header.
     ctx.fillStyle = "#9fb2c2";
     ctx.font = "13px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("CONTROLS — click a key to rebind", l.panel.x + 30, l.panel.y + 96);
+    ctx.fillText("CONTROLS — click a key to rebind", l.panel.x + 30, l.panel.y + 140);
 
     for (const row of l.rows) {
       ctx.fillStyle = "#dfe6ee";

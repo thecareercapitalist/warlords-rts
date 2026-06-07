@@ -21,6 +21,16 @@ export class Fog {
     this.explored = new Uint8Array(this.w * this.h);
   }
 
+  /** Export the explored-tile mask for saving. */
+  exportExplored(): number[] {
+    return Array.from(this.explored);
+  }
+
+  /** Restore a saved explored-tile mask. */
+  importExplored(arr: number[]): void {
+    for (let i = 0; i < this.explored.length; i++) this.explored[i] = arr[i] ? 1 : 0;
+  }
+
   level(x: number, y: number): number {
     if (x < 0 || y < 0 || x >= this.w || y >= this.h) return FOG_HIDDEN;
     return this.vis[y * this.w + x];
