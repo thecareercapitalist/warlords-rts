@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.74.0 — Worker tool silhouette _(2026-06-07)_
+- Workers now carry a **wooden-handled tool**, completing the per-type silhouette
+  set (worker tool · footman/grunt blade · archer bow · knight crest) so every
+  unit reads by role at a glance. Verified headlessly: a peon shows a brown tool
+  (62 px) a footman lacks (0).
+
 ## v0.73.0 — Per-type weapon silhouettes _(2026-06-07)_
 - Units now read by **role silhouette**, not just a letter: archers carry a wooden
   bow, footmen/grunts a steel blade, knights a gold helm crest (peons stay plain).

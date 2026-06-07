@@ -656,6 +656,14 @@ export class Renderer {
       ctx.moveTo(bx + r * 0.5, by + r * 0.45);
       ctx.lineTo(bx + r * 1.15, by - r * 0.75);
       ctx.stroke();
+    } else if (u.kind === "peon") {
+      ctx.strokeStyle = "#6b4a2a"; // wooden tool handle
+      ctx.beginPath();
+      ctx.moveTo(bx - r * 0.3, by + r * 0.5);
+      ctx.lineTo(bx + r * 0.35, by - r * 0.65);
+      ctx.stroke();
+      ctx.fillStyle = "#8a8f96"; // small steel head
+      ctx.fillRect(bx + r * 0.15, by - r * 0.9, 3 * z, 2.4 * z);
     }
 
     if (u.hitFlash > 0) {
