@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.50.0 — Selection combat stats _(2026-06-07)_
+- The single-unit selection panel now shows an **Atk / Def / Vet** line, surfacing
+  damage, armor, and veterancy rank at a glance. Verified headlessly: footman
+  "Atk 8", knight "Atk 16 · Def 2", veteran knight adds "· Vet 1".
+
 ## v0.49.0 — Idle-worker indicator _(2026-06-07)_
 - The resource bar now shows **"⚒ N idle"** whenever you have idle workers, so a
   stalled economy is obvious at a glance (pairs with the `.` select-idle hotkey).

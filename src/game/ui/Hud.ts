@@ -1,6 +1,7 @@
 import type { World } from "../World.ts";
 import type { Camera } from "../Camera.ts";
 import type { Unit } from "../entities/Unit.ts";
+import { veterancyRank } from "../entities/Unit.ts";
 import type { Building } from "../entities/Building.ts";
 import type { BuildingKind, UnitKind, Vec2 } from "../types.ts";
 import { MAP_W, MAP_H, TILE, COLORS } from "../constants.ts";
@@ -321,8 +322,9 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
-      ctx.fillText(`State: ${u.state}`, x, y + 38);
-      if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 56);
+      ctx.fillText(this.unitStatLine(u), x, y + 38);
+      ctx.fillText(`State: ${u.state}`, x, y + 56);
+      if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 74);
       return;
     }
     if (buildings.length >= 1) {
@@ -374,6 +376,15 @@ export class Hud {
           u.path.length === 0 &&
           u.finalTarget === null,
       ).length;
+  }
+
+  /** "Atk 16 · Def 2 · Vet 1" — combat stats for the selection panel. */
+  unitStatLine(u: Unit): string {
+    let s = `Atk ${u.def.damage}`;
+    if (u.def.armor) s += ` · Def ${u.def.armor}`;
+    const rank = veterancyRank(u.kills);
+    if (rank > 0) s += ` · Vet ${rank}`;
+    return s;
   }
 
   /** "3 Footman · 2 Archer" — composition of a multi-unit selection, most first. */
