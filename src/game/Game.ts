@@ -436,7 +436,10 @@ export class Game {
     // Selection.
     const ent = entityAt(this.world, world);
     if (!this.input.shift) this.clearSelection();
-    if (ent) this.addToSelection(ent);
+    if (ent) {
+      this.addToSelection(ent);
+      if (ent.playerId === this.humanId) this.sfx.select(); // own-unit ack
+    }
   }
 
   /** Grid of destination points centered on `center` for a group move. */
@@ -551,6 +554,7 @@ export class Game {
         }
       }
       this.selBuildings = [];
+      this.sfx.select(); // acknowledge the drag-selected squad
     }
     this.rebuildHudButtons();
   }

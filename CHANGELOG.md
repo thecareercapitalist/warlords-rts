@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.106.0 — Selection acknowledgement blip _(2026-06-07)_
+- Selecting your own units (single-click or drag) now plays a **soft select blip**
+  — a crisp RTS acknowledgement; clicking enemy units stays silent. Verified
+  headlessly (sfx spy): own-unit pick fires select once, enemy pick fires zero.
+
 ## v0.105.0 — Splash in selection panel _(2026-06-07)_
 - The selection panel now shows **"· Splash"** for area-damage units, so the
   Catapult's anti-cluster role is legible alongside its siege multiplier. Verified

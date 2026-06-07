@@ -98,6 +98,12 @@ export class Sfx {
     this.tone({ freq: 660, type: "square", dur: 0.04, gain: 0.18 });
   }
 
+  /** Soft blip when the player selects their own units — a crisp acknowledgement. */
+  select(): void {
+    if (!this.gate("select", 60)) return;
+    this.tone({ freq: 520, type: "triangle", dur: 0.05, gain: 0.16 });
+  }
+
   /** Soft two-note "unit ready" chime when a trained unit emerges. */
   ready(): void {
     if (!this.gate("ready", 90)) return;
