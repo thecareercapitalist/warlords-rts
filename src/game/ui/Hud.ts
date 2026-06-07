@@ -151,7 +151,7 @@ export class Hud {
         const techOk = !d.requiresBuilding || completedKinds.has(d.requiresBuilding);
         const sub = !techOk
           ? `needs ${BUILDING_DEFS[d.requiresBuilding!].label}`
-          : `${d.costGold}g${d.costWood ? " " + d.costWood + "w" : ""}`;
+          : `${d.costGold}g${d.costWood ? " " + d.costWood + "w" : ""} · ${d.supply}p`;
         this.buttons.push({
           rect: place(i),
           label: d.label,
@@ -504,12 +504,22 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(b.hp)}/${b.def.maxHp}`, x, y + 20);
+      // Attack / supply / heal stats for the building.
+      const stats: string[] = [];
+      if (b.def.damage) {
+        stats.push(`Atk ${b.def.damage}`);
+        if (b.def.attackRange) stats.push(`Rng ${b.def.attackRange}`);
+        if (b.def.attackCooldown) stats.push(`${b.def.attackCooldown.toFixed(1)}s`);
+      }
+      if (b.def.providesSupply) stats.push(`Supply +${b.def.providesSupply}`);
+      if (b.def.healRadius) stats.push(`Heal r${b.def.healRadius}`);
+      if (stats.length) ctx.fillText(stats.join(" · "), x, y + 38);
       if (b.state !== "complete") {
-        ctx.fillText(`Building… ${Math.floor(b.construction * 100)}%`, x, y + 38);
+        ctx.fillText(`Building… ${Math.floor(b.construction * 100)}%`, x, y + 56);
       } else if (b.queue.length > 0) {
-        ctx.fillText(`Training: ${b.queue.join(", ")}`, x, y + 38);
-        ctx.fillText(`(${Math.ceil(b.productionTimer)}s)`, x, y + 56);
-      } else {
+        ctx.fillText(`Training: ${b.queue.join(", ")}`, x, y + 56);
+        ctx.fillText(`(${Math.ceil(b.productionTimer)}s)`, x, y + 74);
+      } else if (!stats.length) {
         ctx.fillText(`Right-click to set rally point`, x, y + 38);
       }
     }
@@ -654,9 +664,11 @@ export class Hud {
   unitStatLine(u: Unit, atkBonus = 0): string {
     const eff = Math.round(u.def.damage * veterancyMult(u.kills)) + atkBonus;
     let s = `Atk ${eff}`;
+    if (u.def.attackRange > 1) s += ` · Rng ${u.def.attackRange}`;
     if (u.def.armor) s += ` · Def ${u.def.armor}`;
     if (u.def.siegeMult && u.def.siegeMult > 1) s += ` · Siege ×${u.def.siegeMult}`;
     if (u.def.splash) s += " · Splash";
+    s += ` · Pop ${u.def.supply}`;
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
     return s;

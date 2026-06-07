@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.143.0 — Stat visibility _(2026-06-07)_
+- **Supply is now shown** on every train button (e.g. `45g · 1p`) and in the unit
+  selection panel (`Atk 8 · Pop 1`), plus attack **range** for ranged units.
+- **Building stats in the selection panel:** towers show `Atk · Rng · cooldown`,
+  supply buildings show `Supply +N`, and the Temple shows its `Heal r5` aura.
+
 ## v0.142.0 — Dragon flight, AI casters, mining swing _(2026-06-07)_
 - **Dragons fly:** they path in a straight line over water/walls, and **melee units
   can no longer hit them** — only ranged attackers (archers, towers, mages, other
