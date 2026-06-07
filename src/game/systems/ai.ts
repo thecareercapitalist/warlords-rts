@@ -11,6 +11,7 @@ import { toTile } from "../util/math.ts";
 
 const TICK = 1.0; // seconds between AI decisions
 const TARGET_WORKERS = 8;
+const MAX_BARRACKS = 2;
 const ATTACK_ARMY_SIZE = 6; // launch a wave once this many fighters exist
 const DEFEND_RADIUS = 12; // tiles: enemies this close to a building trigger defense
 const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
@@ -54,8 +55,17 @@ export class AIController {
   }
 
   private manageEconomy(world: World, units: Unit[], _buildings: Building[], townhall: Building): void {
-    // Put idle workers back to work.
-    for (const w of this.workers(units)) {
+    const workers = this.workers(units);
+    // Keep ~a third of workers on wood so farms/temple/archers don't starve the
+    // economy (gold alone piles up while wood stays at zero, capping supply).
+    const woodTarget = Math.max(2, Math.floor(workers.length * 0.35));
+    const onWood = (w: Unit): boolean => {
+      const rt = w.resourceTile;
+      const t = rt && world.map.at(rt.x, rt.y);
+      return !!t && t.terrain === "forest";
+    };
+
+    for (const w of workers) {
       const idleish =
         w.state === "idle" ||
         (w.state !== "gathering" &&
@@ -64,7 +74,14 @@ export class AIController {
           w.state !== "building");
       if (!idleish) continue;
       if (w.buildTarget) continue;
-      const node = this.findResource(world, townhall.center(), w.playerId);
+      const woodCount = workers.filter(onWood).length;
+      const wantWood = woodCount < woodTarget;
+      const center = townhall.center();
+      const node =
+        (wantWood
+          ? this.scanResource(world, center, "wood", 20)
+          : this.scanResource(world, center, "gold", 20)) ??
+        this.findResource(world, center, w.playerId);
       if (node) orderGather(world, w, node);
     }
   }
@@ -78,46 +95,48 @@ export class AIController {
   ): void {
     const workers = this.workers(units);
     const hasBarracks = buildings.some((b) => b.kind === "barracks");
-    const farms = buildings.filter((b) => b.kind === "farm").length;
-    const constructing = buildings.some((b) => b.state !== "complete");
-
-    // 1. Train workers up to target (town hall queue).
-    if (workers.length < TARGET_WORKERS && townhall.queue.length === 0) {
-      enqueueUnit(world, townhall, "peon");
-    }
-
-    // 2. Supply buffer: build a farm when within 2 of the cap.
-    if (!constructing && p.supplyUsed + 2 >= p.supplyCap && p.supplyCap < 40) {
-      this.tryBuild(world, "farm", townhall, workers);
-      return;
-    }
-
-    // 3. Get a barracks once the economy is rolling.
-    if (!hasBarracks && !constructing && workers.length >= 4) {
-      this.tryBuild(world, "barracks", townhall, workers);
-      return;
-    }
-
-    // 4. Add a Temple to unlock Knights once the army is established.
     const hasTemple = buildings.some((b) => b.kind === "temple");
-    if (hasBarracks && !hasTemple && !constructing && workers.length >= 5 && p.gold >= 200 && p.wood >= 120) {
-      this.tryBuild(world, "temple", townhall, workers);
-      return;
-    }
+    const templeDone = buildings.some((b) => b.kind === "temple" && b.state === "complete");
+    const constructing = buildings.some((b) => b.state !== "complete");
+    const barracksCount = buildings.filter((b) => b.kind === "barracks").length;
 
-    // 5. Pump a MIXED army from the barracks (footmen always; archers when we
-    // have wood; knights once the Temple is up). Rotating keeps it varied.
-    const barracks = buildings.find((b) => b.kind === "barracks" && b.state === "complete");
-    if (barracks && barracks.queue.length < 2) {
-      const templeDone = buildings.some((b) => b.kind === "temple" && b.state === "complete");
+    // A. ALWAYS pump a mixed army from every idle barracks. Queuing units never
+    // blocks structure builds, so this must not sit behind the early-returns
+    // below (otherwise constant farm-building starves the army).
+    for (const barracks of buildings) {
+      if (barracks.kind !== "barracks" || barracks.state !== "complete" || barracks.queue.length >= 2) continue;
       const choices: UnitKind[] = ["footman"];
       if (p.wood >= 30) choices.push("archer");
       if (templeDone && p.gold >= 140) choices.push("knight");
       const kind = choices[this.trainTick % choices.length];
       this.trainTick++;
-      enqueueUnit(world, barracks, kind);
+      const err = enqueueUnit(world, barracks, kind);
+      if (err && kind !== "footman") enqueueUnit(world, barracks, "footman"); // keep busy
     }
-    void farms;
+
+    // B. Keep workers coming.
+    if (workers.length < TARGET_WORKERS && townhall.queue.length === 0) {
+      enqueueUnit(world, townhall, "peon");
+    }
+
+    // C. One structure at a time, in priority order.
+    if (constructing) return;
+    if (p.supplyUsed + 2 >= p.supplyCap && p.supplyCap < 40) {
+      this.tryBuild(world, "farm", townhall, workers);
+      return;
+    }
+    if (!hasBarracks && workers.length >= 4) {
+      this.tryBuild(world, "barracks", townhall, workers);
+      return;
+    }
+    if (hasBarracks && !hasTemple && workers.length >= 6 && p.gold >= 200 && p.wood >= 120) {
+      this.tryBuild(world, "temple", townhall, workers);
+      return;
+    }
+    if (barracksCount < MAX_BARRACKS && workers.length >= 8 && p.gold >= 220 && p.wood >= 100) {
+      this.tryBuild(world, "barracks", townhall, workers);
+      return;
+    }
   }
 
   private manageArmy(world: World, units: Unit[]): void {

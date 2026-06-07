@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.24.0 — AI economy balance _(2026-06-07)_
+- Fixed the AI starving itself: it mined only gold (piling up unused) while wood
+  sat near zero, so it couldn't afford farms — leaving it supply-capped (~13)
+  with an army of ~5, below its own attack threshold, so it never attacked.
+- Now ~a third of AI workers gather wood, army training runs every tick (no
+  longer starved behind structure builds), and it can add a second barracks.
+- Result, verified headlessly: wood 10→556, farms 2→4, supply 13→17, army to 8+,
+  first attack wave ~3.5 min, and it destroys a passive opponent (a real threat
+  again).
+
 ## v0.23.0 — Building collapse _(2026-06-07)_
 - Destroyed buildings now **collapse** — an expanding dust cloud with scattered
   debris, sized to the footprint, plus a low rumble — instead of popping out with
