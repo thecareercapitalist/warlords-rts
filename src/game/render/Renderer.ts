@@ -704,6 +704,15 @@ export class Renderer {
       ctx.fill();
     }
 
+    // Hold-position stance: a steel-blue anchoring bracket beneath the unit.
+    if (u.holdGround) {
+      ctx.strokeStyle = "#7da0c8";
+      ctx.lineWidth = Math.max(1, 1.5 * z);
+      ctx.beginPath();
+      ctx.arc(bx, by + 1 * z, r + 3 * z, Math.PI * 0.12, Math.PI * 0.88);
+      ctx.stroke();
+    }
+
     if (u.hitFlash > 0) {
       ctx.globalAlpha = Math.min(1, u.hitFlash / 0.12) * 0.7;
       ctx.fillStyle = "#fff";
