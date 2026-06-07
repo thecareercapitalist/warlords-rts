@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.116.0 — Unit figures (code-art, fallback) _(2026-06-07)_
+- Units now draw as small **figures** (head + torso + legs, hooded) with the team
+  colour on the base ring and a kind-specific weapon, replacing the disc + letter
+  glyph; the catapult is a wheeled wooden engine. This is the free code-art
+  fallback ahead of real generated unit sprites. Verified via captured screenshots
+  (`screenshots/units_figures.png`).
+
 ## v0.115.0 — Real building sprites (CC0 roof set) _(2026-06-07)_
 - Buildings (Farm, Barracks, Sawmill, Temple, Town Hall) now draw **real CC0
   isometric roof sprites** from the SBS Town pack instead of code-art — scaled onto

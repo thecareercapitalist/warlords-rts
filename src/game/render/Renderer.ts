@@ -32,6 +32,17 @@ const ROOF_CELL: Partial<Record<BuildingKind, [number, number]>> = {
 const ROOF_CW = 144;
 const ROOF_CH = 92;
 
+// Per-kind figure palette (muted tunic + head/helm). Team identity stays on the
+// base ring, not the body, per the North-Star.
+const UNIT_BODY: Record<string, { tunic: string; head: string }> = {
+  peon: { tunic: "#6b5638", head: "#c9a06a" },
+  footman: { tunic: "#566069", head: "#b9a382" },
+  grunt: { tunic: "#5f5436", head: "#9fae7a" },
+  archer: { tunic: "#586b41", head: "#c9a06a" },
+  knight: { tunic: "#454953", head: "#737984" },
+  catapult: { tunic: "#5a3d22", head: "#5a3d22" },
+};
+
 export class Renderer {
   constructor(
     private readonly ctx: CanvasRenderingContext2D,
@@ -495,6 +506,39 @@ export class Renderer {
     }
   }
 
+  /** A small wheeled wooden siege frame (the catapult's chassis). */
+  private drawSiegeEngine(bx: number, by: number, r: number): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const ink = "#15110d";
+    // Wheels.
+    for (const wx of [bx - r * 0.6, bx + r * 0.6]) {
+      ctx.fillStyle = "#2a2520";
+      ctx.beginPath();
+      ctx.arc(wx, by + r * 0.72, r * 0.42, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = Math.max(1, 1.2 * z);
+      ctx.stroke();
+      ctx.fillStyle = "#4a4038";
+      ctx.beginPath();
+      ctx.arc(wx, by + r * 0.72, r * 0.15, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Wooden frame.
+    ctx.fillStyle = "#5a3d22";
+    ctx.fillRect(bx - r * 0.85, by - r * 0.05, r * 1.7, r * 0.72);
+    ctx.strokeStyle = ink;
+    ctx.lineWidth = Math.max(1, 1.6 * z);
+    ctx.strokeRect(bx - r * 0.85, by - r * 0.05, r * 1.7, r * 0.72);
+    ctx.strokeStyle = "rgba(255,244,214,0.4)"; // top rim light
+    ctx.lineWidth = Math.max(1, 1 * z);
+    ctx.beginPath();
+    ctx.moveTo(bx - r * 0.85, by - r * 0.05);
+    ctx.lineTo(bx + r * 0.85, by - r * 0.05);
+    ctx.stroke();
+  }
+
   /**
    * Draw a CC0 isometric roof sprite scaled onto the footprint, pulled toward the
    * gothic palette (darker, desaturated). `cell` is [col, row] in the sheet.
@@ -904,42 +948,75 @@ export class Renderer {
       by += (dy / d) * sw;
     }
 
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI * 2);
-    ctx.fill();
     // Veteran aura: battle-hardened units carry a faint gold halo (elite accent).
     const vAura = veterancyRank(u.kills);
     if (vAura >= 1) {
       ctx.strokeStyle = vAura >= 2 ? "rgba(255,205,90,0.9)" : "rgba(228,178,80,0.5)";
       ctx.lineWidth = Math.max(1, (vAura >= 2 ? 2 : 1.4) * z);
       ctx.beginPath();
-      ctx.arc(bx, by, r + 2.5 * z, 0, Math.PI * 2);
+      ctx.ellipse(bx, by + r * 0.4, r * 1.2, r * 0.7, 0, 0, Math.PI * 2);
       ctx.stroke();
     }
-    // Soft drop-shadow on the lower-right for form.
-    ctx.strokeStyle = "rgba(0,0,0,0.35)";
-    ctx.lineWidth = Math.max(1, 1.6 * z);
-    ctx.beginPath();
-    ctx.arc(bx, by, r - 1, Math.PI * 0.1, Math.PI * 0.7);
-    ctx.stroke();
-    ctx.strokeStyle = "#15110d"; // heavy inked outline
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI * 2);
-    ctx.stroke();
-    // Dramatic rim light along the upper-left edge (North-Star painted look).
-    ctx.strokeStyle = "rgba(255,244,214,0.6)";
-    ctx.lineWidth = Math.max(1, 1.6 * z);
-    ctx.beginPath();
-    ctx.arc(bx, by, r - 1, Math.PI * 1.05, Math.PI * 1.6);
-    ctx.stroke();
 
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(u.def.glyph, bx, by);
+    // --- Body: a small figure (head + torso + legs) instead of a labeled disc. ---
+    const pal = UNIT_BODY[u.kind] ?? { tunic: "#6b5e48", head: "#c9a06a" };
+    const ink = "#15110d";
+    if (u.kind === "catapult") {
+      this.drawSiegeEngine(bx, by, r);
+    } else {
+      const he = r * 0.46; // head radius
+      const headY = by - r * 0.62;
+      const torsoTop = by - r * 0.12;
+      const torsoBot = by + r * 0.78;
+      const tw = r * 0.82; // torso half-width at the shoulders
+      // Legs.
+      ctx.strokeStyle = "#241f1a";
+      ctx.lineWidth = Math.max(1.5, 2.2 * z);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(bx - tw * 0.4, torsoBot - r * 0.05);
+      ctx.lineTo(bx - tw * 0.5, by + r * 1.02);
+      ctx.moveTo(bx + tw * 0.4, torsoBot - r * 0.05);
+      ctx.lineTo(bx + tw * 0.5, by + r * 1.02);
+      ctx.stroke();
+      // Torso (tunic) — a tapered cloak shape.
+      ctx.beginPath();
+      ctx.moveTo(bx - tw, torsoBot);
+      ctx.quadraticCurveTo(bx - tw * 1.05, torsoTop, bx - tw * 0.55, torsoTop - r * 0.08);
+      ctx.lineTo(bx + tw * 0.55, torsoTop - r * 0.08);
+      ctx.quadraticCurveTo(bx + tw * 1.05, torsoTop, bx + tw, torsoBot);
+      ctx.closePath();
+      ctx.fillStyle = pal.tunic;
+      ctx.fill();
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = Math.max(1, 1.6 * z);
+      ctx.stroke();
+      // Rim light down the left of the torso.
+      ctx.strokeStyle = "rgba(255,244,214,0.5)";
+      ctx.lineWidth = Math.max(1, 1.1 * z);
+      ctx.beginPath();
+      ctx.moveTo(bx - tw * 0.82, torsoBot - r * 0.25);
+      ctx.quadraticCurveTo(bx - tw * 0.92, torsoTop + r * 0.1, bx - tw * 0.5, torsoTop);
+      ctx.stroke();
+      // Head.
+      ctx.fillStyle = pal.head;
+      ctx.beginPath();
+      ctx.arc(bx, headY, he, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = Math.max(1, 1.4 * z);
+      ctx.stroke();
+      // Knight gets a steel helm cap; peon a simple hood brim.
+      if (u.kind === "knight") {
+        ctx.fillStyle = "#8a909a";
+        ctx.beginPath();
+        ctx.arc(bx, headY - he * 0.15, he, Math.PI * 1.05, Math.PI * 1.95);
+        ctx.fill();
+        ctx.strokeStyle = ink;
+        ctx.lineWidth = Math.max(1, 1 * z);
+        ctx.stroke();
+      }
+    }
 
     // Per-kind weapon silhouette — read a unit's role by shape, not just letter.
     ctx.lineWidth = Math.max(1, 1.5 * z);
