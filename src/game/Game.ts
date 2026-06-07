@@ -606,6 +606,9 @@ export class Game {
       u.patrolB = null;
     }
 
+    // Drop a quick destination ring so the move order reads clearly.
+    if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y);
+
     // Plain group move → spread into a loose grid so units don't pile on one tile.
     if (plainMove && movers.length > 1) {
       const pts = this.formationPoints(worldPt, movers.length);

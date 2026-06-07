@@ -834,6 +834,20 @@ export class Renderer {
       }
     }
     ctx.globalAlpha = 1;
+
+    // Move-order markers: a quick expanding ring (iso-squashed) at the target.
+    for (const m of fx.markers) {
+      const k = m.t / m.dur;
+      const s = this.cam.worldToScreen(m.x, m.y);
+      const rr = (4 + k * 12) * z;
+      ctx.globalAlpha = Math.max(0, 1 - k);
+      ctx.strokeStyle = COLORS.selection;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, rr, rr * (ISO_HALF_H / ISO_HALF_W), 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   }
 
   private drawEffects(fx: Effects): void {

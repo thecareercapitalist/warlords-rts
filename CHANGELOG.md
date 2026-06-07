@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.87.0 — Move-order marker _(2026-06-07)_
+- Right-clicking open ground to move now drops a **quick expanding ring** at the
+  destination, so orders read clearly (classic RTS feedback). Only plain moves get
+  it — attack/gather/build have their own cues. Verified headlessly: a move spawns
+  exactly one marker; an attack command spawns none.
+
 ## v0.86.0 — Forge ember sparks _(2026-06-07)_
 - The Forge now throws **rising ember sparks** that drift up and fade — warm motes
   against the gothic gloom, making your war-furnace feel alive (and easy to spot).

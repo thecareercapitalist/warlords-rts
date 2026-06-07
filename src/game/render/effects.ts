@@ -54,6 +54,13 @@ interface Decal {
   dur: number;
 }
 
+interface Marker {
+  x: number;
+  y: number;
+  t: number;
+  dur: number;
+}
+
 export class Effects {
   readonly projectiles: Projectile[] = [];
   readonly deaths: DeathFx[] = [];
@@ -61,6 +68,11 @@ export class Effects {
   readonly collapses: Collapse[] = [];
   readonly impacts: Impact[] = [];
   readonly decals: Decal[] = [];
+  readonly markers: Marker[] = []; // move-order destination rings
+
+  spawnMoveMarker(x: number, y: number): void {
+    this.markers.push({ x, y, t: 0, dur: 0.5 });
+  }
 
   spawnImpact(x: number, y: number): void {
     // Cap so a big melee doesn't pile up thousands of sparks.
@@ -116,6 +128,10 @@ export class Effects {
       this.decals[i].t += dt;
       if (this.decals[i].t >= this.decals[i].dur) this.decals.splice(i, 1);
     }
+    for (let i = this.markers.length - 1; i >= 0; i--) {
+      this.markers[i].t += dt;
+      if (this.markers[i].t >= this.markers[i].dur) this.markers.splice(i, 1);
+    }
   }
 
   clear(): void {
@@ -125,5 +141,6 @@ export class Effects {
     this.collapses.length = 0;
     this.impacts.length = 0;
     this.decals.length = 0;
+    this.markers.length = 0;
   }
 }
