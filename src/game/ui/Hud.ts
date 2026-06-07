@@ -417,6 +417,7 @@ export class Hud {
     let s = `Atk ${eff}`;
     if (u.def.armor) s += ` · Def ${u.def.armor}`;
     if (u.def.siegeMult && u.def.siegeMult > 1) s += ` · Siege ×${u.def.siegeMult}`;
+    if (u.def.splash) s += " · Splash";
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
     return s;
