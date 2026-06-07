@@ -398,10 +398,64 @@ export class Game {
       this.onBoxSelect(drag.start, drag.current);
     }
 
-    // Right clicks.
-    for (const click of this.input.rightClicks) {
-      this.onRightClick(click);
+    // Right clicks (a press-drag-release with a group sets a facing formation).
+    for (const rc of this.input.rightClicks) {
+      const dragLen = Math.hypot(rc.x - rc.fromX, rc.y - rc.fromY);
+      const movers = this.selUnits.filter((u) => u.playerId === this.humanId);
+      const overUi = this.hud.isOverUi({ x: rc.fromX, y: rc.fromY }) || this.hud.isOverUi(rc);
+      if (dragLen > 24 && movers.length >= 2 && !overUi) {
+        this.commandFormationDrag(rc, movers);
+      } else {
+        this.onRightClick(rc);
+      }
     }
+  }
+
+  /** Press-drag-release with a group: place a facing formation (melee front). */
+  private commandFormationDrag(
+    rc: { x: number; y: number; fromX: number; fromY: number },
+    movers: Unit[],
+  ): void {
+    this.sfx.click();
+    const anchor = this.cam.screenToWorld(rc.fromX, rc.fromY);
+    const end = this.cam.screenToWorld(rc.x, rc.y);
+    let fx = end.x - anchor.x;
+    let fy = end.y - anchor.y;
+    const len = Math.hypot(fx, fy) || 1;
+    fx /= len;
+    fy /= len;
+    for (const u of movers) {
+      u.waypoints = [];
+      u.patrolA = null;
+      u.patrolB = null;
+    }
+    this.effects.spawnMoveMarker(anchor.x, anchor.y, true);
+    this.formationOrders(movers, anchor, { x: fx, y: fy });
+  }
+
+  /**
+   * Arrange `movers` in a rectangle centred on `anchor`, facing `face` (unit
+   * vector). Melee fill the front rows; archers/catapults sit in the back.
+   */
+  private formationOrders(movers: Unit[], anchor: Vec2, face: Vec2): void {
+    const isRanged = (u: Unit): boolean => u.kind === "archer" || u.kind === "catapult";
+    const order = movers.slice().sort((a, b) => (isRanged(a) ? 1 : 0) - (isRanged(b) ? 1 : 0));
+    const n = order.length;
+    const cols = Math.max(1, Math.min(12, Math.ceil(Math.sqrt(n * 1.7))));
+    const sp = 30; // spacing in world units (~0.9 tile)
+    const perp = { x: -face.y, y: face.x };
+    order.forEach((u, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const cx = (col - (cols - 1) / 2) * sp;
+      const back = row * sp; // row 0 = front (toward `face`); later rows fall back
+      const pt = {
+        x: anchor.x + perp.x * cx - face.x * back,
+        y: anchor.y + perp.y * cx - face.y * back,
+      };
+      if (u.def.damage > 0 && !u.def.canGather) orderAttackMove(this.world, u, pt);
+      else orderMove(this.world, u, pt);
+    });
   }
 
   private onLeftClick(p: Vec2): void {
@@ -451,24 +505,6 @@ export class Game {
       this.addToSelection(ent);
       if (ent.playerId === this.humanId) this.sfx.select(); // own-unit ack
     }
-  }
-
-  /** Grid of destination points centered on `center` for a group move. */
-  private formationPoints(center: Vec2, n: number): Vec2[] {
-    if (n <= 1) return [{ ...center }];
-    const spacing = 26;
-    const cols = Math.ceil(Math.sqrt(n));
-    const rows = Math.ceil(n / cols);
-    const pts: Vec2[] = [];
-    for (let i = 0; i < n; i++) {
-      const cx = i % cols;
-      const cy = Math.floor(i / cols);
-      pts.push({
-        x: center.x + (cx - (cols - 1) / 2) * spacing,
-        y: center.y + (cy - (rows - 1) / 2) * spacing,
-      });
-    }
-    return pts;
   }
 
   /** Snap the camera to the latest attack (if active) or the town hall. */
@@ -640,13 +676,21 @@ export class Game {
     const aggressive = movers.some(isFighter);
     if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y, aggressive);
 
-    // Plain group move → spread into a loose grid so units don't pile on one tile.
+    // Plain group move → form up facing the direction of travel (melee front,
+    // ranged/siege behind), so the squad arrives as a battle line.
     if (plainMove && movers.length > 1) {
-      const pts = this.formationPoints(worldPt, movers.length);
-      movers.forEach((u, i) => {
-        if (isFighter(u)) orderAttackMove(this.world, u, pts[i]);
-        else orderMove(this.world, u, pts[i]);
-      });
+      let cx = 0;
+      let cy = 0;
+      for (const u of movers) {
+        cx += u.pos.x;
+        cy += u.pos.y;
+      }
+      cx /= movers.length;
+      cy /= movers.length;
+      let fx = worldPt.x - cx;
+      let fy = worldPt.y - cy;
+      const len = Math.hypot(fx, fy) || 1;
+      this.formationOrders(movers, worldPt, { x: fx / len, y: fy / len });
       return;
     }
 

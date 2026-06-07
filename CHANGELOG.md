@@ -6,6 +6,19 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.125.0 — Formations + drag-to-face _(2026-06-07)_
+- **Group moves now form up** as a rectangle facing the direction of travel —
+  **melee in the front ranks, archers and catapults in the back** — instead of a
+  loose blob.
+- **Drag-to-face:** right-click and **hold, then drag** a direction with a group
+  selected → the squad arranges into a battle line facing that way (press point =
+  formation centre, drag = facing). Single right-clicks and worker orders behave as
+  before.
+- **Command queueing:** shift + right-click still queues movement waypoints
+  (visited in order); combat units queue as attack-moves.
+- Verified: an 8-unit order placed 4 footmen in the front row and the knight +
+  archers + catapult in the back row, facing east.
+
 ## v0.124.0 — Bigger-army economy _(2026-06-07)_
 - The game is now tuned for **roughly double-size armies**: combat units cost
   **~50% less gold/wood** (footman 90→45, grunt 90→45, archer 80→40 +15w, knight

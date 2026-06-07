@@ -20,7 +20,9 @@ export class Input {
 
   // One-shot event queues, drained by the Game each frame.
   leftClicks: Vec2[] = [];
-  rightClicks: Vec2[] = [];
+  // Right "clicks" carry the press origin too, so a press-drag-release can set a
+  // formation facing direction (from → to).
+  rightClicks: { x: number; y: number; fromX: number; fromY: number }[] = [];
   doubleClicks: Vec2[] = [];
   pressedKeys: string[] = [];
   private lastLeftUp: { t: number; x: number; y: number } | null = null;
@@ -33,6 +35,7 @@ export class Input {
 
   private dragThreshold = 6;
   private leftDownAt: Vec2 | null = null;
+  private rightDownAt: Vec2 | null = null;
 
   attach(canvas: HTMLCanvasElement): void {
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -70,6 +73,7 @@ export class Input {
         this.drag = { start: { ...p }, current: { ...p }, active: false };
       } else if (e.button === 2) {
         this.rightDown = true;
+        this.rightDownAt = { ...p };
       }
     });
 
@@ -107,8 +111,10 @@ export class Input {
         this.leftDown = false;
         this.leftDownAt = null;
       } else if (e.button === 2) {
-        this.rightClicks.push({ ...p });
+        const from = this.rightDownAt ?? p;
+        this.rightClicks.push({ x: p.x, y: p.y, fromX: from.x, fromY: from.y });
         this.rightDown = false;
+        this.rightDownAt = null;
       }
     });
 
