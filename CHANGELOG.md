@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.58.0 — AI builds a Forge _(2026-06-07)_
+- The AI now invests surplus into a **Forge** (after its temple, before towers) to
+  buff its whole army's attack — so in longer games it tech-escalates instead of
+  just massing bodies. Verified headlessly: the AI builds a Forge from a surplus
+  base state, and a full game still resolves unchanged (no offensive regression).
+
 ## v0.57.0 — The Forge _(2026-06-07)_
 - New tech building: the **Forge** (`G`, 150g/60w). While you own a completed
   Forge, **all your units gain +2 attack** — an army-wide weapon upgrade and a

@@ -162,6 +162,12 @@ export class AIController {
       this.tryBuild(world, "barracks", townhall, workers);
       return;
     }
+    // A Forge upgrades the whole army (+attack) — worth it from surplus.
+    const hasForge = buildings.some((b) => b.kind === "forge");
+    if (hasBarracks && !hasForge && p.gold >= 280 && p.wood >= 100) {
+      this.tryBuild(world, "forge", townhall, workers);
+      return;
+    }
     // Fortify the base with Guard Towers — only from genuine surplus, so this
     // never starves the army/economy (gold tends to pile up; wood is the gate).
     const towerCount = buildings.filter((b) => b.kind === "tower").length;
