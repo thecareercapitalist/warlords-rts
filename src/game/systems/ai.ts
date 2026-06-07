@@ -140,6 +140,7 @@ export class AIController {
     const hasBarracks = buildings.some((b) => b.kind === "barracks");
     const hasTemple = buildings.some((b) => b.kind === "temple");
     const templeDone = buildings.some((b) => b.kind === "temple" && b.state === "complete");
+    const forgeDone = buildings.some((b) => b.kind === "forge" && b.state === "complete");
     const constructing = buildings.some((b) => b.state !== "complete");
     const barracksCount = buildings.filter((b) => b.kind === "barracks").length;
 
@@ -151,6 +152,8 @@ export class AIController {
       const choices: UnitKind[] = ["footman"];
       if (p.wood >= 30) choices.push("archer");
       if (templeDone && p.gold >= 140) choices.push("knight");
+      // A Forge unlocks siege — sprinkle in a catapult to crack the human's base.
+      if (forgeDone && p.gold >= 160 && p.wood >= 60) choices.push("catapult");
       const kind = choices[this.trainTick % choices.length];
       this.trainTick++;
       const err = enqueueUnit(world, barracks, kind);

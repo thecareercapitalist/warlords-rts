@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.77.0 — AI fields catapults _(2026-06-07)_
+- Once the AI owns a **Forge** (and has the gold/wood), it now mixes **Catapults**
+  into its army rotation alongside footmen/archers/knights — so it can siege the
+  human's towers and walls instead of just throwing bodies at them. Verified
+  headlessly: with a complete Forge + Temple + supply, the rotation enqueues all
+  four combat types evenly (catapult included).
+
 ## v0.76.0 — Catapult siege unit _(2026-06-07)_
 - New **Catapult** unit: a slow, long-range (6 tiles) siege engine that's modest
   vs troops but does **4× damage to buildings**, unlocked at the Barracks once you

@@ -163,7 +163,8 @@ tagged `v0.3.0`→) has layered on a lot:
   rim-lit units & buildings, health-graded bars, under-attack screen pulse.
 - **Smarter AI:** balanced wood economy, mixed army (footmen/archers/knights),
   defends its base, **workers flee raids**, **repairs damaged buildings**, and
-  spends surplus on Forges and Towers.
+  spends surplus on Forges and Towers, and once it has a Forge it builds
+  **Catapults** to siege your base.
 
 ## What's intentionally not here (yet)
 
