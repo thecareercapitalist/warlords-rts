@@ -457,6 +457,31 @@ export class Renderer {
       ctx.beginPath();
       ctx.ellipse(s.x, s.y + r * 0.5, r * 1.2, r * 0.6, 0, 0, Math.PI * 2);
       ctx.stroke();
+
+      // Planned route: current leg + queued waypoints as a dashed line + dots.
+      if (u.waypoints.length > 0) {
+        const legs: Vec2[] = [];
+        if (u.finalTarget) legs.push(u.finalTarget);
+        for (const w of u.waypoints) legs.push(w);
+        ctx.strokeStyle = COLORS.rally;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        for (const w of legs) {
+          const p = this.cam.worldToScreen(w.x, w.y);
+          ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = COLORS.rally;
+        for (const w of legs) {
+          const p = this.cam.worldToScreen(w.x, w.y);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5 * z, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     }
 
     // Body bobs while moving (shadow + ring stay grounded). Tied to distance

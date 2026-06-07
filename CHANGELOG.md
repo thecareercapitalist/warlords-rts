@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.52.0 — Waypoint route display _(2026-06-07)_
+- A selected unit with queued waypoints now shows its **planned route** as a
+  dashed line with node dots (current leg + each queued point), so shift-click
+  routes are visible. Verified headlessly: the route line renders along the
+  queued path and is absent when there are no waypoints.
+
 ## v0.51.0 — Waypoint queue _(2026-06-07)_
 - Hold **Shift + right-click** on open ground to queue a series of move
   waypoints; units walk them in order (great for scouting routes or skirting
