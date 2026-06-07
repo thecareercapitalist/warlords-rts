@@ -82,7 +82,7 @@ export class Effects {
   readonly blasts: Blast[] = []; // spell impacts (fireball / freeze)
 
   spawnBlast(x: number, y: number, kind: "fire" | "frost"): void {
-    this.blasts.push({ x, y, t: 0, dur: kind === "fire" ? 0.55 : 0.7, kind });
+    this.blasts.push({ x, y, t: 0, dur: kind === "fire" ? 0.72 : 0.9, kind });
   }
 
   spawnMoveMarker(x: number, y: number, attack = false): void {

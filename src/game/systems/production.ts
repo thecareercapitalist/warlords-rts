@@ -5,7 +5,7 @@ import { Unit } from "../entities/Unit.ts";
 import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { lerp, tileCenter, toTile } from "../util/math.ts";
 import { TILE } from "../constants.ts";
-import { nearestWalkable, orderMove, orderGather, adjacentToBuilding } from "./orders.ts";
+import { nearestWalkable, orderMove, orderGather, orderBuild, adjacentToBuilding } from "./orders.ts";
 import { nearestWoodTile } from "./gather.ts";
 import { arrived } from "./movement.ts";
 
@@ -84,6 +84,27 @@ function updateRepair(world: World, dt: number): void {
 
 // --- Construction ---------------------------------------------------------
 
+/** Nearest still-building friendly building within `maxR` tiles (Manhattan). */
+function nearestUnfinishedBuilding(
+  world: World,
+  playerId: number,
+  fromTile: Vec2,
+  maxR: number,
+  exclude: Building,
+): Building | null {
+  let best: Building | null = null;
+  let bestD = Infinity;
+  for (const o of world.buildings) {
+    if (o.dead || o === exclude || o.playerId !== playerId || o.state === "complete") continue;
+    const d = Math.abs(o.tile.x - fromTile.x) + Math.abs(o.tile.y - fromTile.y);
+    if (d <= maxR && d < bestD) {
+      bestD = d;
+      best = o;
+    }
+  }
+  return best;
+}
+
 function updateConstruction(world: World, dt: number): void {
   for (const b of world.buildings) {
     if (b.dead || b.state === "complete") continue;
@@ -108,7 +129,9 @@ function updateConstruction(world: World, dt: number): void {
       world.events.push({ type: "build" });
       world.recomputeSupply();
       // Release builders. A worker that just finished a Sawmill auto-tasks to chop
-      // the nearest forest (so the player doesn't micro it back to gathering).
+      // the nearest forest; otherwise, if another unfinished friendly building is
+      // nearby, it walks over and keeps building (so a dragged wall-line gets built
+      // end to end without re-tasking each segment).
       for (const u of world.units) {
         if (u.buildTarget === b && u.state === "building") {
           u.buildTarget = null;
@@ -116,6 +139,9 @@ function updateConstruction(world: World, dt: number): void {
           if (b.kind === "sawmill" && u.def.canGather) {
             const wood = nearestWoodTile(world, u.tile(), 12);
             if (wood) orderGather(world, u, wood);
+          } else if (u.def.canBuild) {
+            const next = nearestUnfinishedBuilding(world, b.playerId, u.tile(), 18, b);
+            if (next) orderBuild(world, u, next);
           }
         }
       }

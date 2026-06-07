@@ -404,10 +404,11 @@ export class Game {
       this.onDoubleClick(click);
     }
 
-    // Drag-select release.
+    // Drag release: drag-build a wall line in wall mode, otherwise box-select.
     const drag = this.input.consumeDragRelease();
     if (drag && !this.hud.isOverUi(drag.start)) {
-      this.onBoxSelect(drag.start, drag.current);
+      if (this.buildMode === "wall") this.placeWallLine(drag.start, drag.current);
+      else if (!this.buildMode) this.onBoxSelect(drag.start, drag.current);
     }
 
     // Right clicks (a press-drag-release with a group sets a facing formation).
@@ -914,6 +915,43 @@ export class Game {
       this.buildMode = null;
       this.builder = null;
       this.rebuildHudButtons();
+    }
+  }
+
+  /** Drag-build a straight run of walls between two screen points. */
+  private placeWallLine(aScreen: Vec2, bScreen: Vec2): void {
+    const wa = this.cam.screenToWorld(aScreen.x, aScreen.y);
+    const wb = this.cam.screenToWorld(bScreen.x, bScreen.y);
+    const ta = toTile(wa.x, wa.y);
+    const tb = toTile(wb.x, wb.y);
+    const dx = tb.x - ta.x;
+    const dy = tb.y - ta.y;
+    // Snap to a single straight axis (the dominant one).
+    const tiles: { x: number; y: number }[] = [];
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      const step = Math.sign(dx) || 1;
+      for (let x = ta.x; step > 0 ? x <= tb.x : x >= tb.x; x += step) tiles.push({ x, y: ta.y });
+    } else {
+      const step = Math.sign(dy) || 1;
+      for (let y = ta.y; step > 0 ? y <= tb.y : y >= tb.y; y += step) tiles.push({ x: ta.x, y });
+    }
+    let placed = 0;
+    let builderAssigned = false;
+    for (const t of tiles) {
+      const builder = !builderAssigned ? (this.builder ?? undefined) : undefined;
+      const res = placeBuilding(this.world, this.humanId, "wall", t.x, t.y, builder);
+      if (typeof res !== "string") {
+        placed++;
+        if (builder) builderAssigned = true;
+      }
+    }
+    if (placed > 0) {
+      this.sfx.build();
+      this.buildMode = null;
+      this.builder = null;
+      this.rebuildHudButtons();
+    } else {
+      this.setMessage("Cannot build wall there");
     }
   }
 

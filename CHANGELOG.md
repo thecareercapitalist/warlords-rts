@@ -6,6 +6,22 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.136.0 — Bigger spells + iso walls + drag-build _(2026-06-07)_
+- **Spell FX ~4× bigger:** the blast radius was computed in world-units-as-pixels,
+  rendering far smaller than the actual AoE. Now sized in screen space so the
+  Fireball/Freeze explosions cover (and slightly exceed) their tile footprint —
+  with a rolling shock ring, more/larger embers, a double frost ring, and shards.
+- **Walls are now isometric + auto-connecting:** the generated wall sprite was
+  front-facing and read wrong on the diamond grid. Walls are drawn as raised
+  crenellated stone beams that run along the iso grid and connect to neighbors
+  (straight runs + corners).
+- **Drag to build walls:** in wall-build mode, click-drag to lay a straight run of
+  walls (snapped to the dominant axis) in one gesture.
+- **Auto-continue construction:** a builder that finishes a building automatically
+  moves to the nearest unfinished friendly building nearby — so a dragged wall-line
+  gets built end to end by one worker without re-tasking. Verified: peon finishes
+  wall, walks to the next, repeats.
+
 ## v0.135.0 — Build reveal + drag fix + sawmill auto-chop _(2026-06-07)_
 - **Buildings now rise as they build:** instead of a dark floor-fill + scaffolding,
   the building sprite itself is the progress bar — a faint ghost of the finished

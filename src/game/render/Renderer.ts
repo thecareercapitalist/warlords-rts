@@ -448,8 +448,12 @@ export class Renderer {
       ctx.restore();
     }
 
-    const bSprite = this.assets.buildingSprite(b.kind, isEnemy);
-    if (bSprite) {
+    const bSprite = b.kind === "wall" ? undefined : this.assets.buildingSprite(b.kind, isEnemy);
+    if (b.kind === "wall") {
+      // Walls are drawn as iso-correct, auto-connecting stone (the generated sprite
+      // is front-facing and reads wrong on the diamond grid).
+      if (b.state === "complete") this.drawWall(world, b);
+    } else if (bSprite) {
       // Generated isometric building sprite. While under construction it "rises"
       // bottom→top — the sprite itself is the progress bar.
       this.drawBuildingSprite(bSprite, corners, center, b.state === "complete" ? 1 : b.construction);
@@ -457,8 +461,6 @@ export class Renderer {
       this.drawTurret(center, color);
     } else if (b.kind === "forge" && b.state === "complete") {
       this.drawForge(center);
-    } else if (b.kind === "wall" && b.state === "complete") {
-      this.drawWall(center);
     } else if (b.state === "complete") {
       // Prefer a real CC0 isometric roof sprite; fall back to code-art if the
       // sheet failed to load.
@@ -909,28 +911,65 @@ export class Renderer {
   }
 
   /** A low crenellated stone wall segment — a barrier, no banner. */
-  private drawWall(center: Vec2): void {
+  private drawWall(world: World, b: import("../entities/Building.ts").Building): void {
     const ctx = this.ctx;
     const z = this.cam.zoom;
-    const cx = center.x;
-    const cy = center.y;
-    ctx.fillStyle = "#6b6358"; // stone
-    ctx.fillRect(cx - 10 * z, cy - 5 * z, 20 * z, 14 * z);
-    ctx.strokeStyle = "#15110d";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cx - 10 * z, cy - 5 * z, 20 * z, 14 * z);
-    // Crenellations along the top.
-    ctx.fillStyle = "#837a6d";
-    for (let i = -1; i <= 1; i++) {
-      ctx.fillRect(cx + i * 7 * z - 2.4 * z, cy - 9 * z, 4.8 * z, 4 * z);
-    }
-    // Mortar courses.
-    ctx.strokeStyle = "rgba(0,0,0,0.3)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(cx - 10 * z, cy + 2 * z);
-    ctx.lineTo(cx + 10 * z, cy + 2 * z);
-    ctx.stroke();
+    const gx = b.tile.x;
+    const gy = b.tile.y;
+    const has = (nx: number, ny: number): boolean =>
+      world.buildings.some(
+        (o) => !o.dead && o.kind === "wall" && o.playerId === b.playerId && o.tile.x === nx && o.tile.y === ny,
+      );
+    const E = has(gx + 1, gy);
+    const W = has(gx - 1, gy);
+    const N = has(gx, gy - 1);
+    const S = has(gx, gy + 1);
+    const cw = (gx + 0.5) * TILE;
+    const chh = (gy + 0.5) * TILE;
+    const ws = (wx: number, wy: number): Vec2 => this.cam.worldToScreen(wx, wy);
+    const Emid = ws((gx + 1) * TILE, chh);
+    const Wmid = ws(gx * TILE, chh);
+    const Nmid = ws(cw, gy * TILE);
+    const Smid = ws(cw, (gy + 1) * TILE);
+    const H = 22 * z; // wall height
+
+    // A raised stone beam from ground point A to B, with crenellated top.
+    const beam = (A: Vec2, B: Vec2): void => {
+      const Ax = A.x, Ay = A.y, Bx = B.x, By = B.y;
+      // Front face (parallelogram extruded straight up).
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay);
+      ctx.lineTo(Bx, By);
+      ctx.lineTo(Bx, By - H);
+      ctx.lineTo(Ax, Ay - H);
+      ctx.closePath();
+      ctx.fillStyle = "#5b5349";
+      ctx.fill();
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      // Top edge highlight (rim light).
+      ctx.strokeStyle = "rgba(255,244,214,0.4)";
+      ctx.lineWidth = Math.max(1, 1.4 * z);
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay - H);
+      ctx.lineTo(Bx, By - H);
+      ctx.stroke();
+      // Crenellations straddling the top line.
+      ctx.fillStyle = "#7a7164";
+      const merlons = 3;
+      for (let i = 0; i < merlons; i++) {
+        const t = (i + 0.5) / merlons;
+        const mx = Ax + (Bx - Ax) * t;
+        const my = Ay + (By - Ay) * t - H;
+        ctx.fillRect(mx - 3 * z, my - 5 * z, 6 * z, 6 * z);
+      }
+    };
+
+    // Span the dominant axis; junctions draw both. Isolated → default E-W.
+    if (N || S) beam(Nmid, Smid);
+    if (E || W) beam(Wmid, Emid);
+    if (!N && !S && !E && !W) beam(Wmid, Emid);
   }
 
   /** A dark furnace with a flickering ember mouth — the Forge. */
@@ -1676,61 +1715,75 @@ export class Renderer {
       const k = b.t / b.dur; // 0..1
       const c = this.cam.worldToScreen(b.x, b.y);
       const ry = ISO_HALF_H / ISO_HALF_W; // iso squash for ground rings
+      // Radius in SCREEN px so the blast actually covers its tile AoE (and then
+      // some, for the shockwave) — ISO_HALF_W px per world tile.
       if (b.kind === "fire") {
-        const R = (2 * TILE) * z * (0.3 + k * 0.95);
+        const R = 2.6 * ISO_HALF_W * z * (0.35 + k * 1.0);
         // Expanding fire ring.
-        const grd = ctx.createRadialGradient(c.x, c.y, R * 0.2, c.x, c.y, R);
-        grd.addColorStop(0, `rgba(255,240,180,${(1 - k) * 0.9})`);
-        grd.addColorStop(0.5, `rgba(255,140,40,${(1 - k) * 0.8})`);
-        grd.addColorStop(1, "rgba(120,30,10,0)");
+        const grd = ctx.createRadialGradient(c.x, c.y, R * 0.15, c.x, c.y, R);
+        grd.addColorStop(0, `rgba(255,245,200,${(1 - k) * 0.95})`);
+        grd.addColorStop(0.45, `rgba(255,140,40,${(1 - k) * 0.85})`);
+        grd.addColorStop(0.8, `rgba(180,50,15,${(1 - k) * 0.55})`);
+        grd.addColorStop(1, "rgba(90,20,8,0)");
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Flying embers/debris.
-        ctx.fillStyle = `rgba(255,180,60,${1 - k})`;
-        for (let i = 0; i < 9; i++) {
-          const a = (i / 9) * Math.PI * 2 + b.x;
-          const dr = R * (0.7 + (i % 3) * 0.12);
-          const ex = c.x + Math.cos(a) * dr;
-          const ey = c.y + Math.sin(a) * dr * ry - k * 14 * z;
-          ctx.beginPath();
-          ctx.arc(ex, ey, (2.4 - k * 1.6) * z + 0.5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        // Bright core flash early on.
-        if (k < 0.4) {
-          ctx.fillStyle = `rgba(255,255,235,${(0.4 - k) * 2})`;
-          ctx.beginPath();
-          ctx.ellipse(c.x, c.y, R * 0.5, R * 0.5 * ry, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else {
-        const R = (2.6 * TILE) * z * (0.3 + k * 0.95);
-        // Icy nova ring.
-        ctx.strokeStyle = `rgba(150,220,255,${(1 - k) * 0.9})`;
-        ctx.lineWidth = Math.max(2, 4 * z * (1 - k));
+        // A rolling shock ring at the leading edge.
+        ctx.strokeStyle = `rgba(255,200,110,${(1 - k) * 0.7})`;
+        ctx.lineWidth = Math.max(2, 7 * z * (1 - k));
         ctx.beginPath();
         ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
         ctx.stroke();
+        // Flying embers/debris (more, bigger, flung farther).
+        ctx.fillStyle = `rgba(255,180,60,${1 - k})`;
+        for (let i = 0; i < 18; i++) {
+          const a = (i / 18) * Math.PI * 2 + b.x;
+          const dr = R * (0.75 + (i % 4) * 0.1);
+          const ex = c.x + Math.cos(a) * dr;
+          const ey = c.y + Math.sin(a) * dr * ry - k * 40 * z;
+          ctx.beginPath();
+          ctx.arc(ex, ey, (6 - k * 4) * z + 0.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        // Bright core flash early on.
+        if (k < 0.45) {
+          ctx.fillStyle = `rgba(255,255,240,${(0.45 - k) * 2})`;
+          ctx.beginPath();
+          ctx.ellipse(c.x, c.y, R * 0.55, R * 0.55 * ry, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        const R = 3.2 * ISO_HALF_W * z * (0.35 + k * 1.0);
+        // Icy nova ring (double ring for heft).
+        ctx.strokeStyle = `rgba(150,220,255,${(1 - k) * 0.95})`;
+        ctx.lineWidth = Math.max(3, 9 * z * (1 - k));
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = `rgba(210,240,255,${(1 - k) * 0.6})`;
+        ctx.lineWidth = Math.max(1.5, 4 * z * (1 - k));
+        ctx.beginPath();
+        ctx.ellipse(c.x, c.y, R * 0.82, R * 0.82 * ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
         const grd = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, R);
-        grd.addColorStop(0, `rgba(180,230,255,${(1 - k) * 0.35})`);
+        grd.addColorStop(0, `rgba(180,230,255,${(1 - k) * 0.45})`);
         grd.addColorStop(1, "rgba(120,180,255,0)");
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.ellipse(c.x, c.y, R, R * ry, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Ice shards.
+        // Ice shards radiating out (more + longer).
         ctx.strokeStyle = `rgba(220,245,255,${1 - k})`;
-        ctx.lineWidth = Math.max(1, 1.6 * z);
-        for (let i = 0; i < 8; i++) {
-          const a = (i / 8) * Math.PI * 2;
+        ctx.lineWidth = Math.max(1.5, 3 * z);
+        for (let i = 0; i < 14; i++) {
+          const a = (i / 14) * Math.PI * 2;
           const dr = R * 0.85;
           const sx = c.x + Math.cos(a) * dr;
           const sy = c.y + Math.sin(a) * dr * ry;
           ctx.beginPath();
           ctx.moveTo(sx, sy);
-          ctx.lineTo(sx + Math.cos(a) * 6 * z, sy + Math.sin(a) * 6 * z * ry);
+          ctx.lineTo(sx + Math.cos(a) * 18 * z, sy + Math.sin(a) * 18 * z * ry);
           ctx.stroke();
         }
       }
