@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.62.0 — Build-preview range ring _(2026-06-07)_
+- Placing a Guard Tower now shows its **attack-range ring on the build preview**,
+  so you can plan coverage and overlap before committing the spot. Verified
+  headlessly: the tower preview draws a range ring; a farm preview doesn't.
+
 ## v0.61.0 — Scouted-base memory _(2026-06-07)_
 - Enemy buildings you've **scouted now linger as dimmed ghosts** in fogged areas
   (last-known positions), brightening only when back in vision — units still
