@@ -175,7 +175,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       world.events.push({ type: "attack", ranged, heavy });
       if (ranged) {
         const magic = u.kind === "mage";
-        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y }, heavy, magic });
+        const fire = u.kind === "dragon";
+        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y }, heavy, magic, fire });
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
       const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;

@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.141.0 — The Dragon _(2026-06-07)_
+- New apex unit: the **Dragon**, summoned at the **Mage's Enclave** (350g/120w,
+  6 supply, 70s). Huge (drawn ~70% bigger than other units), 340 HP, and breathes
+  **fire** — a ranged attack (range 5, 32 dmg) with **splash** that scorches a small
+  area. Renders as a hovering beast (the sprite carries its own ground shadow) with
+  a glowing orange fire-bolt projectile. Art generated via Gemini.
+
 ## v0.140.0 — Command buttons get icons _(2026-06-07)_
 - The build/train command buttons now show the actual **building/unit sprite as an
   icon** (left), with the name + cost beside it and a **hotkey badge** in the

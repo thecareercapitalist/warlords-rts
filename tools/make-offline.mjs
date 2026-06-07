@@ -50,6 +50,7 @@ tileData.mountains = `data:image/png;base64,${readFileSync(resolve(root, "public
 tileData.mage = `data:image/jpeg;base64,${readFileSync(resolve(root, "public", "gen_mage.jpg")).toString("base64")}`;
 tileData.enclave = `data:image/jpeg;base64,${readFileSync(resolve(root, "public", "gen_enclave.jpg")).toString("base64")}`;
 tileData.wall = dataUri(resolve(root, "public", "gen_wall.jpg"));
+tileData.dragon = dataUri(resolve(root, "public", "gen_dragon.jpg"));
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");

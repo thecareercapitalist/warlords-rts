@@ -191,6 +191,26 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     maxMana: 120,
     manaRegen: 7,
   },
+  dragon: {
+    kind: "dragon",
+    label: "Dragon",
+    glyph: "D",
+    maxHp: 340,
+    speed: 78,
+    radius: 17, // huge — drawn much larger than other units
+    damage: 32, // searing fire breath
+    splash: 1.7, // breath scorches a small area
+    attackRange: 5,
+    attackCooldown: 2.0,
+    visionRadius: 9,
+    supply: 6,
+    costGold: 350,
+    costWood: 120,
+    buildTime: 70,
+    canGather: false,
+    canBuild: false,
+    requiresBuilding: "enclave", // the Enclave's apex summon
+  },
 };
 
 export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
@@ -324,6 +344,6 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     buildTime: 45,
     providesSupply: 0,
     accepts: [],
-    produces: ["mage"], // the arcane tower trains Mages
+    produces: ["mage", "dragon"], // the arcane tower trains Mages and summons Dragons
   },
 };

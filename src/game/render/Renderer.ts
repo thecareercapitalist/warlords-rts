@@ -1630,18 +1630,25 @@ export class Renderer {
       const wy = p.from.y + (p.to.y - p.from.y) * k;
       const s = this.cam.worldToScreen(wx, wy);
       // Mage: a glowing arcane bolt (blue orb + halo + sparkle trail).
-      if (p.magic) {
+      if (p.magic || p.fire) {
         const lift3 = Math.sin(k * Math.PI) * 10 * z;
         const oy = s.y - lift3;
-        const grd = ctx.createRadialGradient(s.x, oy, 0, s.x, oy, 9 * z);
-        grd.addColorStop(0, "rgba(200,235,255,0.95)");
-        grd.addColorStop(0.4, "rgba(90,160,255,0.85)");
-        grd.addColorStop(1, "rgba(60,90,220,0)");
+        const R = (p.fire ? 11 : 9) * z;
+        const grd = ctx.createRadialGradient(s.x, oy, 0, s.x, oy, R);
+        if (p.fire) {
+          grd.addColorStop(0, "rgba(255,240,190,0.97)");
+          grd.addColorStop(0.4, "rgba(255,140,40,0.9)");
+          grd.addColorStop(1, "rgba(150,40,10,0)");
+        } else {
+          grd.addColorStop(0, "rgba(200,235,255,0.95)");
+          grd.addColorStop(0.4, "rgba(90,160,255,0.85)");
+          grd.addColorStop(1, "rgba(60,90,220,0)");
+        }
         ctx.fillStyle = grd;
         ctx.beginPath();
-        ctx.arc(s.x, oy, 9 * z, 0, Math.PI * 2);
+        ctx.arc(s.x, oy, R, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = "#eaf4ff";
+        ctx.fillStyle = p.fire ? "#fff2d6" : "#eaf4ff";
         ctx.beginPath();
         ctx.arc(s.x, oy, 3 * z, 0, Math.PI * 2);
         ctx.fill();

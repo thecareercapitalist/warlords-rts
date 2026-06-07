@@ -259,6 +259,13 @@ export class Assets {
         this.wallSprite = sliceGrid(img, 1, 1, ["wall"]).get("wall");
       }),
     );
+    jobs.push(
+      load(inl?.dragon ?? "/gen_dragon.jpg").then((img) => {
+        if (!img) return;
+        const dr = sliceGrid(img, 1, 1, ["dragon"]).get("dragon");
+        if (dr) { this.unitSprites.set("dragon", dr); this.enemyUnitSprites.set("dragon", dr); }
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }

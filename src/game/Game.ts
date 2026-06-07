@@ -244,7 +244,7 @@ export class Game {
     // death positions are still valid), then advance effect animations.
     for (const e of this.world.events) {
       if (e.type === "projectile") {
-        this.effects.spawnProjectile(e.from, e.to, e.heavy, e.magic);
+        this.effects.spawnProjectile(e.from, e.to, e.heavy, e.magic, e.fire);
         this.effects.spawnImpact(e.from.x, e.from.y); // muzzle flash at the shooter
         if (e.heavy) {
           // Siege shot lands with weight: a spark burst, a dust shockwave, a jolt.
