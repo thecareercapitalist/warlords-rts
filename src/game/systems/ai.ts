@@ -44,10 +44,26 @@ export class AIController {
     if (!townhall) return; // base destroyed; AI is effectively done
 
     this.manageWorkerSafety(world, this.workers(units), townhall);
+    this.manageConstruction(world, this.workers(units), buildings);
     this.manageRepair(world, this.workers(units), buildings);
     this.manageEconomy(world, units, buildings, townhall);
     this.manageBuildOrder(world, p, units, buildings, townhall);
     this.manageArmy(world, units);
+  }
+
+  /**
+   * Resume any stalled construction: if a building site has no worker actively
+   * building it, send one. Without this the AI can soft-lock — e.g. a half-built
+   * farm whose builder wandered off leaves it supply-capped forever.
+   */
+  private manageConstruction(world: World, workers: Unit[], buildings: Building[]): void {
+    const site = buildings.find((b) => b.state !== "complete" && !b.dead);
+    if (!site) return;
+    if (workers.some((w) => w.buildTarget === site)) return; // already being built
+    const w = workers.find(
+      (u) => !u.fleeing && !u.buildTarget && u.state !== "building",
+    );
+    if (w) orderBuild(world, w, site);
   }
 
   /** Pull a worker to repair the most-damaged building (cap 2 repairers). */

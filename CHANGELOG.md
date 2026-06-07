@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.99.0 — AI resumes stalled construction _(2026-06-07)_
+- The AI now **assigns a worker to any building site that's lost its builder**
+  (e.g. one pulled away to gather or flee a raid), fixing a class of economy
+  soft-lock where a half-built farm left the AI supply-capped. Verified headlessly:
+  the AI assigns a builder to a stalled site; a healthy seed (1337) is unaffected
+  (supply cap reaches 25, army 11).
+- _Known issue:_ on some cramped seeds (e.g. seed 7) the AI can still stall at
+  supply 9 when a farm site is **unreachable** — a placement/pathing fix for a
+  future pass.
+
 ## v0.98.0 — Enemy worker tool (faction set complete) _(2026-06-07)_
 - The enemy **peon** now wields a crude dark bone pick vs the human's wood-handled
   steel tool — completing distinct enemy silhouettes across **every** unit (worker,
