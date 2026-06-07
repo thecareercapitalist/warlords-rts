@@ -1072,7 +1072,8 @@ export class Game {
     }
 
     let dragBox: RenderState["dragBoxScreen"] = null;
-    if (this.input.drag.active) {
+    // No selection box while placing buildings — a wall drag isn't a selection.
+    if (this.input.drag.active && !this.buildMode) {
       const d = this.input.drag;
       dragBox = normalizeRect(d.start.x, d.start.y, d.current.x, d.current.y);
     }

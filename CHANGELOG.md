@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.137.0 — Proper stone walls + no box in build mode _(2026-06-07)_
+- **Walls look good again:** replaced the flat slab "beams" with real isometric
+  **volumes** — a lit top face, two shaded side faces, an inked outline, rim light,
+  and 3D crenellated merlons along the top. They still auto-connect into runs and
+  corners along the grid.
+- **No selection box while building:** the drag-select rectangle is suppressed
+  whenever a building is being placed, so dragging a wall line no longer flashes a
+  green selection box.
+
 ## v0.136.0 — Bigger spells + iso walls + drag-build _(2026-06-07)_
 - **Spell FX ~4× bigger:** the blast radius was computed in world-units-as-pixels,
   rendering far smaller than the actual AoE. Now sized in screen space so the
