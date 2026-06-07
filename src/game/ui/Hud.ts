@@ -340,7 +340,7 @@ export class Hud {
     }
   }
 
-  renderEndScreen(cam: Camera, won: boolean): void {
+  renderEndScreen(cam: Camera, won: boolean, elapsed = 0): void {
     const ctx = this.ctx;
     ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
@@ -348,9 +348,14 @@ export class Hud {
     ctx.font = "bold 56px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(won ? "VICTORY" : "DEFEAT", cam.viewW / 2, cam.viewH / 2 - 20);
-    ctx.fillStyle = "#cfd8e0";
+    ctx.fillText(won ? "VICTORY" : "DEFEAT", cam.viewW / 2, cam.viewH / 2 - 30);
+    const mins = Math.floor(elapsed / 60);
+    const secs = Math.floor(elapsed % 60);
+    ctx.fillStyle = COLORS.uiEmber;
+    ctx.font = "18px 'Segoe UI', sans-serif";
+    ctx.fillText(`Time: ${mins}m ${secs.toString().padStart(2, "0")}s`, cam.viewW / 2, cam.viewH / 2 + 20);
+    ctx.fillStyle = COLORS.uiText;
     ctx.font = "20px 'Segoe UI', sans-serif";
-    ctx.fillText("Press R to play again", cam.viewW / 2, cam.viewH / 2 + 40);
+    ctx.fillText("Press R to play again", cam.viewW / 2, cam.viewH / 2 + 56);
   }
 }

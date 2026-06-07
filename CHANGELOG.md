@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.25.0 — End-game polish _(2026-06-07)_
+- Victory/defeat now plays a one-shot audio sting (triumphant rising chord / a
+  somber descending dirge) and the end screen shows the **elapsed time**. Verified
+  headlessly: the fanfare fires once on game end and the timer is tracked.
+
 ## v0.24.0 — AI economy balance _(2026-06-07)_
 - Fixed the AI starving itself: it mined only gold (piling up unused) while wood
   sat near zero, so it couldn't afford farms — leaving it supply-capped (~13)

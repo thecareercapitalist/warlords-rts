@@ -64,6 +64,8 @@ export class Game {
   private attackPing: { x: number; y: number; t: number } | null = null;
 
   private gameOver: "won" | "lost" | null = null;
+  private elapsed = 0; // seconds of active play
+  private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
   private readonly humanId = HUMAN_PLAYER;
@@ -105,6 +107,8 @@ export class Game {
     this.builder = null;
     this.attackMoveMode = false;
     this.gameOver = null;
+    this.elapsed = 0;
+    this.endFanfarePlayed = false;
     this.paused = false;
     this.effects.clear();
     this.controlGroups.clear();
@@ -196,6 +200,7 @@ export class Game {
       this.messageTimer -= dt;
       if (this.messageTimer <= 0) this.message = null;
     }
+    this.elapsed += dt;
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
     if (this.attackPing) {
       this.attackPing.t += dt;
@@ -240,6 +245,13 @@ export class Game {
     this.pruneSelection();
     this.fog.update(this.world);
     this.checkWinLoss();
+
+    // One-shot end-game fanfare.
+    if (this.gameOver && !this.endFanfarePlayed) {
+      this.endFanfarePlayed = true;
+      if (this.gameOver === "won") this.sfx.victory();
+      else this.sfx.defeat();
+    }
   }
 
   // --- Input --------------------------------------------------------------
@@ -558,6 +570,8 @@ export class Game {
     this.effects.clear();
     this.attackPing = null;
     this.gameOver = null;
+    this.elapsed = 0;
+    this.endFanfarePlayed = false;
     this.world.recomputeSupply();
     this.fog.update(this.world);
     const th = this.world.buildingsOf(this.humanId).find((b) => b.kind === "townhall");
@@ -769,6 +783,6 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb);
-    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won");
+    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed);
   }
 }

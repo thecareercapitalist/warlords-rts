@@ -90,6 +90,23 @@ export class Sfx {
     this.tone({ freq: 660, type: "square", dur: 0.04, gain: 0.18 });
   }
 
+  /** Triumphant rising chord on victory. */
+  victory(): void {
+    if (!this.gate("end", 2000)) return;
+    this.tone({ freq: 523, type: "triangle", dur: 0.18, gain: 0.5 });
+    this.tone({ freq: 659, type: "triangle", dur: 0.18, gain: 0.5, delay: 0.16 });
+    this.tone({ freq: 784, type: "triangle", dur: 0.28, gain: 0.5, delay: 0.32 });
+    this.tone({ freq: 1047, type: "triangle", dur: 0.5, gain: 0.5, delay: 0.5 });
+  }
+
+  /** Somber descending dirge on defeat. */
+  defeat(): void {
+    if (!this.gate("end", 2000)) return;
+    this.tone({ freq: 330, type: "sawtooth", dur: 0.3, gain: 0.45, slideTo: 300 });
+    this.tone({ freq: 262, type: "sawtooth", dur: 0.35, gain: 0.45, delay: 0.3, slideTo: 240 });
+    this.tone({ freq: 196, type: "sawtooth", dur: 0.7, gain: 0.45, delay: 0.62, slideTo: 150 });
+  }
+
   /** Low rumble + debris for a building collapse. */
   collapse(): void {
     if (!this.gate("collapse", 120)) return;
