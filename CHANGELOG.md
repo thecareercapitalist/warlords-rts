@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.100.0 — AI builds critical structures fast (cramped-seed fix) _(2026-06-07)_
+- The AI now puts **up to 2 workers on an unfinished building**, and only places
+  sites with a **walkable adjacent tile** (a builder can always reach them). This
+  fixes the cramped-base weak economy flagged in v0.99: a lone builder crawling on
+  a corner base left the AI supply-starved. Verified headlessly (build-first):
+  **seed 7 supply cap 9→17 and army 1→9**; seed 1337 stays strong (cap 25, army
+  12). The earlier "soft-lock" was really slow construction, now resolved.
+
 ## v0.99.0 — AI resumes stalled construction _(2026-06-07)_
 - The AI now **assigns a worker to any building site that's lost its builder**
   (e.g. one pulled away to gather or flee a raid), fixing a class of economy

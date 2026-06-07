@@ -59,7 +59,9 @@ export class AIController {
   private manageConstruction(world: World, workers: Unit[], buildings: Building[]): void {
     const site = buildings.find((b) => b.state !== "complete" && !b.dead);
     if (!site) return;
-    if (workers.some((w) => w.buildTarget === site)) return; // already being built
+    // Put up to 2 workers on a site so it finishes quickly — a lone builder on a
+    // cramped base is painfully slow and starves supply growth.
+    if (workers.filter((w) => w.buildTarget === site).length >= 2) return;
     const w = workers.find(
       (u) => !u.fleeing && !u.buildTarget && u.state !== "building",
     );
@@ -292,14 +294,32 @@ export class AIController {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
           const x = origin.x + dx;
           const y = origin.y + dy;
-          // Leave a 1-tile gap so footprints don't seal the base in.
-          if (canPlace(world, kind, x, y) && this.hasClearance(world, x, y, fp)) {
+          // Leave a 1-tile gap so footprints don't seal the base in, and require
+          // a walkable adjacent tile so a builder can actually reach the site
+          // (a ring of rock/forest is non-water but unwalkable → unbuildable).
+          if (
+            canPlace(world, kind, x, y) &&
+            this.hasClearance(world, x, y, fp) &&
+            this.hasReachableAdjacent(world, x, y, fp)
+          ) {
             return { x, y };
           }
         }
       }
     }
     return null;
+  }
+
+  /** At least one walkable tile on the footprint's surrounding ring (so a
+   *  builder can stand adjacent and the site is actually reachable). */
+  private hasReachableAdjacent(world: World, tx: number, ty: number, fp: number): boolean {
+    for (let y = ty - 1; y <= ty + fp; y++) {
+      for (let x = tx - 1; x <= tx + fp; x++) {
+        const onRing = x < tx || x >= tx + fp || y < ty || y >= ty + fp;
+        if (onRing && world.map.isWalkable(x, y)) return true;
+      }
+    }
+    return false;
   }
 
   private hasClearance(world: World, tx: number, ty: number, fp: number): boolean {
