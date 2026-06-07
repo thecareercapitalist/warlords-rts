@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.144.0 — Wall corners: stone bastions _(2026-06-07)_
+- Wall junctions (bends / T / cross) are now a dedicated **corner bastion** — a
+  square crenellated stone tower (Gemini sprite) that the straight wall arms run
+  into. No more overlapping double-segments at corners; reads like a real castle
+  with corner towers. Straight runs unchanged.
+
 ## v0.143.0 — Stat visibility _(2026-06-07)_
 - **Supply is now shown** on every train button (e.g. `45g · 1p`) and in the unit
   selection panel (`Atk 8 · Pop 1`), plus attack **range** for ranged units.

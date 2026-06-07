@@ -960,11 +960,19 @@ export class Renderer {
     void T; void R; void B; void L;
     const ns = N || S;
     const ew = E || W || (!N && !S && !E && !W); // isolated → default E–W ("\")
-    if (ns) blit(false); // continuous "/" run
-    if (ew) blit(true); // continuous "\" run
-    // A junction (a bend/T/cross, i.e. both axes present) gets a stone corner post
-    // capping the overlap — like a fortified turret post — so the joint reads clean.
-    if (ns && ew) this.drawWallPost(center, (maxX - minX) * 0.5);
+    const bastion = this.assets.bastionSprite;
+    if (ns && ew && bastion) {
+      // A junction (bend/T/cross) is a corner BASTION — the straight arms from
+      // neighboring tiles run into it, so no overlapping segments here.
+      const bw2 = (maxX - minX) / (bastion as HTMLCanvasElement).width * 1.4;
+      const bdw = (bastion as HTMLCanvasElement).width * bw2;
+      const bdh = (bastion as HTMLCanvasElement).height * bw2;
+      ctx.drawImage(bastion, center.x - bdw / 2, maxY - bdh + (maxY - center.y) * 0.55, bdw, bdh);
+    } else {
+      if (ns) blit(false); // continuous "/" run
+      if (ew) blit(true); // continuous "\" run
+      if (ns && ew) this.drawWallPost(center, (maxX - minX) * 0.5); // fallback if no sprite
+    }
   }
 
   /** A short crenellated stone pillar that caps a wall junction. */

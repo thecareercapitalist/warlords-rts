@@ -147,6 +147,8 @@ export class Assets {
   private propSprites = new Map<string, CanvasImageSource>();
   /** Single iso wall segment ("/" diagonal); mirror it in code for "\". */
   wallSprite: CanvasImageSource | undefined;
+  /** Square corner bastion that caps wall junctions. */
+  bastionSprite: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
   loaded = false;
@@ -259,6 +261,12 @@ export class Assets {
       load(inl?.wall ?? "/gen_wall.jpg").then((img) => {
         if (!img) return;
         this.wallSprite = sliceGrid(img, 1, 1, ["wall"]).get("wall");
+      }),
+    );
+    jobs.push(
+      load(inl?.bastion ?? "/gen_bastion.jpg").then((img) => {
+        if (!img) return;
+        this.bastionSprite = sliceGrid(img, 1, 1, ["bastion"]).get("bastion");
       }),
     );
     jobs.push(
