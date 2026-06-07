@@ -29,6 +29,7 @@ import {
   orderBuild,
   nearestWalkable,
   updateWaypoints,
+  updatePatrol,
 } from "./systems/orders.ts";
 import { entityAt, unitAt, unitsInRect } from "./systems/selection.ts";
 import { saveGame, loadGame } from "./systems/persistence.ts";
@@ -59,6 +60,7 @@ export class Game {
   private buildMode: BuildingKind | null = null;
   private builder: Unit | null = null;
   private attackMoveMode = false;
+  private patrolMode = false;
 
   private message: string | null = null;
   private messageTimer = 0;
@@ -110,6 +112,7 @@ export class Game {
     this.buildMode = null;
     this.builder = null;
     this.attackMoveMode = false;
+    this.patrolMode = false;
     this.gameOver = null;
     this.elapsed = 0;
     this.kills = 0;
@@ -220,6 +223,7 @@ export class Game {
     updateCombat(this.world, dt);
     updateMovement(this.world, dt);
     updateWaypoints(this.world);
+    updatePatrol(this.world);
 
     // Drain gameplay events into the presentation layer (before cleanup so
     // death positions are still valid), then advance effect animations.
@@ -334,6 +338,8 @@ export class Game {
       }
       if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0)) {
         this.attackMoveMode = true;
+      } else if (key === this.kb.get("patrol") && this.selUnits.some((u) => u.def.damage > 0)) {
+        this.patrolMode = true;
       } else if (key === this.kb.get("stop") && this.selUnits.length > 0) {
         for (const u of this.selUnits) u.stop();
       } else if (key === this.kb.get("idleWorker")) {
@@ -392,6 +398,19 @@ export class Game {
     if (this.attackMoveMode) {
       for (const u of this.selUnits) if (u.def.damage > 0) orderAttackMove(this.world, u, world);
       this.attackMoveMode = false;
+      return;
+    }
+
+    // Patrol: set a route between the unit's current spot and the clicked point.
+    if (this.patrolMode) {
+      for (const u of this.selUnits) {
+        if (u.def.damage <= 0 || u.playerId !== this.humanId) continue;
+        u.patrolA = { ...u.pos };
+        u.patrolB = { ...world };
+        orderAttackMove(this.world, u, world);
+      }
+      this.patrolMode = false;
+      this.sfx.click();
       return;
     }
 
@@ -530,6 +549,10 @@ export class Game {
       this.attackMoveMode = false;
       return;
     }
+    if (this.patrolMode) {
+      this.patrolMode = false;
+      return;
+    }
     const world = this.cam.screenToWorld(p.x, p.y);
     this.commandTo(world);
   }
@@ -570,8 +593,12 @@ export class Game {
       for (const u of movers) u.waypoints.push({ ...worldPt });
       return;
     }
-    // A fresh (non-queued) command clears any pending waypoints.
-    for (const u of movers) u.waypoints = [];
+    // A fresh (non-queued) command clears any pending waypoints and patrol.
+    for (const u of movers) {
+      u.waypoints = [];
+      u.patrolA = null;
+      u.patrolB = null;
+    }
 
     // Plain group move → spread into a loose grid so units don't pile on one tile.
     if (plainMove && movers.length > 1) {
@@ -612,6 +639,10 @@ export class Game {
       this.attackMoveMode = false;
       return;
     }
+    if (this.patrolMode) {
+      this.patrolMode = false;
+      return;
+    }
     this.setPaused(true);
   }
 
@@ -636,6 +667,7 @@ export class Game {
     this.buildMode = null;
     this.builder = null;
     this.attackMoveMode = false;
+    this.patrolMode = false;
     this.effects.clear();
     this.attackPing = null;
     this.gameOver = null;
@@ -871,7 +903,11 @@ export class Game {
       this.selUnits,
       this.selBuildings,
       this.fog.vis,
-      this.attackMoveMode ? "Attack-move: click a target location" : this.message,
+      this.patrolMode
+        ? "Patrol: click a point to patrol to"
+        : this.attackMoveMode
+          ? "Attack-move: click a target location"
+          : this.message,
       this.attackPing,
     );
 

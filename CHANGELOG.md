@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.65.0 — Patrol command _(2026-06-07)_
+- New **Patrol** order (`P`, then click): combat units march back and forth
+  between their spot and the target, attack-moving so they engage anything that
+  wanders into the route — ideal for guarding chokepoints and flanks. Any
+  explicit order cancels it. Verified headlessly: a unit walks to its far
+  endpoint and back, repeating.
+
 ## v0.64.0 — Append to control group _(2026-06-07)_
 - **Shift + 1…9** now adds the current selection to an existing control group
   (deduped), instead of replacing it — standard RTS muscle memory alongside

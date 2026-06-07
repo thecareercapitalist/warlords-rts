@@ -24,6 +24,8 @@ export class Unit {
   /** Final pixel destination once the path is consumed. */
   finalTarget: Vec2 | null = null;
   waypoints: Vec2[] = []; // queued move destinations (shift-click), visited in order
+  patrolA: Vec2 | null = null; // patrol endpoints; non-null = patrolling between them
+  patrolB: Vec2 | null = null;
 
   attackTarget: Targetable | null = null;
   /** When true, the unit engages enemies encountered en route. */
@@ -81,6 +83,8 @@ export class Unit {
     this.path = [];
     this.finalTarget = null;
     this.waypoints = [];
+    this.patrolA = null;
+    this.patrolB = null;
     this.attackTarget = null;
     this.attackMove = false;
     this.resourceTile = null;

@@ -91,6 +91,27 @@ export function updateWaypoints(world: World): void {
   }
 }
 
+/**
+ * Patrolling units march between their two endpoints, attack-moving (so they
+ * engage enemies en route). When one leg finishes and nothing's left to fight,
+ * head to the far endpoint.
+ */
+export function updatePatrol(world: World): void {
+  for (const u of world.units) {
+    if (u.dead || !u.patrolA || !u.patrolB) continue;
+    if (u.attackTarget || u.path.length > 0 || u.finalTarget !== null) continue;
+    if (u.state !== "idle") continue;
+    const dA = (u.pos.x - u.patrolA.x) ** 2 + (u.pos.y - u.patrolA.y) ** 2;
+    const dB = (u.pos.x - u.patrolB.x) ** 2 + (u.pos.y - u.patrolB.y) ** 2;
+    const target = dA > dB ? u.patrolA : u.patrolB; // head to the farther end
+    const a = u.patrolA;
+    const b = u.patrolB;
+    orderAttackMove(world, u, target);
+    u.patrolA = a; // orderAttackMove doesn't touch these, but be explicit
+    u.patrolB = b;
+  }
+}
+
 export function orderAttackMove(world: World, u: Unit, pixel: Vec2): void {
   const t = toTile(pixel.x, pixel.y);
   u.attackTarget = null;

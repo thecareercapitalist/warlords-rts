@@ -43,6 +43,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Move / gather / attack | Right-click (context-sensitive) |
 | Queue move waypoints | `Shift` + right-click open ground |
 | Attack-move | Press `A`, then left-click a location |
+| Patrol | Press `P`, then left-click a point (marches back and forth) |
 | Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `G` Forge · `T` Guard Tower · `H` Town Hall, then click to place |
 | Help build / assign worker | Right-click an unfinished building with worker(s) selected |
 | Repair a building | Right-click a damaged friendly building with worker(s) selected |
