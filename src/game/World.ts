@@ -8,11 +8,18 @@ import { dist2 } from "./util/math.ts";
 export const HUMAN_PLAYER = 0;
 export const AI_PLAYER = 1;
 
+/** Transient gameplay events emitted by systems and drained for FX/sound. */
+export type GameEvent =
+  | { type: "projectile"; from: Vec2; to: Vec2 }
+  | { type: "death"; x: number; y: number; color: string; glyph: string };
+
 export class World {
   readonly map: TileMap;
   readonly players: PlayerState[] = [];
   units: Unit[] = [];
   buildings: Building[] = [];
+  /** Drained each frame by the presentation layer (effects, audio). */
+  events: GameEvent[] = [];
 
   constructor(seed = 1337) {
     this.map = new TileMap(seed);

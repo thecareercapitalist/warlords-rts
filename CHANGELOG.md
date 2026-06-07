@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.5.0 — Combat juice _(2026-06-07)_
+- Added a presentation event bus (`World.events`) drained each frame into an
+  `Effects` layer — gameplay stays decoupled from visuals.
+- **Projectiles**: ranged attackers (archers) loose an arrow that arcs to the
+  target with an arrowhead.
+- **Attack lunge**: units nudge toward their target on each strike.
+- **Hit flash**: units and buildings flash white when they take damage.
+- **Death fade**: slain units leave a fading, rising token instead of vanishing.
+- All verified headlessly (projectile/flash/lunge/death FX fire) and on-screen.
+
 ## v0.4.0 — Isometric renderer _(2026-06-07)_
 - Rendering is now **isometric**, drawing real pixel-art terrain from the CC0
   Screaming Brain Studios Overworld tiles (grass/water/forest) in `public/tiles`.

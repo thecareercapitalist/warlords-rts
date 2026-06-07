@@ -57,10 +57,13 @@ function acquireTarget(world: World, u: Unit, radiusTiles: number): Targetable |
 }
 
 export function updateCombat(world: World, dt: number): void {
+  for (const b of world.buildings) if (b.hitFlash > 0) b.hitFlash -= dt;
   for (const u of world.units) {
     if (u.dead) continue;
     if (u.attackCooldown > 0) u.attackCooldown -= dt;
     if (u.repathTimer > 0) u.repathTimer -= dt;
+    if (u.hitFlash > 0) u.hitFlash -= dt;
+    if (u.attackAnim > 0) u.attackAnim -= dt;
 
     // Drop a target that has died.
     if (u.attackTarget && u.attackTarget.dead) u.attackTarget = null;
@@ -99,9 +102,24 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
     u.path = [];
     u.finalTarget = null;
     if (u.attackCooldown <= 0) {
+      const c = t.center();
+      // Animation + FX cues.
+      u.attackAnim = 0.18;
+      u.aim = { x: c.x, y: c.y };
+      t.hitFlash = 0.12;
+      if (u.def.attackRange > 1) {
+        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
+      }
       t.hp -= u.def.damage;
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
+        world.events.push({
+          type: "death",
+          x: c.x,
+          y: c.y,
+          color: world.player(t.playerId).color,
+          glyph: t.def.glyph,
+        });
         if (t.etype === "unit") t.state = "dead";
         u.attackTarget = null;
         resumeAfterKill(world, u);

@@ -43,6 +43,11 @@ export class Unit {
 
   attackCooldown = 0;
 
+  // Presentation-only animation timers (seconds remaining).
+  hitFlash = 0; // white flash when damaged
+  attackAnim = 0; // melee lunge toward `aim`
+  aim: Vec2 | null = null; // last attack target centre, for the lunge direction
+
   constructor(kind: UnitKind, playerId: number, pos: Vec2) {
     this.kind = kind;
     this.def = UNIT_DEFS[kind];

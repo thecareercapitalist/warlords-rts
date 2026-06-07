@@ -120,9 +120,28 @@ Honest scope notes for whoever picks this up next:
 
 ## Good next steps
 
-1. Archers/ranged kiting and proper projectile visuals.
-2. AI: defensive response when attacked, second-base expansion, scouting.
-3. A second visually distinct faction (the `grunt` unit already exists in
-   `defs.ts`, just not yet produced by any building).
-4. Control groups (`Ctrl+1`…`9`) and double-click "select all of type".
-5. Save/load and a map seed picker.
+### Code-generated — no external assets needed (loop tackles these)
+1. **Combat & motion animations**: attack lunge/recoil, hit flashes, death
+   fade-out, walk bob, construction scaffolding, gather swing.
+2. **Projectiles**: arrows/spears that fly from archer to target with an arc +
+   impact puff.
+3. **Procedural sound** via the Web Audio API: sword clang, arrow whoosh, click,
+   build-complete chime, death — synthesized in code, no audio files. Optional
+   ambient/music bed.
+4. **Procedurally-drawn unit sprites**: replace flat circles with shaded,
+   team-coloured little soldiers/workers drawn + animated in code.
+5. **UI theming**: beautify the HUD and pause menu (panels, gradients, on-theme
+   framing) — all canvas drawing.
+6. Building sprites from the **SBS Town pack** (real pixel art we already have in
+   `pixel packs/`, 64×96), plus terrain-tile variety (each sheet has 18 cells).
+
+### Gameplay
+7. AI: defensive response when attacked, second-base expansion, scouting.
+8. Control groups (`Ctrl+1`…`9`) and double-click "select all of type".
+9. Save/load and a map seed picker.
+10. A second visually distinct faction (the `grunt` unit already exists in `defs.ts`).
+
+### Needs an asset source or image-gen hookup
+11. Hand-quality **pixel-art unit sprites + frame animations**: not producible by
+    the in-environment tools (no text-to-image). Options: wire up an image-gen
+    API/MCP, source more CC0 art, or stick with the procedural sprites from (4).

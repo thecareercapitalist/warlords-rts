@@ -7,6 +7,7 @@ import { COLORS, TILE } from "../constants.ts";
 import { BUILDING_DEFS } from "../entities/defs.ts";
 import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
 import type { Assets, TileKey } from "./assets.ts";
+import type { Effects } from "./effects.ts";
 
 // Isometric renderer (v0.4) — projects the square-grid world onto the iso plane.
 
@@ -24,7 +25,7 @@ export class Renderer {
     private readonly assets: Assets,
   ) {}
 
-  render(world: World, fog: Fog, humanId: number, state: RenderState): void {
+  render(world: World, fog: Fog, humanId: number, state: RenderState, effects: Effects): void {
     const ctx = this.ctx;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, this.cam.viewW, this.cam.viewH);
@@ -33,6 +34,7 @@ export class Renderer {
     this.drawFogOverlay(fog);
     if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
     this.drawEntities(world, fog, humanId);
+    this.drawEffects(effects);
     if (state.dragBoxScreen) this.drawDragBox(state.dragBoxScreen);
   }
 
@@ -210,6 +212,14 @@ export class Renderer {
     ctx.textBaseline = "middle";
     ctx.fillText(b.def.glyph, center.x, center.y);
 
+    if (b.hitFlash > 0) {
+      ctx.globalAlpha = Math.min(1, b.hitFlash / 0.12) * 0.5;
+      ctx.fillStyle = "#fff";
+      poly();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
     if (b.selected) {
       poly();
       ctx.strokeStyle = COLORS.selection;
@@ -225,7 +235,18 @@ export class Renderer {
   private drawUnit(world: World, u: import("../entities/Unit.ts").Unit, isEnemy: boolean): void {
     const ctx = this.ctx;
     const z = this.cam.zoom;
-    const s = this.cam.worldToScreen(u.pos.x, u.pos.y);
+    // Lunge toward the target during the brief attack animation.
+    let wx = u.pos.x;
+    let wy = u.pos.y;
+    if (u.attackAnim > 0 && u.aim) {
+      const dx = u.aim.x - u.pos.x;
+      const dy = u.aim.y - u.pos.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const amt = 6 * (u.attackAnim / 0.18);
+      wx += (dx / d) * amt;
+      wy += (dy / d) * amt;
+    }
+    const s = this.cam.worldToScreen(wx, wy);
     const r = UNIT_DRAW_R * z * (u.radius / 10);
     const color = world.player(u.playerId).color;
 
@@ -256,6 +277,15 @@ export class Renderer {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(u.def.glyph, s.x, s.y);
+
+    if (u.hitFlash > 0) {
+      ctx.globalAlpha = Math.min(1, u.hitFlash / 0.12) * 0.7;
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
 
     if (u.carrying) {
       ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
@@ -314,6 +344,59 @@ export class Renderer {
     ctx.strokeStyle = p.valid ? "#3cc85a" : "#dc3c3c";
     ctx.lineWidth = 2;
     ctx.stroke();
+  }
+
+  private drawEffects(fx: Effects): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+
+    // Arrows / projectiles: travel along the line with a slight upward arc.
+    for (const p of fx.projectiles) {
+      const k = p.t / p.dur;
+      const wx = p.from.x + (p.to.x - p.from.x) * k;
+      const wy = p.from.y + (p.to.y - p.from.y) * k;
+      const s = this.cam.worldToScreen(wx, wy);
+      const lift = Math.sin(k * Math.PI) * 16 * z;
+      const sFrom = this.cam.worldToScreen(p.from.x, p.from.y);
+      const sTo = this.cam.worldToScreen(p.to.x, p.to.y);
+      const ang = Math.atan2(sTo.y - sFrom.y, sTo.x - sFrom.x);
+      ctx.save();
+      ctx.translate(s.x, s.y - lift);
+      ctx.rotate(ang);
+      ctx.strokeStyle = "#efe3b0";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-8 * z, 0);
+      ctx.lineTo(6 * z, 0);
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.moveTo(8 * z, 0);
+      ctx.lineTo(3 * z, -3 * z);
+      ctx.lineTo(3 * z, 3 * z);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Death poofs: the unit's token fades and rises.
+    for (const d of fx.deaths) {
+      const k = d.t / d.dur;
+      const s = this.cam.worldToScreen(d.x, d.y);
+      const r = UNIT_DRAW_R * z * (1 - k * 0.3);
+      const y = s.y - k * 16 * z;
+      ctx.globalAlpha = (1 - k) * 0.85;
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      ctx.arc(s.x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(20,0,0,0.9)";
+      ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(d.glyph, s.x, y);
+      ctx.globalAlpha = 1;
+    }
   }
 
   private drawDragBox(box: { x: number; y: number; w: number; h: number }): void {

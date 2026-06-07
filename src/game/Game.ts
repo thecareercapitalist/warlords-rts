@@ -3,6 +3,7 @@ import { Camera } from "./Camera.ts";
 import { Input } from "./Input.ts";
 import { Renderer, type RenderState } from "./render/Renderer.ts";
 import { Assets } from "./render/assets.ts";
+import { Effects } from "./render/effects.ts";
 import { Hud, type HudAction } from "./ui/Hud.ts";
 import { Keybindings } from "./ui/Keybindings.ts";
 import { PauseMenu } from "./ui/PauseMenu.ts";
@@ -35,6 +36,7 @@ export class Game {
   private readonly input: Input;
   private readonly renderer: Renderer;
   private readonly assets = new Assets();
+  private readonly effects = new Effects();
   private readonly hud: Hud;
   private readonly kb: Keybindings;
   private readonly pauseMenu = new PauseMenu();
@@ -97,6 +99,7 @@ export class Game {
     this.attackMoveMode = false;
     this.gameOver = null;
     this.paused = false;
+    this.effects.clear();
 
     this.spawnBase(this.humanId, { x: 4, y: 4 }, { x: 8, y: 8 }, true);
     this.spawnBase(AI_PLAYER, { x: MAP_W - 7, y: MAP_H - 7 }, { x: MAP_W - 9, y: MAP_H - 9 }, false);
@@ -190,6 +193,15 @@ export class Game {
     updateGather(this.world, dt);
     updateCombat(this.world, dt);
     updateMovement(this.world, dt);
+
+    // Drain gameplay events into the presentation layer (before cleanup so
+    // death positions are still valid), then advance effect animations.
+    for (const e of this.world.events) {
+      if (e.type === "projectile") this.effects.spawnProjectile(e.from, e.to);
+      else if (e.type === "death") this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
+    }
+    this.world.events.length = 0;
+    this.effects.update(dt);
 
     this.world.cleanupDead();
     this.world.recomputeSupply();
@@ -538,10 +550,13 @@ export class Game {
       dragBox = normalizeRect(d.start.x, d.start.y, d.current.x, d.current.y);
     }
 
-    this.renderer.render(this.world, this.fog, this.humanId, {
-      dragBoxScreen: dragBox,
-      buildPreview: preview,
-    });
+    this.renderer.render(
+      this.world,
+      this.fog,
+      this.humanId,
+      { dragBoxScreen: dragBox, buildPreview: preview },
+      this.effects,
+    );
 
     this.hud.render(
       this.world,

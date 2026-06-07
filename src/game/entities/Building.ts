@@ -26,6 +26,9 @@ export class Building {
   /** Rally point in pixels for freshly produced/owned units. */
   rally: Vec2 | null = null;
 
+  /** Presentation-only: white flash timer when damaged (seconds). */
+  hitFlash = 0;
+
   constructor(kind: BuildingKind, playerId: number, tile: Vec2, prebuilt = false) {
     this.kind = kind;
     this.def = BUILDING_DEFS[kind];
