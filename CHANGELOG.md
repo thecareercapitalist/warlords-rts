@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.96.0 — Enemy archer bone bow _(2026-06-07)_
+- The enemy **archer** now carries a longer, pale **bone recurve** instead of the
+  human wooden bow — completing the enemy faction's combat silhouette set (cleaver
+  · horns · bone bow). Verified headlessly: the bow region differs 596 px and reads
+  less brown (910 vs 1190) than the human's.
+
 ## v0.95.0 — Enemy knight horns _(2026-06-07)_
 - Extending the faction look: **enemy knights wear dark curved horns** in place of
   the human gold crest, so the enemy army reads as its own host across melee and

@@ -665,9 +665,13 @@ export class Renderer {
     // Per-kind weapon silhouette — read a unit's role by shape, not just letter.
     ctx.lineWidth = Math.max(1, 1.5 * z);
     if (u.kind === "archer") {
-      ctx.strokeStyle = "#6b4a2a"; // wooden bow on the right
+      // Human: warm wooden bow. Enemy: a longer, pale bone recurve.
+      ctx.strokeStyle = isEnemy ? "#9a9282" : "#6b4a2a";
+      ctx.lineWidth = Math.max(1, (isEnemy ? 1.9 : 1.5) * z);
+      const rad = (isEnemy ? 0.9 : 0.75) * r;
+      const sweep = isEnemy ? 0.5 : 0.45;
       ctx.beginPath();
-      ctx.arc(bx + r * 0.75, by, r * 0.75, -Math.PI * 0.45, Math.PI * 0.45);
+      ctx.arc(bx + rad, by, rad, -Math.PI * sweep, Math.PI * sweep);
       ctx.stroke();
     } else if (u.kind === "knight") {
       if (isEnemy) {
