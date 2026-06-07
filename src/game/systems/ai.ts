@@ -4,10 +4,10 @@ import type { Building } from "../entities/Building.ts";
 import type { BuildingKind, ResourceKind, UnitKind, Vec2 } from "../types.ts";
 import { enqueueUnit } from "./production.ts";
 import { placeBuilding, canPlace } from "./placement.ts";
-import { orderGather, orderAttackMove } from "./orders.ts";
+import { orderGather, orderAttackMove, orderMove } from "./orders.ts";
 import { BUILDING_DEFS } from "../entities/defs.ts";
 import { TILE } from "../constants.ts";
-import { toTile } from "../util/math.ts";
+import { toTile, dist2 } from "../util/math.ts";
 
 const TICK = 1.0; // seconds between AI decisions
 const TARGET_WORKERS = 8;
@@ -41,9 +41,32 @@ export class AIController {
     const townhall = buildings.find((b) => b.kind === "townhall");
     if (!townhall) return; // base destroyed; AI is effectively done
 
+    this.manageWorkerSafety(world, this.workers(units), townhall);
     this.manageEconomy(world, units, buildings, townhall);
     this.manageBuildOrder(world, p, units, buildings, townhall);
     this.manageArmy(world, units);
+  }
+
+  /** Workers flee to the town hall when an enemy soldier is raiding the base. */
+  private manageWorkerSafety(world: World, workers: Unit[], townhall: Building): void {
+    const FLEE2 = (3.5 * TILE) ** 2;
+    const enemies = world.units.filter(
+      (u) => !u.dead && u.playerId !== this.playerId && u.def.damage > 0 && !u.def.canGather,
+    );
+    const home = townhall.center();
+    for (const w of workers) {
+      if (w.buildTarget) continue; // builders keep working
+      const danger = enemies.some((e) => dist2(w.pos, e.pos) < FLEE2);
+      if (danger) {
+        w.fleeing = true;
+        if (!w.finalTarget || dist2(w.finalTarget, home) > (1.5 * TILE) ** 2) {
+          orderMove(world, w, home);
+        }
+      } else if (w.fleeing) {
+        w.fleeing = false;
+        w.stop(); // safe now → idle, so manageEconomy re-tasks it to gather
+      }
+    }
   }
 
   private workers(units: Unit[]): Unit[] {
@@ -72,6 +95,7 @@ export class AIController {
           w.state !== "movingToResource" &&
           w.state !== "returning" &&
           w.state !== "building");
+      if (w.fleeing) continue; // retreating from a raid — don't send back to mine
       if (!idleish) continue;
       if (w.buildTarget) continue;
       const woodCount = workers.filter(onWood).length;

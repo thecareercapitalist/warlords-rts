@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.39.0 — AI workers flee raids _(2026-06-07)_
+- The AI is smarter on defense: its **workers now retreat to the town hall** when
+  an enemy soldier comes within ~3.5 tiles, then return to gathering once the
+  threat clears — so harassing its economy is no longer a free slaughter.
+  Verified headlessly: a raided worker flees toward base and resumes when safe.
+
 ## v0.38.0 — Resource depletion visual _(2026-06-07)_
 - Forests and goldmines now visibly **darken as they're harvested toward empty**
   (overlay ∝ 1 − resource/max), so you can spot dwindling nodes at a glance and

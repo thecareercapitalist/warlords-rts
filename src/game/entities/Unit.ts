@@ -44,6 +44,7 @@ export class Unit {
   attackCooldown = 0;
 
   kills = 0; // enemy units/buildings slain — drives veterancy rank + damage bonus
+  fleeing = false; // AI worker retreating from a raid (skips economy re-tasking)
 
   // Presentation-only animation timers (seconds remaining).
   hitFlash = 0; // white flash when damaged
