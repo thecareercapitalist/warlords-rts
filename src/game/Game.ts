@@ -252,7 +252,10 @@ export class Game {
         if (e.by === this.humanId) this.razed++;
       } else if (e.type === "attack") this.sfx.attack(e.ranged, e.heavy);
       else if (e.type === "build") this.sfx.build();
-      else if (e.type === "trained" && e.playerId === this.humanId) this.sfx.ready();
+      else if (e.type === "trained" && e.playerId === this.humanId) {
+        this.sfx.ready();
+        this.effects.spawnImpact(e.x, e.y); // muster spark at the building
+      }
       else if (e.type === "gain" && e.playerId === this.humanId) {
         this.effects.spawnFloater(e.x, e.y, `+${e.amount}`, e.kind === "gold" ? "#e8c060" : "#b07a45");
       }

@@ -127,7 +127,7 @@ function updateQueues(world: World, dt: number): void {
 
     const kind = b.queue.shift()!;
     spawnUnit(world, b, kind);
-    world.events.push({ type: "trained", playerId: b.playerId });
+    world.events.push({ type: "trained", playerId: b.playerId, x: b.center().x, y: b.center().y });
     if (b.queue.length > 0) {
       b.productionTimer = UNIT_DEFS[b.queue[0]].buildTime;
     }
