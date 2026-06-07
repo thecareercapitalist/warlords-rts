@@ -4,6 +4,7 @@ import type { UnitKind, Vec2 } from "../types.ts";
 import { Unit } from "../entities/Unit.ts";
 import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { lerp, tileCenter, toTile } from "../util/math.ts";
+import { TILE } from "../constants.ts";
 import { nearestWalkable, orderMove, orderGather, adjacentToBuilding } from "./orders.ts";
 import { arrived } from "./movement.ts";
 
@@ -11,10 +12,34 @@ const MAX_BUILDERS_SPEEDUP = 3;
 const REPAIR_RATE = 28; // HP/sec restored per assigned worker
 const REPAIR_GOLD_PER_HP = 0.2; // gold cost per HP repaired
 
+const HEAL_RADIUS = 5; // tiles around a Temple
+const HEAL_RATE = 3; // HP/sec restored to friendly units in range
+
 export function updateProduction(world: World, dt: number): void {
   updateConstruction(world, dt);
   updateRepair(world, dt);
   updateQueues(world, dt);
+  updateHealing(world, dt);
+}
+
+/** Temples slowly mend friendly units standing nearby — a positional perk. */
+function updateHealing(world: World, dt: number): void {
+  const temples = world.buildings.filter(
+    (b) => b.kind === "temple" && b.state === "complete" && !b.dead,
+  );
+  if (temples.length === 0) return;
+  const r2 = (HEAL_RADIUS * TILE) ** 2;
+  for (const u of world.units) {
+    if (u.dead || u.hp >= u.def.maxHp) continue;
+    for (const t of temples) {
+      if (t.playerId !== u.playerId) continue;
+      const c = t.center();
+      if ((u.pos.x - c.x) ** 2 + (u.pos.y - c.y) ** 2 <= r2) {
+        u.hp = Math.min(u.def.maxHp, u.hp + HEAL_RATE * dt);
+        break;
+      }
+    }
+  }
 }
 
 // --- Repair ---------------------------------------------------------------

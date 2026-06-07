@@ -73,7 +73,8 @@ workers left to rebuild.
 - **Farms** raise your supply cap; you can't train past it.
 - **Barracks** train Footmen (melee) and Archers (ranged, cost wood).
 - **Temple** is a tech building — once built, it unlocks **Knights** (heavy,
-  **armored** melee that shrug off part of every hit) at the Barracks.
+  **armored** melee that shrug off part of every hit) at the Barracks, and it
+  slowly **heals friendly units standing nearby**.
 - **Guard Tower** is a cheap defensive building that auto-fires at enemies in
   range — fortify your chokepoints and resource lines.
 - **Forge** is a tech building — while it stands, all your units gain +2 attack.
