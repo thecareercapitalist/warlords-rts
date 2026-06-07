@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.112.0 — Temple heal ring when selected _(2026-06-07)_
+- Selecting a **Temple** now shows its **green heal-aura ring** (matching the Guard
+  Tower's range ring on selection), so you can see its coverage at any time, not
+  just while placing. Verified headlessly: a selected Temple draws the green ring;
+  a selected Farm draws none.
+
 ## v0.111.0 — Wall stone silhouette _(2026-06-07)_
 - The Wall now draws as a **low crenellated stone block** (mortar courses, inked
   outline) instead of a glyph, and flies **no banner** — it reads as a barrier, not

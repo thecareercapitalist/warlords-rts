@@ -433,6 +433,20 @@ export class Renderer {
         ctx.stroke();
         ctx.restore();
       }
+      // Heal-aura ring (green) for the Temple when selected.
+      if (b.def.healRadius) {
+        const z2 = this.cam.zoom;
+        const c2 = this.cam.worldToScreen(b.center().x, b.center().y);
+        const rr = b.def.healRadius * TILE * z2;
+        ctx.save();
+        ctx.strokeStyle = "rgba(127,221,138,0.5)";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 5]);
+        ctx.beginPath();
+        ctx.ellipse(c2.x, c2.y, rr, rr * (ISO_HALF_H / ISO_HALF_W), 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
     // Unit-production progress bar (ember fill) when training something.
     if (b.state === "complete" && b.queue.length > 0) {
