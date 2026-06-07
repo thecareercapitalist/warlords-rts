@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.128.0 — Attack lunge + squash _(2026-06-07)_
+- Attacking units now play a real **strike**: a melee unit lunges ~0.5 tile toward
+  its target (ranged units recoil back) on an out-and-back swing, with a squash/
+  stretch for weight. The old lunge was 6 world-units — invisible under the bigger
+  sprites, so attackers looked frozen (the "grunt doesn't move while attacking"
+  bug). Verified: a mid-swing footman renders clearly displaced + stretched vs an
+  idle one.
+
 ## v0.127.0 — Forest map: lush grass, mountains, lakes _(2026-06-07)_
 - **Ground is now mostly lush grass** (They-Are-Billions vibe): grass tiles favour
   the greenest sheet variants (n² bias over the patch-noise), with only occasional

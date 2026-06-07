@@ -954,11 +954,16 @@ export class Renderer {
     // Lunge toward the target during the brief attack animation.
     let wx = u.pos.x;
     let wy = u.pos.y;
+    let strikeSwing = 0; // 0..1 attack swing, reused for a body squash below
     if (u.attackAnim > 0 && u.aim) {
       const dx = u.aim.x - u.pos.x;
       const dy = u.aim.y - u.pos.y;
       const d = Math.hypot(dx, dy) || 1;
-      const amt = 6 * (u.attackAnim / 0.18);
+      const phase = Math.min(1, u.attackAnim / 0.18); // 1 just struck → 0
+      strikeSwing = Math.sin(phase * Math.PI); // 0 → 1 → 0, a lunge out and back
+      const ranged = u.def.attackRange > 1;
+      const reach = ranged ? -8 : 18; // melee thrusts in; ranged recoils back (world units)
+      const amt = reach * strikeSwing;
       wx += (dx / d) * amt;
       wy += (dy / d) * amt;
     }
@@ -1095,12 +1100,15 @@ export class Renderer {
         else if (fs.x > s.x + 1) u.faceLeft = false;
       }
       const footY = by + r * 0.55;
+      // Squash/stretch on the attack swing for weight (feet stay planted).
+      const sw2 = spriteW * (1 + 0.16 * strikeSwing);
+      const sh2 = spriteH * (1 - 0.09 * strikeSwing);
       ctx.save();
       if (u.faceLeft) {
         ctx.translate(bx * 2, 0); // mirror across the unit's vertical axis
         ctx.scale(-1, 1);
       }
-      ctx.drawImage(sprite, bx - spriteW / 2, footY - spriteH, spriteW, spriteH); // feet at base ring
+      ctx.drawImage(sprite, bx - sw2 / 2, footY - sh2, sw2, sh2); // feet at base ring
       ctx.restore();
     } else if (u.kind === "catapult") {
       this.drawSiegeEngine(bx, by, r);
