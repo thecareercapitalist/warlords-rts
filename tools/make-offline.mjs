@@ -29,6 +29,8 @@ for (const t of tiles) {
   const buf = readFileSync(resolve(root, "public", "tiles", `${t}.png`));
   tileData[t] = `data:image/png;base64,${buf.toString("base64")}`;
 }
+// Building roof sprite sheet (Assets reads window.__TILES.roofs when present).
+tileData.roofs = `data:image/png;base64,${readFileSync(resolve(root, "public", "buildings-roofs.png")).toString("base64")}`;
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");

@@ -6,6 +6,17 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.115.0 — Real building sprites (CC0 roof set) _(2026-06-07)_
+- Buildings (Farm, Barracks, Sawmill, Temple, Town Hall) now draw **real CC0
+  isometric roof sprites** from the SBS Town pack instead of code-art — scaled onto
+  each footprint, **chroma-keyed** (the sheet ships with a flat teal backdrop) and
+  darkened/desaturated toward the gothic palette. The code-drawn `drawStructure`
+  stays as a fallback if the sheet fails to load. Asset loader now slices a sprite
+  sheet (`assets.sheet("roofs")`) and the offline single-file build inlines it too.
+  Verified via captured screenshots (saved to `screenshots/`): sprites render on
+  the terrain with the teal background removed.
+- Forge, Guard Tower, and Wall keep their bespoke code-art silhouettes.
+
 ## v0.114.0 — Real building structures (no more glyph blocks) _(2026-06-07)_
 - Replaced the flat "colored diamond + 2-letter glyph" placeholders with proper
   **raised, code-drawn isometric structures** for Farm, Barracks, Sawmill, Temple,

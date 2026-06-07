@@ -19,6 +19,19 @@ export interface RenderState {
 
 const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
 
+// CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92
+// cells. Map each building to a fitting roof [col, row]. Forge/Tower/Wall keep
+// their bespoke code-art.
+const ROOF_CELL: Partial<Record<BuildingKind, [number, number]>> = {
+  farm: [0, 0], // thatch
+  barracks: [1, 0], // dark tile
+  sawmill: [2, 0], // timber
+  townhall: [2, 2], // dark slate keep
+  temple: [1, 3], // columned stone temple
+};
+const ROOF_CW = 144;
+const ROOF_CH = 92;
+
 export class Renderer {
   constructor(
     private readonly ctx: CanvasRenderingContext2D,
@@ -350,8 +363,12 @@ export class Renderer {
     } else if (b.kind === "wall" && b.state === "complete") {
       this.drawWall(center);
     } else if (b.state === "complete") {
-      // Raised, code-drawn isometric structure (walls + roof + per-kind feature).
-      this.drawStructure(b, corners, center);
+      // Prefer a real CC0 isometric roof sprite; fall back to code-art if the
+      // sheet failed to load.
+      const sheet = this.assets.sheet("roofs");
+      const cell = ROOF_CELL[b.kind];
+      if (sheet && cell) this.drawRoofSprite(sheet, cell, corners, center);
+      else this.drawStructure(b, corners, center);
     } else {
       // Under construction: a glyph label reads over the scaffolding.
       ctx.fillStyle = "rgba(255,255,255,0.92)";
@@ -476,6 +493,35 @@ export class Renderer {
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
+  }
+
+  /**
+   * Draw a CC0 isometric roof sprite scaled onto the footprint, pulled toward the
+   * gothic palette (darker, desaturated). `cell` is [col, row] in the sheet.
+   */
+  private drawRoofSprite(
+    sheet: CanvasImageSource,
+    cell: [number, number],
+    corners: Vec2[],
+    center: Vec2,
+  ): void {
+    const ctx = this.ctx;
+    const xs = corners.map((c) => c.x);
+    const ys = corners.map((c) => c.y);
+    const fpW = Math.max(...xs) - Math.min(...xs);
+    const scale = (fpW / ROOF_CW) * 1.3; // overhang a touch past the footprint
+    const dw = ROOF_CW * scale;
+    const dh = ROOF_CH * scale;
+    // Anchor the sprite's bottom-centre near the footprint's front (south) vertex
+    // so the building sits on its tile and rises upward.
+    const bottomY = Math.max(...ys);
+    const dx = center.x - dw / 2;
+    const dy = bottomY - dh + ROOF_CH * scale * 0.16;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.filter = "brightness(0.74) saturate(0.7) contrast(1.05)";
+    ctx.drawImage(sheet, cell[0] * ROOF_CW, cell[1] * ROOF_CH, ROOF_CW, ROOF_CH, dx, dy, dw, dh);
+    ctx.restore();
   }
 
   /**
