@@ -219,6 +219,11 @@ export class Hud {
       ctx.fillStyle = COLORS.uiEmber;
       ctx.fillText(`⚒ ${idle} idle`, 500, 17);
     }
+    const idleProd = this.idleProductionCount(world, humanId);
+    if (idleProd > 0) {
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.fillText(`⚑ ${idleProd} idle bldg`, 610, 17);
+    }
 
     if (message) {
       ctx.fillStyle = COLORS.uiEmber;
@@ -391,6 +396,17 @@ export class Hud {
           u.path.length === 0 &&
           u.finalTarget === null,
       ).length;
+  }
+
+  /** Complete production buildings sitting with an empty queue — a macro nudge. */
+  idleProductionCount(world: World, humanId: number): number {
+    return world.buildings.filter(
+      (b) =>
+        b.playerId === humanId &&
+        b.state === "complete" &&
+        b.def.produces.length > 0 &&
+        b.queue.length === 0,
+    ).length;
   }
 
   /** "Atk 18 · Def 2 · Vet 1" — effective combat stats (veterancy + Forge bonus). */

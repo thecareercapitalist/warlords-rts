@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.75.0 — Idle-production indicator _(2026-06-07)_
+- The resource bar now shows a **"⚑ N idle bldg"** count when complete production
+  buildings (Town Hall, Barracks) sit with an empty queue — a macro nudge so you
+  don't forget to keep training, mirroring the idle-worker indicator. Verified
+  headlessly: an idle barracks counts 1, drops to 0 once a unit is queued.
+
 ## v0.74.0 — Worker tool silhouette _(2026-06-07)_
 - Workers now carry a **wooden-handled tool**, completing the per-type silhouette
   set (worker tool · footman/grunt blade · archer bow · knight crest) so every
