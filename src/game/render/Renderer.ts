@@ -932,6 +932,7 @@ export class Renderer {
       ws((gx + 1) * TILE, (gy + 1) * TILE),
       ws(gx * TILE, (gy + 1) * TILE),
     ];
+    const [T, R, B, L] = corners; // top, right, bottom, left diamond vertices
     const minX = Math.min(...corners.map((c) => c.x));
     const maxX = Math.max(...corners.map((c) => c.x));
     const maxY = Math.max(...corners.map((c) => c.y));
@@ -956,10 +957,68 @@ export class Renderer {
       ctx.restore();
     };
 
+    void T; void R; void B; void L;
     const ns = N || S;
     const ew = E || W || (!N && !S && !E && !W); // isolated → default E–W ("\")
-    if (ns) blit(false); // "/" segment
-    if (ew) blit(true); // "\" segment (mirrored) — corners draw both
+    if (ns) blit(false); // continuous "/" run
+    if (ew) blit(true); // continuous "\" run
+    // A junction (a bend/T/cross, i.e. both axes present) gets a stone corner post
+    // capping the overlap — like a fortified turret post — so the joint reads clean.
+    if (ns && ew) this.drawWallPost(center, (maxX - minX) * 0.5);
+  }
+
+  /** A short crenellated stone pillar that caps a wall junction. */
+  private drawWallPost(center: Vec2, tileW: number): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const rw = tileW * 0.28; // post radius (screen px)
+    const rh = rw * 0.55; // iso ellipse squash
+    const H = 46 * z; // a touch taller than the wall
+    const cx = center.x;
+    const baseY = center.y + 6 * z;
+    const topY = baseY - H;
+    // Shaft (two sides + fill).
+    ctx.beginPath();
+    ctx.moveTo(cx - rw, baseY);
+    ctx.lineTo(cx - rw, topY);
+    ctx.lineTo(cx + rw, topY);
+    ctx.lineTo(cx + rw, baseY);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(cx - rw, 0, cx + rw, 0);
+    g.addColorStop(0, "#403a33");
+    g.addColorStop(0.5, "#5c5349");
+    g.addColorStop(1, "#3a342d");
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.strokeStyle = "#15110d";
+    ctx.lineWidth = 1.8;
+    ctx.stroke();
+    // Rounded base + top caps.
+    ctx.fillStyle = "#3a342d";
+    ctx.beginPath();
+    ctx.ellipse(cx, baseY, rw, rh, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#6e6557";
+    ctx.beginPath();
+    ctx.ellipse(cx, topY, rw, rh, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    // Crenellation notches around the top rim.
+    ctx.fillStyle = "#7c7264";
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2 + 0.4;
+      const mx = cx + Math.cos(a) * rw * 0.8;
+      const my = topY + Math.sin(a) * rh * 0.8;
+      ctx.fillRect(mx - 2.4 * z, my - 5 * z, 4.8 * z, 6 * z);
+    }
+    // Rim light on the lit (upper-left) side.
+    ctx.strokeStyle = "rgba(255,244,214,0.4)";
+    ctx.lineWidth = Math.max(1, 1.3 * z);
+    ctx.beginPath();
+    ctx.moveTo(cx - rw, baseY);
+    ctx.lineTo(cx - rw, topY);
+    ctx.stroke();
   }
 
   /** A dark furnace with a flickering ember mouth — the Forge. */

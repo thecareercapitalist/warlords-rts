@@ -35,6 +35,10 @@ export class Hud {
   minimapRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
   barRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
   private attackPing: { x: number; y: number; t: number } | null = null;
+  // Clickable top-bar hot regions, recomputed each render.
+  private idleWorkerRect: Rect | null = null;
+  private idleBuildingRect: Rect | null = null;
+  private groupChips: { n: number; rect: Rect }[] = [];
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {}
 
@@ -207,6 +211,16 @@ export class Hud {
     return null;
   }
 
+  /** Click target in the top bar (idle pills / control-group chips), if any. */
+  topHit(
+    p: Vec2,
+  ): { type: "idleWorkers" } | { type: "idleBuildings" } | { type: "group"; n: number } | null {
+    if (this.idleWorkerRect && rectContains(this.idleWorkerRect, p)) return { type: "idleWorkers" };
+    if (this.idleBuildingRect && rectContains(this.idleBuildingRect, p)) return { type: "idleBuildings" };
+    for (const c of this.groupChips) if (rectContains(c.rect, p)) return { type: "group", n: c.n };
+    return null;
+  }
+
   // --- Minimap ------------------------------------------------------------
 
   minimapToWorld(p: Vec2): Vec2 {
@@ -233,6 +247,7 @@ export class Hud {
     fogVis: Uint8Array,
     message: string | null,
     attackPing: { x: number; y: number; t: number } | null = null,
+    groups: Map<number, Unit[]> = new Map(),
   ): void {
     const ctx = this.ctx;
     const p = world.player(humanId);
@@ -260,21 +275,78 @@ export class Hud {
     ctx.fillText(`🌲 Wood ${Math.floor(p.wood)}`, 170, 17);
     ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#c0492f" : COLORS.uiText;
     ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
+    // Idle indicators as clickable pills (right-aligned so they never collide with
+    // the resource readouts). Stored rects drive the click handlers.
+    this.idleWorkerRect = null;
+    this.idleBuildingRect = null;
     const idle = this.idleWorkerCount(world, humanId);
-    if (idle > 0) {
-      ctx.fillStyle = COLORS.uiEmber;
-      ctx.fillText(`⚒ ${idle} idle`, 500, 17);
-    }
     const idleProd = this.idleProductionCount(world, humanId);
-    if (idleProd > 0) {
-      ctx.fillStyle = COLORS.uiEmber;
-      ctx.fillText(`⚑ ${idleProd} idle bldg`, 610, 17);
-    }
-
-    if (message) {
+    let px = cam.viewW - 14;
+    const pill = (label: string): Rect => {
+      ctx.font = "14px 'Segoe UI', sans-serif";
+      const w = ctx.measureText(label).width + 22;
+      const r: Rect = { x: px - w, y: 5, w, h: 24 };
+      px -= w + 8;
+      ctx.fillStyle = "rgba(217,138,50,0.16)";
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = "rgba(217,138,50,0.7)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
       ctx.fillStyle = COLORS.uiEmber;
       ctx.textAlign = "center";
-      ctx.fillText(message, cam.viewW / 2, 17);
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, r.x + r.w / 2, r.y + r.h / 2 + 1);
+      return r;
+    };
+    if (idleProd > 0) this.idleBuildingRect = pill(`⚑ ${idleProd} idle bldg`);
+    if (idle > 0) this.idleWorkerRect = pill(`⚒ ${idle} idle`);
+
+    // Control-group chips strip just under the resource bar.
+    this.groupChips = [];
+    let gx = 14;
+    const gy = 40;
+    for (let i = 1; i <= 10; i++) {
+      const n = i % 10; // show 1..9 then 0
+      const grp = (groups.get(n) ?? []).filter((u) => !u.dead);
+      if (grp.length === 0) continue;
+      const w = 40;
+      const r: Rect = { x: gx, y: gy, w, h: 20 };
+      this.groupChips.push({ n, rect: r });
+      gx += w + 5;
+      const g = ctx.createLinearGradient(0, r.y, 0, r.y + r.h);
+      g.addColorStop(0, "#34302a");
+      g.addColorStop(1, "#1d1a15");
+      ctx.fillStyle = g;
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = "rgba(217,138,50,0.55)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+      ctx.fillStyle = "#f3e8c8";
+      ctx.font = "bold 12px 'Segoe UI', sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`${n}`, r.x + 5, r.y + r.h / 2);
+      ctx.fillStyle = "#9fb2c2";
+      ctx.font = "11px 'Segoe UI', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(`${grp.length}`, r.x + r.w - 5, r.y + r.h / 2);
+    }
+
+    // Transient message as a floating banner below the top bars (never overlaps).
+    if (message) {
+      ctx.font = "bold 15px 'Segoe UI', sans-serif";
+      const mw = ctx.measureText(message).width + 28;
+      const my = this.groupChips.length > 0 ? 68 : 44;
+      const mx = cam.viewW / 2 - mw / 2;
+      ctx.fillStyle = "rgba(12,11,8,0.82)";
+      ctx.fillRect(mx, my, mw, 26);
+      ctx.strokeStyle = "rgba(217,138,50,0.7)";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(mx, my, mw, 26);
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(message, cam.viewW / 2, my + 13);
     }
 
     // Bottom command bar — beveled dark stone with an ember top edge + a carved

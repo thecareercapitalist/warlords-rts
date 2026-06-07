@@ -64,6 +64,7 @@ export class Game {
   private selBuildings: Building[] = [];
   /** Ctrl+1..9 control groups → recall with 1..9. */
   private controlGroups = new Map<number, Unit[]>();
+  private idleBuildingIdx = 0; // round-robin cursor for the idle-building pill
   private lastRecall: { n: number; t: number } | null = null; // for double-tap-to-center
 
   private buildMode: BuildingKind | null = null;
@@ -472,6 +473,14 @@ export class Game {
   }
 
   private onLeftClick(p: Vec2): void {
+    // Top-bar widgets: idle pills + control-group chips.
+    const top = this.hud.topHit(p);
+    if (top) {
+      if (top.type === "idleWorkers") this.selectIdleWorkers();
+      else if (top.type === "idleBuildings") this.cycleIdleBuilding();
+      else this.recallControlGroup(top.n);
+      return;
+    }
     if (this.hud.isOverUi(p)) {
       if (this.hud.isOverMinimap(p)) {
         this.cam.centerOn(this.hud.minimapToWorld(p));
@@ -588,6 +597,26 @@ export class Game {
     this.selBuildings = [];
     this.rebuildHudButtons();
     this.cam.centerOn(idle[0].pos);
+    this.sfx.click();
+  }
+
+  /** Cycle the camera through idle production buildings (empty queue), one per click. */
+  private cycleIdleBuilding(): void {
+    const idle = this.world
+      .buildingsOf(this.humanId)
+      .filter((b) => b.state === "complete" && b.def.produces.length > 0 && b.queue.length === 0);
+    if (idle.length === 0) {
+      this.setMessage("No idle buildings");
+      return;
+    }
+    if (this.idleBuildingIdx >= idle.length) this.idleBuildingIdx = 0;
+    const b = idle[this.idleBuildingIdx];
+    this.idleBuildingIdx++;
+    this.clearSelection();
+    b.selected = true;
+    this.selBuildings = [b];
+    this.cam.centerOn(b.center());
+    this.rebuildHudButtons();
     this.sfx.click();
   }
 
@@ -1119,6 +1148,7 @@ export class Game {
           ? "Attack-move: click a target location"
           : this.message,
       this.attackPing,
+      this.controlGroups,
     );
 
     // Audio mute indicator (top-right of the resource bar).

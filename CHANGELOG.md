@@ -6,6 +6,18 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.139.0 — Top-bar overhaul + corner posts _(2026-06-07)_
+- **Fixed the top-bar overlap:** transient messages now render as a centered banner
+  *below* the bars instead of colliding with the idle indicators.
+- **Idle indicators are clickable pills** (right-aligned): clicking **idle workers**
+  selects all of them and centers the camera; clicking **idle buildings** cycles the
+  camera through them one per click.
+- **Control-group chips (1–0)** strip under the resource bar — shows each active
+  group's number + unit count; click a chip to recall it (double-click centers).
+- **Wall corners fixed:** runs stay continuous, and a bend/T/cross is now capped by
+  a crenellated **stone corner post** (a fortified turret) instead of two walls
+  overlapping into a lump.
+
 ## v0.138.0 — Hand-painted iso walls _(2026-06-07)_
 - Replaced the code-art walls with a **generated gothic stone rampart** (Gemini),
   rendered at the two isometric diagonals — the sprite as-drawn is a N–S wall, and
