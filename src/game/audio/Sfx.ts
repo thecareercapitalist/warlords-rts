@@ -53,9 +53,17 @@ export class Sfx {
 
   // --- Public effects -----------------------------------------------------
 
-  attack(ranged: boolean): void {
-    if (ranged) this.whoosh();
+  attack(ranged: boolean, heavy = false): void {
+    if (heavy) this.siegeThud();
+    else if (ranged) this.whoosh();
     else this.clang();
+  }
+
+  /** Deep wooden counterweight release — the catapult's lob. */
+  siegeThud(): void {
+    if (!this.gate("siege", 120)) return;
+    this.tone({ freq: 150, type: "sawtooth", dur: 0.22, gain: 0.5, slideTo: 60 });
+    this.noise({ dur: 0.18, gain: 0.4, filter: 500, sweepTo: 200 });
   }
 
   clang(): void {

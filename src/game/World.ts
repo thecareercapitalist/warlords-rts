@@ -13,7 +13,7 @@ export type GameEvent =
   | { type: "projectile"; from: Vec2; to: Vec2; heavy?: boolean }
   | { type: "death"; x: number; y: number; color: string; glyph: string; by: number }
   | { type: "collapse"; x: number; y: number; size: number; by: number }
-  | { type: "attack"; ranged: boolean }
+  | { type: "attack"; ranged: boolean; heavy?: boolean }
   | { type: "damaged"; playerId: number; x: number; y: number }
   | { type: "gain"; playerId: number; x: number; y: number; kind: ResourceKind; amount: number }
   | { type: "build" };

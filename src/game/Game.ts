@@ -247,7 +247,7 @@ export class Game {
         this.sfx.collapse();
         this.shake = Math.max(this.shake, 7); // jolt the camera on a collapse
         if (e.by === this.humanId) this.kills++;
-      } else if (e.type === "attack") this.sfx.attack(e.ranged);
+      } else if (e.type === "attack") this.sfx.attack(e.ranged, e.heavy);
       else if (e.type === "build") this.sfx.build();
       else if (e.type === "gain" && e.playerId === this.humanId) {
         this.effects.spawnFloater(e.x, e.y, `+${e.amount}`, e.kind === "gold" ? "#e8c060" : "#b07a45");
