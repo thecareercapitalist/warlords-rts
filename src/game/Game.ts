@@ -812,6 +812,7 @@ export class Game {
       this.humanId,
       { dragBoxScreen: dragBox, buildPreview: preview },
       this.effects,
+      this.elapsed,
     );
 
     this.hud.render(

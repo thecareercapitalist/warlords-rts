@@ -26,7 +26,10 @@ export class Renderer {
     private readonly assets: Assets,
   ) {}
 
-  render(world: World, fog: Fog, humanId: number, state: RenderState, effects: Effects): void {
+  private now = 0; // animation clock (seconds), supplied each frame
+
+  render(world: World, fog: Fog, humanId: number, state: RenderState, effects: Effects, now = 0): void {
+    this.now = now;
     const ctx = this.ctx;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, this.cam.viewW, this.cam.viewH);
@@ -379,11 +382,26 @@ export class Renderer {
     // Body bobs while moving (shadow + ring stay grounded). Tied to distance
     // travelled so it's deterministic and stops when the unit is still.
     const moving = u.path.length > 0 || u.finalTarget !== null;
-    const by = s.y - (moving ? Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z : 0);
+    let bx = s.x;
+    let by = s.y - (moving ? Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z : 0);
+
+    // Gather swing: workers rhythmically lurch toward the resource they harvest.
+    if (u.state === "gathering" && u.resourceTile) {
+      const rs = this.cam.worldToScreen(
+        (u.resourceTile.x + 0.5) * TILE,
+        (u.resourceTile.y + 0.5) * TILE,
+      );
+      const dx = rs.x - s.x;
+      const dy = rs.y - s.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const sw = Math.max(0, Math.sin(this.now * 9)) * 4 * z; // 0→4px chops
+      bx += (dx / d) * sw;
+      by += (dy / d) * sw;
+    }
 
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(s.x, by, r, 0, Math.PI * 2);
+    ctx.arc(bx, by, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "#15110d"; // heavy inked outline
     ctx.lineWidth = 2;
@@ -393,13 +411,13 @@ export class Renderer {
     ctx.font = `bold ${Math.floor(r * 1.1)}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(u.def.glyph, s.x, by);
+    ctx.fillText(u.def.glyph, bx, by);
 
     if (u.hitFlash > 0) {
       ctx.globalAlpha = Math.min(1, u.hitFlash / 0.12) * 0.7;
       ctx.fillStyle = "#fff";
       ctx.beginPath();
-      ctx.arc(s.x, by, r, 0, Math.PI * 2);
+      ctx.arc(bx, by, r, 0, Math.PI * 2);
       ctx.fill();
       ctx.globalAlpha = 1;
     }
@@ -407,12 +425,12 @@ export class Renderer {
     if (u.carrying) {
       ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
       ctx.beginPath();
-      ctx.arc(s.x + r * 0.8, by - r * 0.8, Math.max(2, r * 0.4), 0, Math.PI * 2);
+      ctx.arc(bx + r * 0.8, by - r * 0.8, Math.max(2, r * 0.4), 0, Math.PI * 2);
       ctx.fill();
     }
 
     if (u.hp < u.def.maxHp || u.selected) {
-      this.drawHpBar(s.x - r, by - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
+      this.drawHpBar(bx - r, by - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
     }
 
     // Veterancy rank pips (ember chevrons) above the unit.
@@ -422,7 +440,7 @@ export class Renderer {
       ctx.strokeStyle = "#15110d";
       ctx.lineWidth = 1;
       for (let i = 0; i < rank; i++) {
-        const cx = s.x + (i - (rank - 1) / 2) * 5 * z;
+        const cx = bx + (i - (rank - 1) / 2) * 5 * z;
         const cy = by - r - 13 * z;
         ctx.beginPath();
         ctx.moveTo(cx - 2 * z, cy + 2 * z);

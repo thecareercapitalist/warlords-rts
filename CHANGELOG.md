@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.35.0 — Gather-swing animation _(2026-06-07)_
+- Threaded an animation clock into the renderer and used it for a **gather
+  swing**: workers now rhythmically lurch toward the resource they're harvesting
+  (chop/mine motion), instead of standing inert. Verified headlessly: a gathering
+  worker's body animates between clock values while an idle worker stays still.
+
 ## v0.34.0 — Veterancy _(2026-06-07)_
 - Units now earn **veterancy** from kills: 2 kills → rank 1 (+15% damage), 5 →
   rank 2 (+30%), shown as small ember chevron pips above the unit. Keeping a
