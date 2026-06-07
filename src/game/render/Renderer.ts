@@ -686,6 +686,26 @@ export class Renderer {
       ctx.globalAlpha = 1;
     }
 
+    // Mending near a Temple: a soft green halo + drifting plus mote.
+    if (u.healFx > 0) {
+      const pulse = 0.4 + 0.3 * Math.sin(this.now * 6);
+      ctx.globalAlpha = Math.min(1, u.healFx / 0.3) * pulse;
+      ctx.strokeStyle = "#7fdd8a";
+      ctx.lineWidth = Math.max(1, 1.6 * z);
+      ctx.beginPath();
+      ctx.arc(bx, by, r + 2 * z, 0, Math.PI * 2);
+      ctx.stroke();
+      const my = by - r - (6 + Math.sin(this.now * 4) * 2) * z;
+      ctx.strokeStyle = "#aef0b4";
+      ctx.beginPath();
+      ctx.moveTo(bx - 2.5 * z, my);
+      ctx.lineTo(bx + 2.5 * z, my);
+      ctx.moveTo(bx, my - 2.5 * z);
+      ctx.lineTo(bx, my + 2.5 * z);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
     if (u.carrying) {
       ctx.fillStyle = u.carrying.kind === "gold" ? "#ffd24a" : "#9c6b2e";
       ctx.beginPath();

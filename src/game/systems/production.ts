@@ -24,6 +24,7 @@ export function updateProduction(world: World, dt: number): void {
 
 /** Temples slowly mend friendly units standing nearby — a positional perk. */
 function updateHealing(world: World, dt: number): void {
+  for (const u of world.units) if (u.healFx > 0) u.healFx -= dt; // decay glow
   const temples = world.buildings.filter(
     (b) => b.kind === "temple" && b.state === "complete" && !b.dead,
   );
@@ -36,6 +37,7 @@ function updateHealing(world: World, dt: number): void {
       const c = t.center();
       if ((u.pos.x - c.x) ** 2 + (u.pos.y - c.y) ** 2 <= r2) {
         u.hp = Math.min(u.def.maxHp, u.hp + HEAL_RATE * dt);
+        u.healFx = 0.3; // refresh the green mending glow
         break;
       }
     }

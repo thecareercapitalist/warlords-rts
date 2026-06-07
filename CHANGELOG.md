@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.81.0 — Heal glow _(2026-06-07)_
+- Units mending in a **Temple's aura** now show a soft pulsing **green halo + a
+  rising plus mote**, so the heal radius is finally legible (selective accent
+  against the gloom). Verified headlessly: a unit in range gets a heal flag (0.3)
+  while one out of range stays 0, and the glow adds ~196 green px vs none.
+
 ## v0.80.0 — Siege stat + balance check _(2026-06-07)_
 - The selection panel now shows a **"Siege ×N"** line for siege units, so the
   Catapult's role (4× vs buildings) is legible. Verified headlessly: a catapult

@@ -51,6 +51,7 @@ export class Unit {
 
   // Presentation-only animation timers (seconds remaining).
   hitFlash = 0; // white flash when damaged
+  healFx = 0; // green heal glow while mending near a Temple
   attackAnim = 0; // melee lunge toward `aim`
   aim: Vec2 | null = null; // last attack target centre, for the lunge direction
 
