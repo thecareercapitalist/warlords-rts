@@ -647,6 +647,15 @@ export class Renderer {
     ctx.beginPath();
     ctx.arc(bx, by, r, 0, Math.PI * 2);
     ctx.fill();
+    // Veteran aura: battle-hardened units carry a faint gold halo (elite accent).
+    const vAura = veterancyRank(u.kills);
+    if (vAura >= 1) {
+      ctx.strokeStyle = vAura >= 2 ? "rgba(255,205,90,0.9)" : "rgba(228,178,80,0.5)";
+      ctx.lineWidth = Math.max(1, (vAura >= 2 ? 2 : 1.4) * z);
+      ctx.beginPath();
+      ctx.arc(bx, by, r + 2.5 * z, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     // Soft drop-shadow on the lower-right for form.
     ctx.strokeStyle = "rgba(0,0,0,0.35)";
     ctx.lineWidth = Math.max(1, 1.6 * z);

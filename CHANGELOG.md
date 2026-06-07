@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.101.0 — Veteran aura _(2026-06-07)_
+- Battle-hardened units now carry a faint **gold halo ring** (brighter at rank 2),
+  so your elites stand out in a packed melee — a selective ember-gold accent atop
+  the existing rank chevrons. Verified headlessly: a 5-kill veteran renders ~520
+  gold-aura px and differs 714 px from a rookie in the body-ring band.
+
 ## v0.100.0 — AI builds critical structures fast (cramped-seed fix) _(2026-06-07)_
 - The AI now puts **up to 2 workers on an unfinished building**, and only places
   sites with a **walkable adjacent tile** (a builder can always reach them). This
