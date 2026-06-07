@@ -61,6 +61,7 @@ export class Game {
   private message: string | null = null;
   private messageTimer = 0;
   private attackAlertCd = 0; // throttles the "under attack" warning
+  private attackPing: { x: number; y: number; t: number } | null = null;
 
   private gameOver: "won" | "lost" | null = null;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
@@ -107,6 +108,7 @@ export class Game {
     this.paused = false;
     this.effects.clear();
     this.controlGroups.clear();
+    this.attackPing = null;
 
     this.spawnBase(this.humanId, { x: 4, y: 4 }, { x: 8, y: 8 }, true);
     this.spawnBase(AI_PLAYER, { x: MAP_W - 7, y: MAP_H - 7 }, { x: MAP_W - 9, y: MAP_H - 9 }, false);
@@ -195,6 +197,10 @@ export class Game {
       if (this.messageTimer <= 0) this.message = null;
     }
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
+    if (this.attackPing) {
+      this.attackPing.t += dt;
+      if (this.attackPing.t > 4) this.attackPing = null;
+    }
 
     this.ai.update(this.world, dt);
     updateProduction(this.world, dt);
@@ -211,10 +217,13 @@ export class Game {
         this.sfx.death();
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
-      else if (e.type === "damaged" && e.playerId === this.humanId && this.attackAlertCd <= 0) {
-        this.setMessage("⚔ Your forces are under attack!");
-        this.sfx.alert();
-        this.attackAlertCd = 6;
+      else if (e.type === "damaged" && e.playerId === this.humanId) {
+        this.attackPing = { x: e.x, y: e.y, t: 0 }; // keep ping fresh during an assault
+        if (this.attackAlertCd <= 0) {
+          this.setMessage("⚔ Your forces are under attack!");
+          this.sfx.alert();
+          this.attackAlertCd = 6;
+        }
       }
     }
     this.world.events.length = 0;
@@ -484,6 +493,7 @@ export class Game {
     this.builder = null;
     this.attackMoveMode = false;
     this.effects.clear();
+    this.attackPing = null;
     this.gameOver = null;
     this.world.recomputeSupply();
     this.fog.update(this.world);
@@ -685,6 +695,7 @@ export class Game {
       this.selBuildings,
       this.fog.vis,
       this.attackMoveMode ? "Attack-move: click a target location" : this.message,
+      this.attackPing,
     );
 
     // Audio mute indicator (top-right of the resource bar).

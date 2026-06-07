@@ -28,6 +28,7 @@ export class Hud {
   private buttons: Button[] = [];
   minimapRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
   barRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
+  private attackPing: { x: number; y: number; t: number } | null = null;
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {}
 
@@ -174,9 +175,11 @@ export class Hud {
     buildings: Building[],
     fogVis: Uint8Array,
     message: string | null,
+    attackPing: { x: number; y: number; t: number } | null = null,
   ): void {
     const ctx = this.ctx;
     const p = world.player(humanId);
+    this.attackPing = attackPing;
 
     // Top resource bar — dark stone with an ember underline.
     ctx.fillStyle = COLORS.uiPanel;
@@ -259,6 +262,20 @@ export class Hud {
     ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.lineWidth = 1;
     ctx.strokeRect(v0x, v0y, vw, vh);
+
+    // Pulsing ember ping where the player is under attack.
+    if (this.attackPing) {
+      const ping = this.attackPing;
+      const mmx = r.x + (ping.x / (MAP_W * TILE)) * r.w;
+      const mmy = r.y + (ping.y / (MAP_H * TILE)) * r.h;
+      const pulse = 3 + Math.abs(Math.sin(ping.t * 6)) * 4;
+      const alpha = Math.max(0, 1 - ping.t / 4);
+      ctx.strokeStyle = `rgba(217,138,50,${alpha})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(mmx, mmy, pulse, 0, Math.PI * 2);
+      ctx.stroke();
+    }
 
     ctx.strokeStyle = COLORS.uiPanelEdge;
     ctx.strokeRect(r.x, r.y, r.w, r.h);

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.19.0 — Minimap attack ping _(2026-06-07)_
+- The "under attack" warning now also drops a **pulsing ember ping on the
+  minimap** at the spot you're being hit, refreshed while the assault continues
+  and fading after ~4s — so you can see *where* to respond. Verified headlessly
+  (ping sets at the victim's location and ages out).
+
 ## v0.18.0 — AI fields a mixed army _(2026-06-07)_
 - The enemy AI now builds a **Temple** and trains a rotating **mix of footmen,
   archers, and knights** (gated on wood/gold/tech) instead of only footmen — a
