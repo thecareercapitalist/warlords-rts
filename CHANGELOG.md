@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.18.0 — AI fields a mixed army _(2026-06-07)_
+- The enemy AI now builds a **Temple** and trains a rotating **mix of footmen,
+  archers, and knights** (gated on wood/gold/tech) instead of only footmen — a
+  more varied, threatening opponent. Verified headlessly: in a long sim the AI
+  built a temple and produced archers alongside footmen.
+
 ## v0.17.0 — Gothic buildings (stone + banner) _(2026-06-07)_
 - Buildings now render as **stone structures** with a heavy inked outline, a thin
   team-colored trim, and a **team banner on a pole** at the top for ownership —

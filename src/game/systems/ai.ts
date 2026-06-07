@@ -24,6 +24,7 @@ const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
 export class AIController {
   private timer = 0;
   private attacking = false;
+  private trainTick = 0; // rotates the mixed-army unit choice
 
   constructor(private readonly playerId: number) {}
 
@@ -97,10 +98,23 @@ export class AIController {
       return;
     }
 
-    // 4. Pump fighters from the barracks (whatever it can actually produce).
+    // 4. Add a Temple to unlock Knights once the army is established.
+    const hasTemple = buildings.some((b) => b.kind === "temple");
+    if (hasBarracks && !hasTemple && !constructing && workers.length >= 5 && p.gold >= 200 && p.wood >= 120) {
+      this.tryBuild(world, "temple", townhall, workers);
+      return;
+    }
+
+    // 5. Pump a MIXED army from the barracks (footmen always; archers when we
+    // have wood; knights once the Temple is up). Rotating keeps it varied.
     const barracks = buildings.find((b) => b.kind === "barracks" && b.state === "complete");
-    if (barracks && barracks.queue.length < 2 && barracks.def.produces.length > 0) {
-      const kind = barracks.def.produces[0]; // footman; archers need wood
+    if (barracks && barracks.queue.length < 2) {
+      const templeDone = buildings.some((b) => b.kind === "temple" && b.state === "complete");
+      const choices: UnitKind[] = ["footman"];
+      if (p.wood >= 30) choices.push("archer");
+      if (templeDone && p.gold >= 140) choices.push("knight");
+      const kind = choices[this.trainTick % choices.length];
+      this.trainTick++;
       enqueueUnit(world, barracks, kind);
     }
     void farms;
