@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.42.0 — Turret visual _(2026-06-07)_
+- The Guard Tower now reads as a proper **crenellated stone turret** — a tall
+  column with merlons, a team-colored trim band, and a flickering ember
+  arrow-slit — instead of a generic stone tile and glyph. Verified headlessly:
+  the turret's ember slit (12 warm px) is present on a tower and absent on a farm.
+
 ## v0.41.0 — Tower range ring _(2026-06-07)_
 - Selecting a Guard Tower (or any defensive building) now shows its **attack
   range** as a dashed ember ring (iso-squashed to match the ground plane), so you

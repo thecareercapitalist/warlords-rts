@@ -292,14 +292,18 @@ export class Renderer {
       ctx.restore();
     }
 
-    ctx.fillStyle = "rgba(255,255,255,0.92)";
-    ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(b.def.glyph, center.x, center.y);
+    if (b.kind !== "tower") {
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(b.def.glyph, center.x, center.y);
+    } else if (b.state === "complete") {
+      this.drawTurret(center, color);
+    }
 
     // Team banner on a pole at the top vertex — clear ownership cue.
-    if (b.state === "complete") {
+    if (b.state === "complete" && b.kind !== "tower") {
       const z = this.cam.zoom;
       const topV = corners.reduce((a, c) => (c.y < a.y ? c : a), corners[0]);
       const poleH = 20 * z;
@@ -368,6 +372,34 @@ export class Renderer {
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }
+  }
+
+  /** A tall crenellated stone turret with team trim + flickering ember slit. */
+  private drawTurret(center: Vec2, color: string): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const cx = center.x;
+    const baseY = center.y + 8 * z;
+    const tw = 18 * z;
+    const th = 32 * z;
+    // Column body.
+    ctx.fillStyle = "#4a4236";
+    ctx.fillRect(cx - tw / 2, baseY - th, tw, th);
+    ctx.strokeStyle = "#15110d";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx - tw / 2, baseY - th, tw, th);
+    // Team-colored trim band near the top.
+    ctx.fillStyle = color;
+    ctx.fillRect(cx - tw / 2, baseY - th + 3 * z, tw, 3 * z);
+    // Crenellations (merlons) on top.
+    ctx.fillStyle = "#3a342b";
+    for (let i = 0; i < 3; i++) {
+      ctx.fillRect(cx - tw / 2 + i * (tw / 3), baseY - th - 5 * z, tw / 3 - 1.5 * z, 5 * z);
+    }
+    // Ember arrow-slit, flickering with the clock.
+    const glow = 0.55 + 0.45 * Math.abs(Math.sin(this.now * 3 + cx * 0.1));
+    ctx.fillStyle = `rgba(230,150,60,${glow})`;
+    ctx.fillRect(cx - 2.5 * z, baseY - th * 0.55, 5 * z, 9 * z);
   }
 
   private drawUnit(world: World, u: import("../entities/Unit.ts").Unit, isEnemy: boolean): void {
