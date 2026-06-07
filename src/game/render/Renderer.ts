@@ -543,7 +543,10 @@ export class Renderer {
     const h = 4;
     ctx.fillStyle = COLORS.hpBack;
     ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = friendly ? COLORS.hpFront : COLORS.hpEnemy;
+    // Color by health so wounded units read at a glance; faint friend/foe tint.
+    const col =
+      frac > 0.6 ? (friendly ? "#6bd06b" : "#54a854") : frac > 0.3 ? "#d9a832" : "#c0392b";
+    ctx.fillStyle = col;
     ctx.fillRect(x, y, w * Math.max(0, frac), h);
   }
 

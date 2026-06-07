@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.46.0 — Health-graded HP bars _(2026-06-07)_
+- HP bars are now **colored by health** — green when healthy, amber when hurt, red
+  when near death — so wounded units pop at a glance (ownership still reads from
+  the team base ring). Verified headlessly: a full bar samples green, a 15%
+  bar samples red.
+
 ## v0.45.0 — Hit-impact sparks _(2026-06-07)_
 - Every hit (melee, arrow, or tower shot) now throws a short burst of **impact
   sparks** at the point of contact, so blows land with a visible crack. Capped at
