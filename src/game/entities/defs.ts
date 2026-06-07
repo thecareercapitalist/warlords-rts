@@ -1,0 +1,210 @@
+import type { UnitKind, BuildingKind, ResourceKind } from "../types.ts";
+
+export interface UnitDef {
+  kind: UnitKind;
+  label: string;
+  glyph: string; // single-char programmer-art marker
+  maxHp: number;
+  speed: number; // px/sec
+  radius: number; // px, for separation + selection
+  damage: number;
+  attackRange: number; // tiles (1 = melee-ish)
+  attackCooldown: number; // seconds between hits
+  visionRadius: number; // tiles
+  supply: number;
+  costGold: number;
+  costWood: number;
+  buildTime: number; // seconds to train
+  canGather: boolean;
+  canBuild: boolean;
+  /** Tech gate: a completed building of this kind is required to train. */
+  requiresBuilding?: BuildingKind;
+}
+
+export interface BuildingDef {
+  kind: BuildingKind;
+  label: string;
+  glyph: string;
+  maxHp: number;
+  footprint: number; // NxN tiles
+  visionRadius: number;
+  costGold: number;
+  costWood: number;
+  buildTime: number; // seconds to construct
+  providesSupply: number;
+  /** Resource kinds workers may deposit here (empty = not a drop-off). */
+  accepts: ResourceKind[];
+  // What this building can produce, by faction-neutral kind.
+  produces: UnitKind[];
+}
+
+// Two mirror factions ("humans"/"orcs" in spirit) share stats; only the worker
+// and melee unit glyphs differ. Keeping them faction-neutral here means systems
+// never branch on faction.
+export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
+  peon: {
+    kind: "peon",
+    label: "Worker",
+    glyph: "w",
+    maxHp: 40,
+    speed: 95,
+    radius: 9,
+    damage: 3,
+    attackRange: 1,
+    attackCooldown: 1.2,
+    visionRadius: 4,
+    supply: 1,
+    costGold: 50,
+    costWood: 0,
+    buildTime: 12,
+    canGather: true,
+    canBuild: true,
+  },
+  footman: {
+    kind: "footman",
+    label: "Footman",
+    glyph: "F",
+    maxHp: 60,
+    speed: 85,
+    radius: 10,
+    damage: 8,
+    attackRange: 1,
+    attackCooldown: 1.1,
+    visionRadius: 4,
+    supply: 1,
+    costGold: 90,
+    costWood: 0,
+    buildTime: 16,
+    canGather: false,
+    canBuild: false,
+  },
+  grunt: {
+    kind: "grunt",
+    label: "Grunt",
+    glyph: "G",
+    maxHp: 70,
+    speed: 85,
+    radius: 10,
+    damage: 9,
+    attackRange: 1,
+    attackCooldown: 1.2,
+    visionRadius: 4,
+    supply: 1,
+    costGold: 90,
+    costWood: 0,
+    buildTime: 16,
+    canGather: false,
+    canBuild: false,
+  },
+  archer: {
+    kind: "archer",
+    label: "Archer",
+    glyph: "A",
+    maxHp: 45,
+    speed: 90,
+    radius: 9,
+    damage: 6,
+    attackRange: 4,
+    attackCooldown: 1.4,
+    visionRadius: 6,
+    supply: 1,
+    costGold: 80,
+    costWood: 30,
+    buildTime: 18,
+    canGather: false,
+    canBuild: false,
+  },
+  knight: {
+    kind: "knight",
+    label: "Knight",
+    glyph: "K",
+    maxHp: 110,
+    speed: 95,
+    radius: 11,
+    damage: 16,
+    attackRange: 1,
+    attackCooldown: 1.1,
+    visionRadius: 4,
+    supply: 2,
+    costGold: 140,
+    costWood: 0,
+    buildTime: 26,
+    canGather: false,
+    canBuild: false,
+    requiresBuilding: "temple",
+  },
+};
+
+export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
+  townhall: {
+    kind: "townhall",
+    label: "Town Hall",
+    glyph: "TH",
+    maxHp: 1200,
+    footprint: 3,
+    visionRadius: 6,
+    costGold: 400,
+    costWood: 0,
+    buildTime: 60,
+    providesSupply: 5,
+    accepts: ["gold", "wood"],
+    produces: ["peon"],
+  },
+  barracks: {
+    kind: "barracks",
+    label: "Barracks",
+    glyph: "BK",
+    maxHp: 800,
+    footprint: 3,
+    visionRadius: 4,
+    costGold: 200,
+    costWood: 100,
+    buildTime: 40,
+    providesSupply: 0,
+    accepts: [],
+    // Knight is gated behind a Temple (see UnitDef.requiresBuilding).
+    produces: ["footman", "archer", "knight"],
+  },
+  farm: {
+    kind: "farm",
+    label: "Farm",
+    glyph: "FM",
+    maxHp: 400,
+    footprint: 2,
+    visionRadius: 3,
+    costGold: 80,
+    costWood: 20,
+    buildTime: 20,
+    providesSupply: 4,
+    accepts: [],
+    produces: [],
+  },
+  sawmill: {
+    kind: "sawmill",
+    label: "Sawmill",
+    glyph: "SM",
+    maxHp: 500,
+    footprint: 3,
+    visionRadius: 3,
+    costGold: 120,
+    costWood: 20,
+    buildTime: 35,
+    providesSupply: 0,
+    accepts: ["wood"], // build it near a forest to shorten wood trips
+    produces: [],
+  },
+  temple: {
+    kind: "temple",
+    label: "Temple",
+    glyph: "TP",
+    maxHp: 600,
+    footprint: 3,
+    visionRadius: 3,
+    costGold: 200,
+    costWood: 120,
+    buildTime: 50,
+    providesSupply: 0,
+    accepts: [],
+    produces: [], // a tech building; unlocks Knights at the Barracks
+  },
+};

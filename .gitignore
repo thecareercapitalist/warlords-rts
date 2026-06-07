@@ -1,0 +1,12 @@
+node_modules
+dist
+*.local
+.DS_Store
+
+# Claude Code runtime state
+.claude/scheduled_tasks.lock
+.claude/*.lock
+
+# Raw CC0 asset library (293MB, static, re-downloadable). Specific tiles we
+# actually use get copied into the project and committed separately.
+pixel packs/

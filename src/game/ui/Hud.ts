@@ -1,0 +1,336 @@
+import type { World } from "../World.ts";
+import type { Camera } from "../Camera.ts";
+import type { Unit } from "../entities/Unit.ts";
+import type { Building } from "../entities/Building.ts";
+import type { BuildingKind, UnitKind, Vec2 } from "../types.ts";
+import { MAP_W, MAP_H, TILE } from "../constants.ts";
+import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
+import { clamp, type Rect, rectContains } from "../util/math.ts";
+
+export type HudAction =
+  | { type: "build"; kind: BuildingKind }
+  | { type: "train"; kind: UnitKind }
+  | { type: "cancel" }
+  | { type: "stop" };
+
+interface Button {
+  rect: Rect;
+  label: string;
+  sub: string;
+  hotkey: string;
+  action: HudAction;
+  enabled: boolean;
+}
+
+const BAR_H = 150;
+
+export class Hud {
+  private buttons: Button[] = [];
+  minimapRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
+  barRect: Rect = { x: 0, y: 0, w: 0, h: 0 };
+
+  constructor(private readonly ctx: CanvasRenderingContext2D) {}
+
+  get barHeight(): number {
+    return BAR_H;
+  }
+
+  layout(cam: Camera): void {
+    const y = cam.viewH - BAR_H;
+    this.barRect = { x: 0, y, w: cam.viewW, h: BAR_H };
+    this.minimapRect = { x: 10, y: y + 10, w: BAR_H - 20, h: BAR_H - 20 };
+  }
+
+  /** True if the pointer is over any HUD chrome (so the world ignores it). */
+  isOverUi(p: Vec2): boolean {
+    return rectContains(this.barRect, p);
+  }
+
+  // --- Command buttons ----------------------------------------------------
+
+  rebuildButtons(world: World, humanId: number, units: Unit[], buildings: Building[]): void {
+    this.buttons = [];
+    const baseX = this.minimapRect.x + this.minimapRect.w + 230;
+    const baseY = this.barRect.y + 20;
+    const bw = 78;
+    const bh = 38;
+    const gap = 8;
+
+    const place = (i: number): Rect => ({
+      x: baseX + (i % 4) * (bw + gap),
+      y: baseY + Math.floor(i / 4) * (bh + gap),
+      w: bw,
+      h: bh,
+    });
+
+    const p = world.player(humanId);
+    const hasWorker = units.some((u) => u.def.canBuild);
+    const completedKinds = new Set(
+      world.buildingsOf(humanId).filter((b) => b.state === "complete").map((b) => b.kind),
+    );
+
+    if (hasWorker) {
+      // Explicit hotkeys to avoid first-letter collisions (Stop=S, Town Hall=H).
+      const builds: { kind: BuildingKind; key: string }[] = [
+        { kind: "farm", key: "F" },
+        { kind: "barracks", key: "B" },
+        { kind: "sawmill", key: "W" },
+        { kind: "temple", key: "E" },
+        { kind: "townhall", key: "H" },
+      ];
+      builds.forEach(({ kind, key }, i) => {
+        const d = BUILDING_DEFS[kind];
+        this.buttons.push({
+          rect: place(i),
+          label: d.label,
+          sub: `${d.costGold}g${d.costWood ? " " + d.costWood + "w" : ""}`,
+          hotkey: key,
+          action: { type: "build", kind },
+          enabled: p.gold >= d.costGold && p.wood >= d.costWood,
+        });
+      });
+      this.buttons.push({
+        rect: place(builds.length),
+        label: "Stop",
+        sub: "S",
+        hotkey: "S",
+        action: { type: "stop" },
+        enabled: true,
+      });
+      return;
+    }
+
+    // Single production building selected → train buttons.
+    const prod = buildings.find((b) => b.def.produces.length > 0 && b.state === "complete");
+    if (prod) {
+      prod.def.produces.forEach((kind, i) => {
+        const d = UNIT_DEFS[kind];
+        const techOk = !d.requiresBuilding || completedKinds.has(d.requiresBuilding);
+        const sub = !techOk
+          ? `needs ${BUILDING_DEFS[d.requiresBuilding!].label}`
+          : `${d.costGold}g${d.costWood ? " " + d.costWood + "w" : ""}`;
+        this.buttons.push({
+          rect: place(i),
+          label: d.label,
+          sub,
+          hotkey: d.label[0].toUpperCase(),
+          action: { type: "train", kind },
+          enabled: techOk && p.gold >= d.costGold && p.wood >= d.costWood,
+        });
+      });
+      return;
+    }
+
+    // An unfinished building selected → offer Cancel (with refund).
+    const cancellable = buildings.find((b) => b.playerId === humanId && b.state !== "complete");
+    if (cancellable) {
+      this.buttons.push({
+        rect: place(0),
+        label: "Cancel",
+        sub: "refund",
+        hotkey: "C",
+        action: { type: "cancel" },
+        enabled: true,
+      });
+    }
+  }
+
+  hitTestCommand(p: Vec2): HudAction | null {
+    for (const b of this.buttons) {
+      if (b.enabled && rectContains(b.rect, p)) return b.action;
+    }
+    return null;
+  }
+
+  hotkeyAction(key: string): HudAction | null {
+    for (const b of this.buttons) {
+      if (b.enabled && b.hotkey.toLowerCase() === key.toLowerCase()) return b.action;
+    }
+    return null;
+  }
+
+  // --- Minimap ------------------------------------------------------------
+
+  minimapToWorld(p: Vec2): Vec2 {
+    const fx = (p.x - this.minimapRect.x) / this.minimapRect.w;
+    const fy = (p.y - this.minimapRect.y) / this.minimapRect.h;
+    return {
+      x: clamp(fx, 0, 1) * MAP_W * TILE,
+      y: clamp(fy, 0, 1) * MAP_H * TILE,
+    };
+  }
+
+  isOverMinimap(p: Vec2): boolean {
+    return rectContains(this.minimapRect, p);
+  }
+
+  // --- Rendering ----------------------------------------------------------
+
+  render(
+    world: World,
+    cam: Camera,
+    humanId: number,
+    units: Unit[],
+    buildings: Building[],
+    fogVis: Uint8Array,
+    message: string | null,
+  ): void {
+    const ctx = this.ctx;
+    const p = world.player(humanId);
+
+    // Top resource bar.
+    ctx.fillStyle = "rgba(15,15,20,0.85)";
+    ctx.fillRect(0, 0, cam.viewW, 34);
+    ctx.font = "16px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#ffd24a";
+    ctx.fillText(`⛂ Gold ${p.gold}`, 16, 17);
+    ctx.fillStyle = "#c79a5b";
+    ctx.fillText(`🌲 Wood ${p.wood}`, 170, 17);
+    ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#ff6b6b" : "#cfd8e0";
+    ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
+
+    if (message) {
+      ctx.fillStyle = "#ffec99";
+      ctx.textAlign = "center";
+      ctx.fillText(message, cam.viewW / 2, 17);
+    }
+
+    // Bottom command bar.
+    ctx.fillStyle = "rgba(15,15,20,0.9)";
+    ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, this.barRect.h);
+    ctx.strokeStyle = "rgba(120,120,140,0.5)";
+    ctx.strokeRect(this.barRect.x, this.barRect.y + 0.5, this.barRect.w, 1);
+
+    this.renderMinimap(world, cam, humanId, fogVis);
+    this.renderSelectionInfo(units, buildings);
+    this.renderButtons();
+  }
+
+  private renderMinimap(world: World, cam: Camera, humanId: number, fogVis: Uint8Array): void {
+    const ctx = this.ctx;
+    const r = this.minimapRect;
+    const sx = r.w / MAP_W;
+    const sy = r.h / MAP_H;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+
+    // Terrain (only explored tiles).
+    for (let ty = 0; ty < MAP_H; ty++) {
+      for (let tx = 0; tx < MAP_W; tx++) {
+        const lvl = fogVis[ty * MAP_W + tx];
+        if (lvl === 0) continue;
+        const t = world.map.at(tx, ty)!;
+        let c = "#3f6b35";
+        if (t.terrain === "water") c = "#2a4d80";
+        else if (t.terrain === "forest") c = "#234d22";
+        else if (t.terrain === "rock") c = "#5b5b5b";
+        else if (t.terrain === "goldmine") c = "#caa12a";
+        ctx.fillStyle = c;
+        ctx.fillRect(r.x + tx * sx, r.y + ty * sy, sx + 0.5, sy + 0.5);
+      }
+    }
+
+    // Entities (visible only for enemies).
+    for (const b of world.buildings) {
+      if (b.dead) continue;
+      if (b.playerId !== humanId && fogVis[b.tile.y * MAP_W + b.tile.x] !== 2) continue;
+      ctx.fillStyle = world.player(b.playerId).color;
+      ctx.fillRect(r.x + b.tile.x * sx, r.y + b.tile.y * sy, sx * b.footprint, sy * b.footprint);
+    }
+    for (const u of world.units) {
+      if (u.dead) continue;
+      const t = u.tile();
+      if (u.playerId !== humanId && fogVis[t.y * MAP_W + t.x] !== 2) continue;
+      ctx.fillStyle = world.player(u.playerId).color;
+      ctx.fillRect(r.x + t.x * sx, r.y + t.y * sy, Math.max(2, sx), Math.max(2, sy));
+    }
+
+    // Camera viewport rectangle.
+    const v0x = r.x + (cam.x / (MAP_W * TILE)) * r.w;
+    const v0y = r.y + (cam.y / (MAP_H * TILE)) * r.h;
+    const vw = ((cam.viewW / cam.zoom) / (MAP_W * TILE)) * r.w;
+    const vh = ((cam.viewH / cam.zoom) / (MAP_H * TILE)) * r.h;
+    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(v0x, v0y, vw, vh);
+
+    ctx.strokeStyle = "rgba(120,120,140,0.6)";
+    ctx.strokeRect(r.x, r.y, r.w, r.h);
+  }
+
+  private renderSelectionInfo(units: Unit[], buildings: Building[]): void {
+    const ctx = this.ctx;
+    const x = this.minimapRect.x + this.minimapRect.w + 20;
+    const y = this.barRect.y + 24;
+    ctx.fillStyle = "#dfe6ee";
+    ctx.font = "15px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+
+    if (units.length > 1) {
+      ctx.fillText(`${units.length} units selected`, x, y);
+      return;
+    }
+    if (units.length === 1) {
+      const u = units[0];
+      ctx.fillText(u.def.label, x, y);
+      ctx.fillStyle = "#9fb2c2";
+      ctx.font = "13px 'Segoe UI', sans-serif";
+      ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
+      ctx.fillText(`State: ${u.state}`, x, y + 38);
+      if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 56);
+      return;
+    }
+    if (buildings.length >= 1) {
+      const b = buildings[0];
+      ctx.fillText(b.def.label, x, y);
+      ctx.fillStyle = "#9fb2c2";
+      ctx.font = "13px 'Segoe UI', sans-serif";
+      ctx.fillText(`HP ${Math.ceil(b.hp)}/${b.def.maxHp}`, x, y + 20);
+      if (b.state !== "complete") {
+        ctx.fillText(`Building… ${Math.floor(b.construction * 100)}%`, x, y + 38);
+      } else if (b.queue.length > 0) {
+        ctx.fillText(`Training: ${b.queue.join(", ")}`, x, y + 38);
+        ctx.fillText(`(${Math.ceil(b.productionTimer)}s)`, x, y + 56);
+      } else {
+        ctx.fillText(`Right-click to set rally point`, x, y + 38);
+      }
+    }
+  }
+
+  private renderButtons(): void {
+    const ctx = this.ctx;
+    for (const b of this.buttons) {
+      ctx.fillStyle = b.enabled ? "rgba(60,70,90,0.95)" : "rgba(45,45,55,0.7)";
+      ctx.fillRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
+      ctx.strokeStyle = b.enabled ? "rgba(150,170,200,0.8)" : "rgba(80,80,90,0.6)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
+      ctx.fillStyle = b.enabled ? "#eef2f7" : "#888";
+      ctx.font = "13px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(b.label, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 - 6);
+      ctx.fillStyle = "#9fb2c2";
+      ctx.font = "11px 'Segoe UI', sans-serif";
+      ctx.fillText(b.sub, b.rect.x + b.rect.w / 2, b.rect.y + b.rect.h / 2 + 9);
+    }
+  }
+
+  renderEndScreen(cam: Camera, won: boolean): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = "rgba(0,0,0,0.7)";
+    ctx.fillRect(0, 0, cam.viewW, cam.viewH);
+    ctx.fillStyle = won ? "#9affb0" : "#ff7b7b";
+    ctx.font = "bold 56px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(won ? "VICTORY" : "DEFEAT", cam.viewW / 2, cam.viewH / 2 - 20);
+    ctx.fillStyle = "#cfd8e0";
+    ctx.font = "20px 'Segoe UI', sans-serif";
+    ctx.fillText("Press R to play again", cam.viewW / 2, cam.viewH / 2 + 40);
+  }
+}

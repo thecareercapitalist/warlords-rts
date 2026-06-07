@@ -1,0 +1,133 @@
+import type { World } from "../World.ts";
+import type { Unit, Targetable } from "../entities/Unit.ts";
+import { TILE } from "../constants.ts";
+import { dist, dist2, clamp, tileCenter } from "../util/math.ts";
+import { pathTo, orderAttackMove, standAdjacentTo } from "./orders.ts";
+
+const REPATH_INTERVAL = 0.4; // seconds between chase repaths
+
+function isEnemy(a: { playerId: number }, b: { playerId: number }): boolean {
+  return a.playerId !== b.playerId;
+}
+
+/** Distance from a unit to the nearest point of its target's body. */
+function distToTarget(u: Unit, t: Targetable): number {
+  if (t.etype === "building") {
+    const x0 = t.tile.x * TILE;
+    const y0 = t.tile.y * TILE;
+    const x1 = (t.tile.x + t.footprint) * TILE;
+    const y1 = (t.tile.y + t.footprint) * TILE;
+    const cx = clamp(u.pos.x, x0, x1);
+    const cy = clamp(u.pos.y, y0, y1);
+    return Math.hypot(u.pos.x - cx, u.pos.y - cy);
+  }
+  return dist(u.pos, t.pos);
+}
+
+/** Range in pixels at which `u` can hit `t`, measured to the target's edge. */
+function effectiveRangePx(u: Unit, t: Targetable): number {
+  const reach = u.def.attackRange * TILE + u.radius + 3;
+  return t.etype === "unit" ? reach + t.radius : reach;
+}
+
+/** Closest live enemy within `radiusTiles`, units preferred over buildings. */
+function acquireTarget(world: World, u: Unit, radiusTiles: number): Targetable | null {
+  const rPx = radiusTiles * TILE;
+  const r2 = rPx * rPx;
+  let best: Targetable | null = null;
+  let bestD = Infinity;
+  for (const o of world.units) {
+    if (o.dead || !isEnemy(u, o)) continue;
+    const d = dist2(u.pos, o.pos);
+    if (d < r2 && d < bestD) {
+      bestD = d;
+      best = o;
+    }
+  }
+  if (best) return best;
+  for (const b of world.buildings) {
+    if (b.dead || !isEnemy(u, b)) continue;
+    const d = dist2(u.pos, b.center());
+    if (d < r2 && d < bestD) {
+      bestD = d;
+      best = b;
+    }
+  }
+  return best;
+}
+
+export function updateCombat(world: World, dt: number): void {
+  for (const u of world.units) {
+    if (u.dead) continue;
+    if (u.attackCooldown > 0) u.attackCooldown -= dt;
+    if (u.repathTimer > 0) u.repathTimer -= dt;
+
+    // Drop a target that has died.
+    if (u.attackTarget && u.attackTarget.dead) u.attackTarget = null;
+
+    // Auto-acquire: combat units (not workers) defend themselves and engage
+    // enemies they encounter while attack-moving. Workers fight only when
+    // explicitly ordered (which sets attackTarget directly).
+    if (!u.attackTarget && u.def.damage > 0 && !u.def.canGather) {
+      if (u.state === "attackMoving" || u.state === "idle") {
+        const aggro = u.state === "attackMoving" ? u.def.visionRadius + 1 : u.def.visionRadius;
+        const tgt = acquireTarget(world, u, aggro);
+        if (tgt) u.attackTarget = tgt;
+      }
+    }
+
+    // Holding a live target → engage it, whatever state we drifted into.
+    if (u.attackTarget) {
+      if (u.state !== "attacking") u.state = "attacking";
+      fightTarget(world, u, dt);
+    }
+  }
+}
+
+function fightTarget(world: World, u: Unit, _dt: number): void {
+  const t = u.attackTarget!;
+  if (t.dead) {
+    u.attackTarget = null;
+    resumeAfterKill(world, u);
+    return;
+  }
+
+  const range = effectiveRangePx(u, t);
+
+  if (distToTarget(u, t) <= range) {
+    // In range: stop and strike on cooldown.
+    u.path = [];
+    u.finalTarget = null;
+    if (u.attackCooldown <= 0) {
+      t.hp -= u.def.damage;
+      u.attackCooldown = u.def.attackCooldown;
+      if (t.hp <= 0) {
+        if (t.etype === "unit") t.state = "dead";
+        u.attackTarget = null;
+        resumeAfterKill(world, u);
+      }
+    }
+  } else {
+    // Out of range: chase, repathing periodically. For buildings, head to the
+    // nearest open adjacent tile so attackers spread around the footprint.
+    if (u.repathTimer <= 0 || u.path.length === 0) {
+      if (t.etype === "building") {
+        const stand = standAdjacentTo(world, t, u.tile());
+        if (stand) pathTo(world, u, stand.x, stand.y, tileCenter(stand.x, stand.y));
+      } else {
+        pathTo(world, u, t.tile().x, t.tile().y, t.pos);
+      }
+      u.repathTimer = REPATH_INTERVAL;
+    }
+  }
+}
+
+function resumeAfterKill(world: World, u: Unit): void {
+  if (u.attackMove && u.attackMoveDest) {
+    orderAttackMove(world, u, u.attackMoveDest);
+  } else {
+    u.state = "idle";
+    u.path = [];
+    u.finalTarget = null;
+  }
+}
