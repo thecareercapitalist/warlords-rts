@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.94.0 — Enemy faction cleaver _(2026-06-07)_
+- A first step toward faction identity: **enemy melee carry a broad, dark orcish
+  cleaver** while your footmen wield a steel blade — so the two armies read apart
+  by silhouette, not just team colour (North-Star "team identity via trim"). Keyed
+  on side, so it scales to any non-human player. Verified headlessly: the same
+  footman's weapon region differs 373 px rendered as enemy vs friendly.
+
 ## v0.93.0 — Buildings-razed stat _(2026-06-07)_
 - The end screen now reports **Slain** (enemy units) and **Razed** (enemy
   buildings) as separate tallies, where before razings were lumped into the kill

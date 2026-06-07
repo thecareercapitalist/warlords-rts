@@ -678,11 +678,21 @@ export class Renderer {
       ctx.closePath();
       ctx.fill();
     } else if (u.kind === "footman" || u.kind === "grunt") {
-      ctx.strokeStyle = "#c8d0d8"; // steel blade up-and-right
-      ctx.beginPath();
-      ctx.moveTo(bx + r * 0.5, by + r * 0.45);
-      ctx.lineTo(bx + r * 1.15, by - r * 0.75);
-      ctx.stroke();
+      if (isEnemy) {
+        // Enemy faction wields a broad, dark orcish cleaver (vs human steel).
+        ctx.strokeStyle = "#5c6356";
+        ctx.lineWidth = Math.max(2, 2.8 * z);
+        ctx.beginPath();
+        ctx.moveTo(bx + r * 0.45, by + r * 0.5);
+        ctx.lineTo(bx + r * 1.2, by - r * 0.5);
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = "#c8d0d8"; // human steel blade up-and-right
+        ctx.beginPath();
+        ctx.moveTo(bx + r * 0.5, by + r * 0.45);
+        ctx.lineTo(bx + r * 1.15, by - r * 0.75);
+        ctx.stroke();
+      }
     } else if (u.kind === "peon") {
       ctx.strokeStyle = "#6b4a2a"; // wooden tool handle
       ctx.beginPath();
