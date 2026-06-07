@@ -37,11 +37,26 @@ interface Collapse {
   dur: number;
 }
 
+interface Impact {
+  x: number;
+  y: number;
+  seed: number; // varies spark directions per impact
+  t: number;
+  dur: number;
+}
+
 export class Effects {
   readonly projectiles: Projectile[] = [];
   readonly deaths: DeathFx[] = [];
   readonly floaters: Floater[] = [];
   readonly collapses: Collapse[] = [];
+  readonly impacts: Impact[] = [];
+
+  spawnImpact(x: number, y: number): void {
+    // Cap so a big melee doesn't pile up thousands of sparks.
+    if (this.impacts.length > 80) return;
+    this.impacts.push({ x, y, seed: (x * 13 + y * 7) % 6.283, t: 0, dur: 0.18 });
+  }
 
   spawnFloater(x: number, y: number, text: string, color: string): void {
     this.floaters.push({ x, y, text, color, t: 0, dur: 1.0 });
@@ -78,6 +93,10 @@ export class Effects {
       this.collapses[i].t += dt;
       if (this.collapses[i].t >= this.collapses[i].dur) this.collapses.splice(i, 1);
     }
+    for (let i = this.impacts.length - 1; i >= 0; i--) {
+      this.impacts[i].t += dt;
+      if (this.impacts[i].t >= this.impacts[i].dur) this.impacts.splice(i, 1);
+    }
   }
 
   clear(): void {
@@ -85,5 +104,6 @@ export class Effects {
     this.deaths.length = 0;
     this.floaters.length = 0;
     this.collapses.length = 0;
+    this.impacts.length = 0;
   }
 }

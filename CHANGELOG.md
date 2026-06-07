@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.45.0 — Hit-impact sparks _(2026-06-07)_
+- Every hit (melee, arrow, or tower shot) now throws a short burst of **impact
+  sparks** at the point of contact, so blows land with a visible crack. Capped at
+  80 live so a big melee can't pile up. Verified headlessly: hits spawn impact
+  effects and the target takes damage.
+
 ## v0.44.0 — Camera shake _(2026-06-07)_
 - A building **collapse now jolts the camera** with a short, decaying screen
   shake (applied to the world layer only — the HUD and color grade stay put), for

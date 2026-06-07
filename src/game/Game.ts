@@ -236,12 +236,15 @@ export class Game {
       else if (e.type === "gain" && e.playerId === this.humanId) {
         this.effects.spawnFloater(e.x, e.y, `+${e.amount}`, e.kind === "gold" ? "#e8c060" : "#b07a45");
       }
-      else if (e.type === "damaged" && e.playerId === this.humanId) {
-        this.attackPing = { x: e.x, y: e.y, t: 0 }; // keep ping fresh during an assault
-        if (this.attackAlertCd <= 0) {
-          this.setMessage("⚔ Your forces are under attack!");
-          this.sfx.alert();
-          this.attackAlertCd = 6;
+      else if (e.type === "damaged") {
+        this.effects.spawnImpact(e.x, e.y); // spark burst at the point of impact
+        if (e.playerId === this.humanId) {
+          this.attackPing = { x: e.x, y: e.y, t: 0 }; // keep ping fresh during an assault
+          if (this.attackAlertCd <= 0) {
+            this.setMessage("⚔ Your forces are under attack!");
+            this.sfx.alert();
+            this.attackAlertCd = 6;
+          }
         }
       }
     }

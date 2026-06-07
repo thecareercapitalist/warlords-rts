@@ -589,6 +589,24 @@ export class Renderer {
     const ctx = this.ctx;
     const z = this.cam.zoom;
 
+    // Hit-impact sparks: a few short lines flying outward from the point of hit.
+    for (const im of fx.impacts) {
+      const k = im.t / im.dur;
+      const s = this.cam.worldToScreen(im.x, im.y);
+      ctx.globalAlpha = Math.max(0, 1 - k);
+      ctx.strokeStyle = "#ffe08a";
+      ctx.lineWidth = Math.max(1, 1.5 * z);
+      const reach = (3 + k * 7) * z;
+      for (let i = 0; i < 5; i++) {
+        const a = im.seed + (i / 5) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(s.x + Math.cos(a) * 2 * z, s.y + Math.sin(a) * 1 * z);
+        ctx.lineTo(s.x + Math.cos(a) * reach, s.y + Math.sin(a) * reach * 0.6);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
     // Arrows / projectiles: travel along the line with a slight upward arc.
     for (const p of fx.projectiles) {
       const k = p.t / p.dur;
