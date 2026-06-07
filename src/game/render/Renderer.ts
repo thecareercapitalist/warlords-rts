@@ -35,7 +35,36 @@ export class Renderer {
     if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
     this.drawEntities(world, fog, humanId);
     this.drawEffects(effects);
+    this.drawColorGrade(); // gothic mood over the world, under UI
     if (state.dragBoxScreen) this.drawDragBox(state.dragBoxScreen);
+  }
+
+  /**
+   * Grim color grade toward the art-direction North Star (Warcraft × They Are
+   * Billions × Darkest Dungeon): a faint cool gloom wash plus a vignette that
+   * darkens the edges and focuses the centre. Drawn over the world but under the
+   * HUD, so UI stays crisp. Purely additive — easy to dial or remove.
+   */
+  private drawColorGrade(): void {
+    const ctx = this.ctx;
+    const w = this.cam.viewW;
+    const h = this.cam.viewH;
+    // Subtle cool darkening for muted, gothic gloom.
+    ctx.fillStyle = "rgba(18,20,32,0.16)";
+    ctx.fillRect(0, 0, w, h);
+    // Vignette: clear centre → dark edges.
+    const g = ctx.createRadialGradient(
+      w / 2,
+      h / 2,
+      Math.min(w, h) * 0.28,
+      w / 2,
+      h / 2,
+      Math.max(w, h) * 0.72,
+    );
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(6,5,12,0.5)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
   }
 
   // --- Terrain ------------------------------------------------------------

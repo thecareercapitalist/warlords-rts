@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.11.0 — Gothic color grade _(2026-06-07)_
+- First step toward the art North Star: a world color grade — a faint cool gloom
+  wash plus a vignette that darkens the edges and focuses the centre, drawn over
+  the world but under the UI (HUD stays crisp). Reversible overlay. Verified the
+  vignette darkens edges vs. centre. More visual cohesion (palette, sprites) to
+  follow.
+
 ## v0.10.0 — Save / Load _(2026-06-07)_
 - **Save Game / Load Game** buttons in the Esc pause menu. State persists to
   localStorage: resources, every unit (kind/pos/HP/carried load), every building
