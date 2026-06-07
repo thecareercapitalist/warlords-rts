@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.86.0 — Forge ember sparks _(2026-06-07)_
+- The Forge now throws **rising ember sparks** that drift up and fade — warm motes
+  against the gothic gloom, making your war-furnace feel alive (and easy to spot).
+  Verified headlessly: ~50 warm-ember px render above the furnace and the region
+  animates (217 px diff) across the clock.
+
 ## v0.85.0 — Group HP readout _(2026-06-07)_
 - A multi-unit selection now shows **combined HP** ("HP 140/170") under the count
   and composition, so you can gauge a squad's health at a glance. Verified

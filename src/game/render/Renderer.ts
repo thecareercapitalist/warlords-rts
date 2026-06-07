@@ -467,6 +467,19 @@ export class Renderer {
     ctx.fillRect(cx - 7 * z, cy + 1 * z, 14 * z, 8 * z);
     ctx.fillStyle = `rgba(255,228,150,${glow * 0.9})`;
     ctx.fillRect(cx - 3.5 * z, cy + 2.5 * z, 7 * z, 4 * z);
+    // Rising ember sparks — warm motes drifting up against the gloom.
+    for (let i = 0; i < 4; i++) {
+      const ph = this.now * 1.3 + i * 1.9 + cx * 0.05;
+      const rise = (ph % 2) / 2; // 0..1 loop
+      const ex = cx + Math.sin(ph * 2.3) * 5 * z;
+      const ey = cy - 4 * z - rise * 22 * z;
+      ctx.globalAlpha = (1 - rise) * 0.85;
+      ctx.fillStyle = i % 2 ? "#ffb347" : "#ff7a1e";
+      ctx.beginPath();
+      ctx.arc(ex, ey, (1.6 - rise) * z + 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
   }
 
   /** A tall crenellated stone turret with team trim + flickering ember slit. */
