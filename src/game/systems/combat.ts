@@ -114,7 +114,7 @@ function updateTowers(world: World, dt: number): void {
     if (!best) continue;
     world.events.push({ type: "projectile", from: { x: c.x, y: c.y }, to: { x: best.pos.x, y: best.pos.y } });
     world.events.push({ type: "attack", ranged: true });
-    best.hp -= b.def.damage;
+    best.hp -= Math.max(1, (b.def.damage ?? 0) - (best.def.armor ?? 0));
     best.hitFlash = 0.12;
     world.events.push({ type: "damaged", playerId: best.playerId, x: best.pos.x, y: best.pos.y });
     b.attackCooldown = b.def.attackCooldown ?? 1.2;
@@ -157,7 +157,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       if (ranged) {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
-      t.hp -= u.def.damage * veterancyMult(u.kills);
+      const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
+      t.hp -= Math.max(1, u.def.damage * veterancyMult(u.kills) - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {

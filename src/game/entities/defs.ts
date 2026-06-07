@@ -8,6 +8,7 @@ export interface UnitDef {
   speed: number; // px/sec
   radius: number; // px, for separation + selection
   damage: number;
+  armor?: number; // flat damage reduction per hit (min 1 damage always lands)
   attackRange: number; // tiles (1 = melee-ish)
   attackCooldown: number; // seconds between hits
   visionRadius: number; // tiles
@@ -126,6 +127,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     speed: 95,
     radius: 11,
     damage: 16,
+    armor: 2, // heavily armored — shrugs off a chunk of every blow
     attackRange: 1,
     attackCooldown: 1.1,
     visionRadius: 4,

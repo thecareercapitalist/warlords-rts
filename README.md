@@ -70,8 +70,8 @@ workers left to rebuild.
 - **Sawmill** accepts wood — build one near a forest to shorten lumber trips.
 - **Farms** raise your supply cap; you can't train past it.
 - **Barracks** train Footmen (melee) and Archers (ranged, cost wood).
-- **Temple** is a tech building — once built, it unlocks **Knights** (heavy
-  melee) at the Barracks.
+- **Temple** is a tech building — once built, it unlocks **Knights** (heavy,
+  **armored** melee that shrug off part of every hit) at the Barracks.
 - **Guard Tower** is a cheap defensive building that auto-fires at enemies in
   range — fortify your chokepoints and resource lines.
 - The **enemy AI** grows its economy, builds a barracks, and sends attack waves

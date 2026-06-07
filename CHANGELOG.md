@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.47.0 — Armor _(2026-06-07)_
+- Units can now have **armor** — a flat reduction on every incoming hit (at least
+  1 damage always lands). **Knights** get armor 2, making them genuinely tanky
+  front-liners worth teching to. Applies to melee and tower fire. Verified
+  headlessly: a footman deals 6 to a Knight (8−2) vs 8 to an unarmored footman.
+
 ## v0.46.0 — Health-graded HP bars _(2026-06-07)_
 - HP bars are now **colored by health** — green when healthy, amber when hurt, red
   when near death — so wounded units pop at a glance (ownership still reads from
