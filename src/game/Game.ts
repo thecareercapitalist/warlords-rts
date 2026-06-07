@@ -65,6 +65,7 @@ export class Game {
 
   private gameOver: "won" | "lost" | null = null;
   private elapsed = 0; // seconds of active play
+  private kills = 0; // enemy units/buildings destroyed by the human
   private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
@@ -108,6 +109,7 @@ export class Game {
     this.attackMoveMode = false;
     this.gameOver = null;
     this.elapsed = 0;
+    this.kills = 0;
     this.endFanfarePlayed = false;
     this.paused = false;
     this.effects.clear();
@@ -220,9 +222,11 @@ export class Game {
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
         this.sfx.death();
+        if (e.by === this.humanId) this.kills++;
       } else if (e.type === "collapse") {
         this.effects.spawnCollapse(e.x, e.y, e.size);
         this.sfx.collapse();
+        if (e.by === this.humanId) this.kills++;
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
       else if (e.type === "gain" && e.playerId === this.humanId) {
@@ -571,6 +575,7 @@ export class Game {
     this.attackPing = null;
     this.gameOver = null;
     this.elapsed = 0;
+    this.kills = 0;
     this.endFanfarePlayed = false;
     this.world.recomputeSupply();
     this.fog.update(this.world);
@@ -783,6 +788,6 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb);
-    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed);
+    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills);
   }
 }

@@ -117,7 +117,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
         if (t.etype === "building") {
-          world.events.push({ type: "collapse", x: c.x, y: c.y, size: t.footprint * TILE });
+          world.events.push({ type: "collapse", x: c.x, y: c.y, size: t.footprint * TILE, by: u.playerId });
         } else {
           world.events.push({
             type: "death",
@@ -125,6 +125,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
             y: c.y,
             color: world.player(t.playerId).color,
             glyph: t.def.glyph,
+            by: u.playerId,
           });
           t.state = "dead";
         }
