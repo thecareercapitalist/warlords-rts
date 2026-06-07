@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.44.0 — Camera shake _(2026-06-07)_
+- A building **collapse now jolts the camera** with a short, decaying screen
+  shake (applied to the world layer only — the HUD and color grade stay put), for
+  a heavier sense of impact. Verified headlessly: a collapse sets shake to 7 and
+  it decays to 0 within ~0.5s.
+
 ## v0.43.0 — AI builds towers _(2026-06-07)_
 - The AI now fortifies its base with up to two **Guard Towers**, but only from
   genuine surplus (gold ≥ 300, wood ≥ 120) as the lowest-priority structure — so

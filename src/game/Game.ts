@@ -65,6 +65,7 @@ export class Game {
 
   private gameOver: "won" | "lost" | null = null;
   private elapsed = 0; // seconds of active play
+  private shake = 0; // screen-shake magnitude (px), decays each frame
   private kills = 0; // enemy units/buildings destroyed by the human
   private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
@@ -110,6 +111,7 @@ export class Game {
     this.gameOver = null;
     this.elapsed = 0;
     this.kills = 0;
+    this.shake = 0;
     this.endFanfarePlayed = false;
     this.paused = false;
     this.effects.clear();
@@ -203,6 +205,7 @@ export class Game {
       if (this.messageTimer <= 0) this.message = null;
     }
     this.elapsed += dt;
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 22); // decay shake
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
     if (this.attackPing) {
       this.attackPing.t += dt;
@@ -226,6 +229,7 @@ export class Game {
       } else if (e.type === "collapse") {
         this.effects.spawnCollapse(e.x, e.y, e.size);
         this.sfx.collapse();
+        this.shake = Math.max(this.shake, 7); // jolt the camera on a collapse
         if (e.by === this.humanId) this.kills++;
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
@@ -615,6 +619,7 @@ export class Game {
     this.gameOver = null;
     this.elapsed = 0;
     this.kills = 0;
+    this.shake = 0;
     this.endFanfarePlayed = false;
     this.world.recomputeSupply();
     this.fog.update(this.world);
@@ -813,6 +818,7 @@ export class Game {
       { dragBoxScreen: dragBox, buildPreview: preview },
       this.effects,
       this.elapsed,
+      this.shake,
     );
 
     this.hud.render(

@@ -28,17 +28,34 @@ export class Renderer {
 
   private now = 0; // animation clock (seconds), supplied each frame
 
-  render(world: World, fog: Fog, humanId: number, state: RenderState, effects: Effects, now = 0): void {
+  render(
+    world: World,
+    fog: Fog,
+    humanId: number,
+    state: RenderState,
+    effects: Effects,
+    now = 0,
+    shake = 0,
+  ): void {
     this.now = now;
     const ctx = this.ctx;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, this.cam.viewW, this.cam.viewH);
 
+    // Screen shake (e.g. on a building collapse) — translate the world only;
+    // the HUD and color grade stay put so the frame edges never tear.
+    const shaking = shake > 0.1;
+    if (shaking) {
+      ctx.save();
+      ctx.translate(Math.sin(now * 53) * shake, Math.cos(now * 47) * shake);
+    }
     this.drawTerrain(world, fog);
     this.drawFogOverlay(fog);
     if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
     this.drawEntities(world, fog, humanId);
     this.drawEffects(effects);
+    if (shaking) ctx.restore();
+
     this.drawColorGrade(); // gothic mood over the world, under UI
     if (state.dragBoxScreen) this.drawDragBox(state.dragBoxScreen);
   }
