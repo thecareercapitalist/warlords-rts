@@ -70,6 +70,28 @@ workers left to rebuild.
 - The **enemy AI** grows its economy, builds a barracks, and sends attack waves
   once its army is big enough.
 
+## Art direction — the visual North Star
+
+**Grim gothic fantasy RTS:** *Warcraft* × *They Are Billions* × *Darkest Dungeon*.
+
+- **Warcraft** — chunky, readable, characterful fantasy units; clear silhouettes.
+- **They Are Billions** — dark, dense, gritty survival mood; muted, slightly
+  desaturated world; lots of small units that still read at a glance.
+- **Darkest Dungeon** — high-contrast, hand-painted/inked look; heavy black
+  outlines and dramatic shadow; desaturated palette with *selective* accent
+  color; gothic grimness; warm torch/ember highlights against cold gloom.
+
+Practical rules:
+- Heavy dark outlines + strong rim light so units pop on terrain.
+- Muted earthy base palette (mossy greens, cold stone greys, rust, bone);
+  restrained, deliberate accent colors only.
+- **Team identity via banners / trim / a colored base ring — not a full-body
+  recolor** (keeps the painted look while staying readable).
+- Everything must read at small isometric scale; favor silhouette over detail.
+- UI/HUD follows suit: dark stone panels, inked borders, ember accents.
+
+This applies to generated art, procedural/code-drawn art, and UI theming alike.
+
 ## Architecture
 
 Plain TypeScript, no engine. Systems operate over a central `World`.
