@@ -24,7 +24,14 @@ export type BuildingState = "site" | "constructing" | "complete";
 
 export type UnitKind = "peon" | "footman" | "grunt" | "archer" | "knight";
 
-export type BuildingKind = "townhall" | "barracks" | "farm" | "sawmill" | "temple" | "tower";
+export type BuildingKind =
+  | "townhall"
+  | "barracks"
+  | "farm"
+  | "sawmill"
+  | "temple"
+  | "tower"
+  | "forge";
 
 export interface PlayerState {
   id: number;

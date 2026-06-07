@@ -11,6 +11,18 @@ function isEnemy(a: { playerId: number }, b: { playerId: number }): boolean {
   return a.playerId !== b.playerId;
 }
 
+const FORGE_ATTACK_BONUS = 2;
+
+/** +attack while the player owns at least one completed Forge. */
+function forgeBonus(world: World, playerId: number): number {
+  for (const b of world.buildings) {
+    if (b.kind === "forge" && b.playerId === playerId && b.state === "complete" && !b.dead) {
+      return FORGE_ATTACK_BONUS;
+    }
+  }
+  return 0;
+}
+
 /** Distance from a unit to the nearest point of its target's body. */
 function distToTarget(u: Unit, t: Targetable): number {
   if (t.etype === "building") {
@@ -158,7 +170,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
-      t.hp -= Math.max(1, u.def.damage * veterancyMult(u.kills) - armor);
+      const raw = u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId);
+      t.hp -= Math.max(1, raw - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {

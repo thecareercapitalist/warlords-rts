@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.57.0 — The Forge _(2026-06-07)_
+- New tech building: the **Forge** (`G`, 150g/60w). While you own a completed
+  Forge, **all your units gain +2 attack** — an army-wide weapon upgrade and a
+  reason to invest economy into power. Verified headlessly: a footman deals 8
+  normally, 10 with a Forge, and 8 when only the enemy owns one.
+
 ## v0.56.0 — Muzzle flash _(2026-06-07)_
 - Ranged attacks (archers, Guard Towers) now throw a brief **muzzle-flash spark**
   at the shooter as the projectile launches, complementing the impact sparks at

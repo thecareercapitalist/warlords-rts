@@ -213,6 +213,20 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     accepts: [],
     produces: [], // a tech building; unlocks Knights at the Barracks
   },
+  forge: {
+    kind: "forge",
+    label: "Forge",
+    glyph: "FG",
+    maxHp: 550,
+    footprint: 2,
+    visionRadius: 3,
+    costGold: 150,
+    costWood: 60,
+    buildTime: 40,
+    providesSupply: 0,
+    accepts: [],
+    produces: [], // tech building: while standing, buffs your units' attack
+  },
   tower: {
     kind: "tower",
     label: "Guard Tower",
