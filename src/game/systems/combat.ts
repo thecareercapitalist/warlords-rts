@@ -1,5 +1,6 @@
 import type { World } from "../World.ts";
 import type { Unit, Targetable } from "../entities/Unit.ts";
+import { veterancyMult } from "../entities/Unit.ts";
 import { TILE } from "../constants.ts";
 import { dist, dist2, clamp, tileCenter } from "../util/math.ts";
 import { pathTo, orderAttackMove, standAdjacentTo } from "./orders.ts";
@@ -112,10 +113,11 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       if (ranged) {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
-      t.hp -= u.def.damage;
+      t.hp -= u.def.damage * veterancyMult(u.kills);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
+        u.kills++;
         if (t.etype === "building") {
           world.events.push({ type: "collapse", x: c.x, y: c.y, size: t.footprint * TILE, by: u.playerId });
         } else {

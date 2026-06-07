@@ -74,6 +74,8 @@ workers left to rebuild.
   melee) at the Barracks.
 - The **enemy AI** grows its economy, builds a barracks, and sends attack waves
   once its army is big enough.
+- **Veterancy:** units gain rank from kills (ember chevrons) — rank 1 at 2 kills
+  (+15% damage), rank 2 at 5 (+30%). Keep your veterans alive.
 
 ## Art direction — the visual North Star
 

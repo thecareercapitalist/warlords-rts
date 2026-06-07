@@ -43,6 +43,8 @@ export class Unit {
 
   attackCooldown = 0;
 
+  kills = 0; // enemy units/buildings slain — drives veterancy rank + damage bonus
+
   // Presentation-only animation timers (seconds remaining).
   hitFlash = 0; // white flash when damaged
   attackAnim = 0; // melee lunge toward `aim`
@@ -88,4 +90,14 @@ export class Unit {
     const t = this.tile();
     return tileCenter(t.x, t.y);
   }
+}
+
+/** Veterancy rank (0–2) earned from kills: 2+ → rank 1, 5+ → rank 2. */
+export function veterancyRank(kills: number): number {
+  return kills >= 5 ? 2 : kills >= 2 ? 1 : 0;
+}
+
+/** Damage multiplier from veterancy: +15% per rank. */
+export function veterancyMult(kills: number): number {
+  return 1 + veterancyRank(kills) * 0.15;
 }

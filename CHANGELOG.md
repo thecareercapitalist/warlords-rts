@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.34.0 — Veterancy _(2026-06-07)_
+- Units now earn **veterancy** from kills: 2 kills → rank 1 (+15% damage), 5 →
+  rank 2 (+30%), shown as small ember chevron pips above the unit. Keeping a
+  battle-hardened squad alive now matters. Applies to both sides. Verified
+  headlessly: a knight (16 dmg) with 2 kills dealt 18.4 (×1.15).
+
 ## v0.33.0 — Construction scaffolding _(2026-06-07)_
 - Buildings under construction now visibly **rise from the bottom** with wooden
   scaffold beams and poles over the unbuilt portion, instead of a plain dark

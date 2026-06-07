@@ -5,6 +5,7 @@ import { FOG_HIDDEN, FOG_VISIBLE } from "../systems/fog.ts";
 import type { BuildingKind, Vec2 } from "../types.ts";
 import { COLORS, TILE } from "../constants.ts";
 import { BUILDING_DEFS, UNIT_DEFS } from "../entities/defs.ts";
+import { veterancyRank } from "../entities/Unit.ts";
 import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
 import type { Assets, TileKey } from "./assets.ts";
 import type { Effects } from "./effects.ts";
@@ -412,6 +413,25 @@ export class Renderer {
 
     if (u.hp < u.def.maxHp || u.selected) {
       this.drawHpBar(s.x - r, by - r - 8 * z, r * 2, u.hp / u.def.maxHp, !isEnemy);
+    }
+
+    // Veterancy rank pips (ember chevrons) above the unit.
+    const rank = veterancyRank(u.kills);
+    if (rank > 0) {
+      ctx.fillStyle = COLORS.uiEmber;
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < rank; i++) {
+        const cx = s.x + (i - (rank - 1) / 2) * 5 * z;
+        const cy = by - r - 13 * z;
+        ctx.beginPath();
+        ctx.moveTo(cx - 2 * z, cy + 2 * z);
+        ctx.lineTo(cx, cy - 2 * z);
+        ctx.lineTo(cx + 2 * z, cy + 2 * z);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
     }
   }
 
