@@ -50,6 +50,8 @@ export class Game {
 
   private selUnits: Unit[] = [];
   private selBuildings: Building[] = [];
+  /** Ctrl+1..9 control groups → recall with 1..9. */
+  private controlGroups = new Map<number, Unit[]>();
 
   private buildMode: BuildingKind | null = null;
   private builder: Unit | null = null;
@@ -102,6 +104,7 @@ export class Game {
     this.gameOver = null;
     this.paused = false;
     this.effects.clear();
+    this.controlGroups.clear();
 
     this.spawnBase(this.humanId, { x: 4, y: 4 }, { x: 8, y: 8 }, true);
     this.spawnBase(AI_PLAYER, { x: MAP_W - 7, y: MAP_H - 7 }, { x: MAP_W - 9, y: MAP_H - 9 }, false);
@@ -269,6 +272,12 @@ export class Game {
     // Keyboard commands (bound actions first, then contextual HUD hotkeys).
     for (const key of this.input.pressedKeys) {
       if (key === "escape") continue; // handled above
+      if (/^[1-9]$/.test(key)) {
+        const n = Number(key);
+        if (this.input.ctrl) this.assignControlGroup(n);
+        else this.recallControlGroup(n);
+        continue;
+      }
       if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0)) {
         this.attackMoveMode = true;
       } else if (key === this.kb.get("stop") && this.selUnits.length > 0) {
@@ -492,6 +501,31 @@ export class Game {
       this.builder = null;
       this.rebuildHudButtons();
     }
+  }
+
+  // --- Control groups -----------------------------------------------------
+
+  private assignControlGroup(n: number): void {
+    const units = this.selUnits.filter((u) => !u.dead && u.playerId === this.humanId);
+    if (units.length === 0) return;
+    this.controlGroups.set(n, [...units]);
+    this.sfx.click();
+  }
+
+  private recallControlGroup(n: number): void {
+    const grp = this.controlGroups.get(n);
+    if (!grp) return;
+    const alive = grp.filter((u) => !u.dead);
+    this.controlGroups.set(n, alive); // prune dead
+    if (alive.length === 0) return;
+    this.clearSelection();
+    for (const u of alive) {
+      u.selected = true;
+      this.selUnits.push(u);
+    }
+    this.selBuildings = [];
+    this.rebuildHudButtons();
+    this.sfx.click();
   }
 
   // --- Selection helpers --------------------------------------------------

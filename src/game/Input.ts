@@ -27,6 +27,7 @@ export class Input {
 
   drag: DragBox = { start: { x: 0, y: 0 }, current: { x: 0, y: 0 }, active: false };
   shift = false;
+  ctrl = false;
 
   private dragThreshold = 6;
   private leftDownAt: Vec2 | null = null;
@@ -95,13 +96,18 @@ export class Input {
     });
 
     window.addEventListener("keydown", (e) => {
+      // Track modifier state from the event itself so it can't get stuck.
+      this.ctrl = e.ctrlKey;
+      this.shift = e.shiftKey;
+      // Stop Ctrl+1..9 from switching browser tabs.
+      if (e.ctrlKey && /^[1-9]$/.test(e.key)) e.preventDefault();
       this.keys.add(e.key.toLowerCase());
       this.pressedKeys.push(e.key.toLowerCase());
-      if (e.key === "Shift") this.shift = true;
     });
     window.addEventListener("keyup", (e) => {
       this.keys.delete(e.key.toLowerCase());
       if (e.key === "Shift") this.shift = false;
+      if (e.key === "Control") this.ctrl = false;
     });
   }
 

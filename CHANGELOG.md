@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.8.0 — Control groups _(2026-06-07)_
+- **Ctrl+1…9** assigns the current unit selection to a numbered control group;
+  **1…9** recalls it. Dead units are pruned on recall. Standard RTS muscle
+  memory for managing armies. Verified headlessly (assign → recall → prune).
+
 ## v0.7.0 — Terrain variety _(2026-06-07)_
 - Each terrain tile now picks a stable, hashed variant cell from its SBS sheet
   (18 variations per sheet) instead of always cell (0,0), so the ground reads as
