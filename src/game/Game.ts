@@ -32,7 +32,7 @@ import {
   updateWaypoints,
   updatePatrol,
 } from "./systems/orders.ts";
-import { entityAt, unitAt, unitsInRect } from "./systems/selection.ts";
+import { entityAt, unitAt } from "./systems/selection.ts";
 import { saveGame, loadGame } from "./systems/persistence.ts";
 
 export class Game {
@@ -610,10 +610,17 @@ export class Game {
   }
 
   private onBoxSelect(a: Vec2, b: Vec2): void {
-    const r0 = this.cam.screenToWorld(a.x, a.y);
-    const r1 = this.cam.screenToWorld(b.x, b.y);
-    const rect = normalizeRect(r0.x, r0.y, r1.x, r1.y);
-    const picked = unitsInRect(this.world, rect, this.humanId);
+    // Test SCREEN-space containment: the drag box is axis-aligned on screen, but an
+    // axis-aligned screen rect maps to a rotated quad in the iso world, so a
+    // world-space rect test mis-selects. Project each unit to screen and compare.
+    const minX = Math.min(a.x, b.x);
+    const maxX = Math.max(a.x, b.x);
+    const minY = Math.min(a.y, b.y);
+    const maxY = Math.max(a.y, b.y);
+    const picked = this.world.unitsOf(this.humanId).filter((u) => {
+      const s = this.cam.worldToScreen(u.pos.x, u.pos.y);
+      return s.x >= minX && s.x <= maxX && s.y >= minY && s.y <= maxY;
+    });
     if (!this.input.shift) this.clearSelection();
     if (picked.length > 0) {
       for (const u of picked) {

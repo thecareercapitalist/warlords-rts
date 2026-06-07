@@ -418,7 +418,7 @@ export class Renderer {
     ctx.lineTo(corners[1].x, corners[1].y);
     ctx.stroke();
 
-    if (b.state !== "complete") {
+    if (b.state !== "complete" && !this.assets.buildingSprite(b.kind, isEnemy)) {
       const z = this.cam.zoom;
       ctx.save();
       poly();
@@ -448,10 +448,11 @@ export class Renderer {
       ctx.restore();
     }
 
-    const bSprite = b.state === "complete" ? this.assets.buildingSprite(b.kind, isEnemy) : undefined;
+    const bSprite = this.assets.buildingSprite(b.kind, isEnemy);
     if (bSprite) {
-      // Prefer a generated isometric building sprite (Pixelcut).
-      this.drawBuildingSprite(bSprite, corners, center);
+      // Generated isometric building sprite. While under construction it "rises"
+      // bottom→top — the sprite itself is the progress bar.
+      this.drawBuildingSprite(bSprite, corners, center, b.state === "complete" ? 1 : b.construction);
     } else if (b.kind === "tower" && b.state === "complete") {
       this.drawTurret(center, color);
     } else if (b.kind === "forge" && b.state === "complete") {
@@ -613,7 +614,12 @@ export class Renderer {
   }
 
   /** Blit a generated building sprite, scaled to the footprint and standing on it. */
-  private drawBuildingSprite(sprite: CanvasImageSource, corners: Vec2[], center: Vec2): void {
+  private drawBuildingSprite(
+    sprite: CanvasImageSource,
+    corners: Vec2[],
+    center: Vec2,
+    reveal = 1,
+  ): void {
     const ctx = this.ctx;
     const xs = corners.map((c) => c.x);
     const ys = corners.map((c) => c.y);
@@ -624,7 +630,36 @@ export class Renderer {
     const dw = cw * scale;
     const dh = ch * scale;
     const bottomY = Math.max(...ys); // footprint front (south) vertex
-    ctx.drawImage(sprite, center.x - dw / 2, bottomY - dh + (Math.max(...ys) - center.y) * 0.15, dw, dh);
+    const dx = center.x - dw / 2;
+    const dy = bottomY - dh + (bottomY - center.y) * 0.15;
+    if (reveal >= 1) {
+      ctx.drawImage(sprite, dx, dy, dw, dh);
+      return;
+    }
+    // Under construction: the sprite itself is the progress bar — a faint ghost of
+    // the finished building, with the solid sprite revealed bottom→top, and a warm
+    // "mason's line" glowing at the build front.
+    const r = Math.max(0, Math.min(1, reveal));
+    ctx.save();
+    ctx.globalAlpha = 0.16;
+    ctx.drawImage(sprite, dx, dy, dw, dh); // ghost of what's coming
+    ctx.globalAlpha = 1;
+    const revealH = dh * r;
+    const lineY = dy + dh - revealH;
+    ctx.beginPath();
+    ctx.rect(dx, lineY, dw, revealH);
+    ctx.clip();
+    ctx.drawImage(sprite, dx, dy, dw, dh); // solid built portion
+    ctx.restore();
+    if (r > 0.01 && r < 0.99) {
+      const glow = 0.55 + 0.45 * Math.sin(this.now * 6);
+      ctx.strokeStyle = `rgba(255,205,120,${glow})`;
+      ctx.lineWidth = Math.max(1.5, 2.5 * this.cam.zoom);
+      ctx.beginPath();
+      ctx.moveTo(dx + 2, lineY);
+      ctx.lineTo(dx + dw - 2, lineY);
+      ctx.stroke();
+    }
   }
 
   /** A small wheeled wooden siege frame (the catapult's chassis). */

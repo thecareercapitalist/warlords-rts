@@ -28,6 +28,22 @@ function nearestResourceTile(world: World, from: Vec2, maxR = 10): Vec2 | null {
   return null;
 }
 
+/** Nearest forest tile with wood left (used to auto-task sawmill builders). */
+export function nearestWoodTile(world: World, from: Vec2, maxR = 12): Vec2 | null {
+  for (let r = 0; r <= maxR; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const x = from.x + dx;
+        const y = from.y + dy;
+        const t = world.map.at(x, y);
+        if (t && t.terrain === "forest" && t.resource > 0) return { x, y };
+      }
+    }
+  }
+  return null;
+}
+
 export function updateGather(world: World, dt: number): void {
   for (const u of world.units) {
     if (u.dead || !u.def.canGather) continue;

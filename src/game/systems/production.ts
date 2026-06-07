@@ -6,6 +6,7 @@ import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { lerp, tileCenter, toTile } from "../util/math.ts";
 import { TILE } from "../constants.ts";
 import { nearestWalkable, orderMove, orderGather, adjacentToBuilding } from "./orders.ts";
+import { nearestWoodTile } from "./gather.ts";
 import { arrived } from "./movement.ts";
 
 const MAX_BUILDERS_SPEEDUP = 3;
@@ -106,11 +107,16 @@ function updateConstruction(world: World, dt: number): void {
       b.hp = b.def.maxHp;
       world.events.push({ type: "build" });
       world.recomputeSupply();
-      // Release builders.
+      // Release builders. A worker that just finished a Sawmill auto-tasks to chop
+      // the nearest forest (so the player doesn't micro it back to gathering).
       for (const u of world.units) {
         if (u.buildTarget === b && u.state === "building") {
           u.buildTarget = null;
           u.state = "idle";
+          if (b.kind === "sawmill" && u.def.canGather) {
+            const wood = nearestWoodTile(world, u.tile(), 12);
+            if (wood) orderGather(world, u, wood);
+          }
         }
       }
     }

@@ -6,6 +6,19 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.135.0 — Build reveal + drag fix + sawmill auto-chop _(2026-06-07)_
+- **Buildings now rise as they build:** instead of a dark floor-fill + scaffolding,
+  the building sprite itself is the progress bar — a faint ghost of the finished
+  structure with the solid art revealed bottom→top and a glowing "mason's line" at
+  the build front.
+- **Drag-select fixed properly:** selection now tests **screen-space** containment.
+  Previously two screen corners were converted to a world-space axis-aligned rect,
+  but an axis-aligned screen box maps to a *rotated* quad in the iso world, so the
+  selected region didn't match the visible box — the real cause of the finicky
+  drag. Verified: a box over 6 of 8 units selects exactly those 6.
+- **Sawmill auto-chop:** a worker that finishes a Sawmill automatically starts
+  chopping the nearest forest instead of going idle.
+
 ## v0.134.0 — New grass + water tiles _(2026-06-07)_
 - Replaced the terrain tiles with **lush hand-painted ground**: a They-Are-Billions
   / Warcraft-style **grass** texture (deep green with subtle dirt paths, moss, and
