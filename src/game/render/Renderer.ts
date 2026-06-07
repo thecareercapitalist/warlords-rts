@@ -887,6 +887,20 @@ export class Renderer {
       ctx.stroke();
       ctx.restore();
     }
+    // Preview the Temple's heal aura (green) before placing it.
+    if (def.healRadius) {
+      const z = this.cam.zoom;
+      const c = this.cam.worldToScreen((p.tile.x + fp / 2) * TILE, (p.tile.y + fp / 2) * TILE);
+      const rr = def.healRadius * TILE * z;
+      ctx.save();
+      ctx.strokeStyle = "rgba(127,221,138,0.5)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, rr, rr * (ISO_HALF_H / ISO_HALF_W), 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 
   /** Ground stains left by the dead — a grim touch that fades over several seconds. */

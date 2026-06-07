@@ -45,6 +45,8 @@ export interface BuildingDef {
   damage?: number;
   attackRange?: number; // tiles
   attackCooldown?: number; // seconds between shots
+  /** Heals friendly units within this radius (tiles); the Temple's aura. */
+  healRadius?: number;
 }
 
 // Two mirror factions ("humans"/"orcs" in spirit) share stats; only the worker
@@ -237,6 +239,7 @@ export const BUILDING_DEFS: Record<BuildingKind, BuildingDef> = {
     providesSupply: 0,
     accepts: [],
     produces: [], // a tech building; unlocks Knights at the Barracks
+    healRadius: 5, // mends friendly units standing within this many tiles
   },
   forge: {
     kind: "forge",

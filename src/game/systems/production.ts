@@ -29,12 +29,12 @@ function updateHealing(world: World, dt: number): void {
     (b) => b.kind === "temple" && b.state === "complete" && !b.dead,
   );
   if (temples.length === 0) return;
-  const r2 = (HEAL_RADIUS * TILE) ** 2;
   for (const u of world.units) {
     if (u.dead || u.hp >= u.def.maxHp) continue;
     for (const t of temples) {
       if (t.playerId !== u.playerId) continue;
       const c = t.center();
+      const r2 = ((t.def.healRadius ?? HEAL_RADIUS) * TILE) ** 2;
       if ((u.pos.x - c.x) ** 2 + (u.pos.y - c.y) ** 2 <= r2) {
         u.hp = Math.min(u.def.maxHp, u.hp + HEAL_RATE * dt);
         u.healFx = 0.3; // refresh the green mending glow

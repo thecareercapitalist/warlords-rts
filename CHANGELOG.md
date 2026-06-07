@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.108.0 — Temple heal-radius preview _(2026-06-07)_
+- Placing a **Temple** now shows its **green heal-aura ring** (like the Guard
+  Tower's range ring), so you can position it to cover your front line before
+  committing. The heal radius now lives on the building def (5 tiles), unifying
+  sim + preview. Verified headlessly: the Temple preview draws a green ring (18/18
+  sampled points greener) that a Farm preview lacks.
+
 ## v0.107.0 — Muster spark on unit ready _(2026-06-07)_
 - When your unit finishes training, a **spark bursts at the building** (paired with
   the ready chime) so reinforcements are visible, not just audible. Verified
