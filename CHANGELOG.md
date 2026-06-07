@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.20.0 — Idle-worker hotkey _(2026-06-07)_
+- Press `.` (rebindable) to select every idle worker and snap the camera to one —
+  the staple for keeping your economy busy. Shows "No idle workers" when there are
+  none. Added as a rebindable action (also in the pause-menu controls list).
+  Verified headlessly (selects idle workers, excludes busy ones).
+
 ## v0.19.0 — Minimap attack ping _(2026-06-07)_
 - The "under attack" warning now also drops a **pulsing ember ping on the
   minimap** at the spot you're being hit, refreshed while the assault continues

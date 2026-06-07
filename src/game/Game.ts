@@ -299,6 +299,8 @@ export class Game {
         this.attackMoveMode = true;
       } else if (key === this.kb.get("stop") && this.selUnits.length > 0) {
         for (const u of this.selUnits) u.stop();
+      } else if (key === this.kb.get("idleWorker")) {
+        this.selectIdleWorkers();
       } else {
         const action = this.hud.hotkeyAction(key);
         if (action) this.applyHudAction(action);
@@ -356,6 +358,32 @@ export class Game {
     const ent = entityAt(this.world, world);
     if (!this.input.shift) this.clearSelection();
     if (ent) this.addToSelection(ent);
+  }
+
+  /** Select all idle workers and center the camera on one. */
+  private selectIdleWorkers(): void {
+    const idle = this.world.unitsOf(this.humanId).filter(
+      (u) =>
+        u.def.canGather &&
+        u.state === "idle" &&
+        !u.carrying &&
+        !u.buildTarget &&
+        u.path.length === 0 &&
+        u.finalTarget === null,
+    );
+    if (idle.length === 0) {
+      this.setMessage("No idle workers");
+      return;
+    }
+    this.clearSelection();
+    for (const u of idle) {
+      u.selected = true;
+      this.selUnits.push(u);
+    }
+    this.selBuildings = [];
+    this.rebuildHudButtons();
+    this.cam.centerOn(idle[0].pos);
+    this.sfx.click();
   }
 
   private onDoubleClick(p: Vec2): void {

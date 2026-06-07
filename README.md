@@ -48,6 +48,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Cancel a building (full refund) | Select the unfinished building, click Cancel (`C`) |
 | Stop | `S` |
 | Assign / recall control group | `Ctrl+1…9` to assign · `1…9` to recall |
+| Select idle workers | `.` (rebindable) |
 | Set building rally point | Select the building, right-click a spot |
 | Scroll the map | Arrow keys (rebindable) or push the screen edge |
 | Zoom in / out | Mouse wheel (toward the cursor) |

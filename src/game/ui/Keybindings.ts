@@ -8,7 +8,8 @@ export type ActionId =
   | "scrollLeft"
   | "scrollRight"
   | "attackMove"
-  | "stop";
+  | "stop"
+  | "idleWorker";
 
 export interface ActionInfo {
   id: ActionId;
@@ -22,6 +23,7 @@ export const ACTION_ORDER: ActionInfo[] = [
   { id: "scrollRight", label: "Scroll Right" },
   { id: "attackMove", label: "Attack-Move" },
   { id: "stop", label: "Stop" },
+  { id: "idleWorker", label: "Idle Workers" },
 ];
 
 const DEFAULTS: Record<ActionId, string> = {
@@ -31,6 +33,7 @@ const DEFAULTS: Record<ActionId, string> = {
   scrollRight: "arrowright",
   attackMove: "a",
   stop: "s",
+  idleWorker: ".",
 };
 
 const STORAGE_KEY = "warlords.keybindings.v1";
