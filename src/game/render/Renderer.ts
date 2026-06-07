@@ -296,9 +296,11 @@ export class Renderer {
       ctx.lineTo(topV.x, topV.y - poleH);
       ctx.stroke();
       ctx.fillStyle = color;
+      // Pennant flutters in the wind (phase-offset per building by its position).
+      const flutter = Math.sin(this.now * 4 + topV.x * 0.1) * 3;
       ctx.beginPath();
       ctx.moveTo(topV.x, topV.y - poleH);
-      ctx.lineTo(topV.x + 13 * z, topV.y - poleH + 5 * z);
+      ctx.lineTo(topV.x + (13 + flutter) * z, topV.y - poleH + 5 * z);
       ctx.lineTo(topV.x, topV.y - poleH + 11 * z);
       ctx.closePath();
       ctx.fill();

@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.37.0 — Banner flutter _(2026-06-07)_
+- Building team pennants now **flutter in the wind** (phase-offset per building),
+  bringing the banners — a core North-Star ownership cue — to life. Verified
+  headlessly: the banner region animates between clock values.
+
 ## v0.36.0 — Idle breathing _(2026-06-07)_
 - Resting units now gently bob (phase-offset per unit so they don't pulse in
   unison), completing the always-alive motion set with walk-bob and gather-swing.
