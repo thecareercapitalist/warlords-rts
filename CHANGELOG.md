@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.17.0 — Gothic buildings (stone + banner) _(2026-06-07)_
+- Buildings now render as **stone structures** with a heavy inked outline, a thin
+  team-colored trim, and a **team banner on a pole** at the top for ownership —
+  instead of flat team-colored diamonds. Matches the "team identity via
+  banner/trim" art rule. Verified the body is stone and the banner is team color.
+
 ## v0.16.0 — Unit base rings + inked outlines _(2026-06-07)_
 - Units now sit on a **team-colored ground ring** (ownership reads from the ring,
   per the art direction) and carry a **heavier dark inked outline** for the

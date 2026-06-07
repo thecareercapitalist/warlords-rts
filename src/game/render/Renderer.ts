@@ -232,10 +232,15 @@ export class Renderer {
     const minX = Math.min(...corners.map((c) => c.x));
     const maxX = Math.max(...corners.map((c) => c.x));
 
+    // Stone body (ownership comes from the trim + banner, not the body color).
     poly();
-    ctx.fillStyle = b.state === "complete" ? color : this.shade(color, -0.35);
+    ctx.fillStyle = b.state === "complete" ? "#4a4236" : "#2f2a22";
     ctx.fill();
-    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    // Thin team-colored trim, then a heavy inked outer outline.
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.strokeStyle = "#15110d";
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -255,6 +260,29 @@ export class Renderer {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(b.def.glyph, center.x, center.y);
+
+    // Team banner on a pole at the top vertex — clear ownership cue.
+    if (b.state === "complete") {
+      const z = this.cam.zoom;
+      const topV = corners.reduce((a, c) => (c.y < a.y ? c : a), corners[0]);
+      const poleH = 20 * z;
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(topV.x, topV.y);
+      ctx.lineTo(topV.x, topV.y - poleH);
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(topV.x, topV.y - poleH);
+      ctx.lineTo(topV.x + 13 * z, topV.y - poleH + 5 * z);
+      ctx.lineTo(topV.x, topV.y - poleH + 11 * z);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
 
     if (b.hitFlash > 0) {
       ctx.globalAlpha = Math.min(1, b.hitFlash / 0.12) * 0.5;
@@ -466,17 +494,5 @@ export class Renderer {
       }
     }
     return false;
-  }
-
-  private shade(hex: string, amt: number): string {
-    const c = hex.replace("#", "");
-    const n = parseInt(c, 16);
-    let r = (n >> 16) & 255;
-    let g = (n >> 8) & 255;
-    let b = n & 255;
-    r = Math.max(0, Math.min(255, Math.round(r + 255 * amt)));
-    g = Math.max(0, Math.min(255, Math.round(g + 255 * amt)));
-    b = Math.max(0, Math.min(255, Math.round(b + 255 * amt)));
-    return `rgb(${r},${g},${b})`;
   }
 }
