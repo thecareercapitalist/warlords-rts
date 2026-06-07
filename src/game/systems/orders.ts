@@ -26,6 +26,12 @@ export function nearestWalkable(world: World, tx: number, ty: number, maxR = 12)
  * the tile centre (or `finalPx` if supplied, e.g. an exact adjacency point).
  */
 export function pathTo(world: World, u: Unit, tx: number, ty: number, finalPx?: Vec2): boolean {
+  // Flying units ignore terrain/walls — fly straight to the exact point.
+  if (u.def.flying) {
+    u.path = [];
+    u.finalTarget = finalPx ?? tileCenter(tx, ty);
+    return true;
+  }
   const from = u.tile();
   const dest = nearestWalkable(world, tx, ty);
   if (!dest) return false;

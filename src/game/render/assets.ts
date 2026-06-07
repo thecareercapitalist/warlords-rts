@@ -147,6 +147,8 @@ export class Assets {
   private propSprites = new Map<string, CanvasImageSource>();
   /** Single iso wall segment ("/" diagonal); mirror it in code for "\". */
   wallSprite: CanvasImageSource | undefined;
+  /** Worker mining frames [windup, strike] for a swing animation. */
+  mineFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -264,6 +266,15 @@ export class Assets {
         if (!img) return;
         const dr = sliceGrid(img, 1, 1, ["dragon"]).get("dragon");
         if (dr) { this.unitSprites.set("dragon", dr); this.enemyUnitSprites.set("dragon", dr); }
+      }),
+    );
+    jobs.push(
+      load(inl?.mine ?? "/gen_mine.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 2, 1, ["mine0", "mine1"]);
+        const a = m.get("mine0");
+        const bb = m.get("mine1");
+        if (a && bb) this.mineFrames = [a, bb];
       }),
     );
     await Promise.all(jobs);

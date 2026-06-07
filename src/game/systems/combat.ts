@@ -49,8 +49,10 @@ function acquireTarget(world: World, u: Unit, radiusTiles: number): Targetable |
   const r2 = rPx * rPx;
   let best: Targetable | null = null;
   let bestD = Infinity;
+  const melee = u.def.attackRange <= 1;
   for (const o of world.units) {
     if (o.dead || !isEnemy(u, o)) continue;
+    if (o.def.flying && melee) continue; // melee can't reach flyers
     const d = dist2(u.pos, o.pos);
     if (d < r2 && d < bestD) {
       bestD = d;
@@ -153,6 +155,12 @@ function updateTowers(world: World, dt: number): void {
 function fightTarget(world: World, u: Unit, _dt: number): void {
   const t = u.attackTarget!;
   if (t.dead) {
+    u.attackTarget = null;
+    resumeAfterKill(world, u);
+    return;
+  }
+  // Melee units can't strike a flying target — give up on it.
+  if (t.etype === "unit" && (t as Unit).def.flying && u.def.attackRange <= 1) {
     u.attackTarget = null;
     resumeAfterKill(world, u);
     return;

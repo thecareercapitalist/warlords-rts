@@ -70,6 +70,7 @@ interface Blast {
   t: number;
   dur: number;
   kind: "fire" | "frost";
+  scale: number; // 1 = full spell AoE; smaller for impact bursts
 }
 
 export class Effects {
@@ -82,8 +83,8 @@ export class Effects {
   readonly markers: Marker[] = []; // move-order destination rings
   readonly blasts: Blast[] = []; // spell impacts (fireball / freeze)
 
-  spawnBlast(x: number, y: number, kind: "fire" | "frost"): void {
-    this.blasts.push({ x, y, t: 0, dur: kind === "fire" ? 0.72 : 0.9, kind });
+  spawnBlast(x: number, y: number, kind: "fire" | "frost", scale = 1): void {
+    this.blasts.push({ x, y, t: 0, dur: (kind === "fire" ? 0.72 : 0.9) * (scale < 1 ? 0.7 : 1), kind, scale });
   }
 
   spawnMoveMarker(x: number, y: number, attack = false): void {

@@ -252,6 +252,11 @@ export class Game {
           this.effects.spawnCollapse(e.to.x, e.to.y, 22); // dusty crater puff
           this.shake = Math.max(this.shake, 4);
         }
+        if (e.fire) {
+          // Dragon breath bursts into flame where it lands.
+          this.effects.spawnBlast(e.to.x, e.to.y, "fire", 0.5);
+          this.effects.spawnImpact(e.to.x, e.to.y);
+        }
       }
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);

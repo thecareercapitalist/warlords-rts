@@ -1107,7 +1107,11 @@ export class Renderer {
 
     // Generated sprite (if any) + its on-screen size, computed up front so the
     // ground ellipses can scale proportionally to the (large) sprite.
-    const sprite = this.assets.unitSprite(u.kind, isEnemy);
+    // A gathering worker plays a 2-frame pickaxe swing instead of the idle sprite.
+    let sprite = this.assets.unitSprite(u.kind, isEnemy);
+    if (u.def.canGather && u.state === "gathering" && this.assets.mineFrames.length === 2) {
+      sprite = this.assets.mineFrames[Math.floor(this.now * 6) % 2];
+    }
     let spriteW = 0;
     let spriteH = 0;
     if (sprite) {
@@ -1774,7 +1778,7 @@ export class Renderer {
       // Radius in SCREEN px so the blast actually covers its tile AoE (and then
       // some, for the shockwave) — ISO_HALF_W px per world tile.
       if (b.kind === "fire") {
-        const R = 2.6 * ISO_HALF_W * z * (0.35 + k * 1.0);
+        const R = 2.6 * ISO_HALF_W * z * (0.35 + k * 1.0) * b.scale;
         // Expanding fire ring.
         const grd = ctx.createRadialGradient(c.x, c.y, R * 0.15, c.x, c.y, R);
         grd.addColorStop(0, `rgba(255,245,200,${(1 - k) * 0.95})`);
@@ -1810,7 +1814,7 @@ export class Renderer {
           ctx.fill();
         }
       } else {
-        const R = 3.2 * ISO_HALF_W * z * (0.35 + k * 1.0);
+        const R = 3.2 * ISO_HALF_W * z * (0.35 + k * 1.0) * b.scale;
         // Icy nova ring (double ring for heft).
         ctx.strokeStyle = `rgba(150,220,255,${(1 - k) * 0.95})`;
         ctx.lineWidth = Math.max(3, 9 * z * (1 - k));

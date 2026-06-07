@@ -27,6 +27,8 @@ export interface UnitDef {
   /** Spellcaster mana pool + regen (per second); absent = not a caster. */
   maxMana?: number;
   manaRegen?: number;
+  /** Flying: moves straight over terrain/walls and only ranged attacks can hit it. */
+  flying?: boolean;
 }
 
 export interface BuildingDef {
@@ -210,6 +212,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     canGather: false,
     canBuild: false,
     requiresBuilding: "enclave", // the Enclave's apex summon
+    flying: true, // soars over terrain; only ranged foes can strike it
   },
 };
 

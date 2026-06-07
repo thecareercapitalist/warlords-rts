@@ -180,6 +180,18 @@ export class AIController {
       if (err && kind !== "footman") enqueueUnit(world, barracks, "footman"); // keep busy
     }
 
+    // A2. Summon casters from the Enclave: mostly Mages, an occasional Dragon when
+    // resources are flush.
+    for (const enc of buildings) {
+      if (enc.kind !== "enclave" || enc.state !== "complete" || enc.queue.length >= 1) continue;
+      if (p.gold >= 350 && p.wood >= 120 && this.trainTick % 3 === 0) {
+        enqueueUnit(world, enc, "dragon");
+      } else if (p.gold >= 90 && p.wood >= 20) {
+        enqueueUnit(world, enc, "mage");
+      }
+      this.trainTick++;
+    }
+
     // B. Keep workers coming.
     if (workers.length < TARGET_WORKERS && townhall.queue.length === 0) {
       enqueueUnit(world, townhall, "peon");
@@ -207,6 +219,12 @@ export class AIController {
     const hasForge = buildings.some((b) => b.kind === "forge");
     if (hasBarracks && !hasForge && p.gold >= 280 && p.wood >= 100) {
       this.tryBuild(world, "forge", townhall, workers);
+      return;
+    }
+    // A Mage's Enclave unlocks casters + the Dragon — a late-game power spike.
+    const hasEnclave = buildings.some((b) => b.kind === "enclave");
+    if (hasBarracks && hasForge && !hasEnclave && p.gold >= 220 && p.wood >= 110) {
+      this.tryBuild(world, "enclave", townhall, workers);
       return;
     }
     // Fortify the base with Guard Towers — only from genuine surplus, so this

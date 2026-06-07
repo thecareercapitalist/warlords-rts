@@ -6,6 +6,18 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.142.0 — Dragon flight, AI casters, mining swing _(2026-06-07)_
+- **Dragons fly:** they path in a straight line over water/walls, and **melee units
+  can no longer hit them** — only ranged attackers (archers, towers, mages, other
+  dragons) can. Verified: a footman won't target a dragon, an archer will.
+- **Fire-blast on impact:** the dragon's breath bursts into a small flame burst
+  where it lands (scaled-down version of the spell blast).
+- **The enemy AI now builds a Mage's Enclave** (after a Forge) and fields **Mages**
+  and the occasional **Dragon** in its waves.
+- **First frame-by-frame animation:** mining workers swing a **pickaxe** — a 2-frame
+  windup→strike loop (Gemini art) while gathering. Frame anim path is now in place
+  for more units later.
+
 ## v0.141.0 — The Dragon _(2026-06-07)_
 - New apex unit: the **Dragon**, summoned at the **Mage's Enclave** (350g/120w,
   6 supply, 70s). Huge (drawn ~70% bigger than other units), 340 HP, and breathes
