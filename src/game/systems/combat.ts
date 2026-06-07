@@ -85,8 +85,10 @@ export function updateCombat(world: World, dt: number): void {
     // enemies they encounter while attack-moving. Workers fight only when
     // explicitly ordered (which sets attackTarget directly).
     if (!u.attackTarget && u.def.damage > 0 && !u.def.canGather) {
-      if (u.state === "attackMoving" || u.state === "idle") {
-        const aggro = u.state === "attackMoving" ? u.def.visionRadius + 1 : u.def.visionRadius;
+      if (u.state === "attackMoving" || u.state === "idle" || u.state === "moving") {
+        // Generous aggro so units defend themselves against anything that wanders
+        // near; a bit wider while attack-moving. Hold-ground is filtered below.
+        const aggro = u.state === "attackMoving" ? u.def.visionRadius + 2 : u.def.visionRadius + 3;
         const tgt = acquireTarget(world, u, aggro);
         // Hold-ground units only engage foes already within firing range — they
         // never chase. Everyone else acquires normally.

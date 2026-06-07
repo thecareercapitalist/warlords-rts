@@ -6,6 +6,21 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.126.0 — Auto-attack, vision, bars, terrain regions _(2026-06-07)_
+- **Auto-attack aggro:** idle/moving combat units now engage enemies within a
+  generous radius (visionRadius + 3; +2 while attack-moving), so troops — and the
+  AI — defend themselves instead of standing idle next to a foe. Verified: two idle
+  enemy footmen 2 tiles apart both engage on their own.
+- **+30% view distance:** all vision radii raised ~30% (e.g. footman 4→5, archer
+  6→8, Town Hall 6→8, Tower 7→9), revealing more of the map.
+- **Bar sizing fix:** HP-bar thickness is now capped (≤10px) so big buildings no
+  longer get giant bars; the Town Hall bar is also narrowed + centered. Small
+  buildings/units unchanged.
+- **Resource floaters doubled again** (24→46px).
+- **Terrain regions:** tile variants are chosen from a low-frequency value-noise
+  field, so the ground forms **coherent patches** (an area of grass, then dry, then
+  stone) instead of per-tile static.
+
 ## v0.125.0 — Formations + drag-to-face _(2026-06-07)_
 - **Group moves now form up** as a rectangle facing the direction of travel —
   **melee in the front ranks, archers and catapults in the back** — instead of a

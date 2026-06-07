@@ -217,8 +217,17 @@ export class Renderer {
     const cols = Math.max(1, Math.floor(img.width / ISO_TILE_W));
     const rows = Math.max(1, Math.floor(img.height / ISO_TILE_H));
     const count = cols * rows;
-    const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
-    const cell = h % count;
+    // Pick the variant from a low-frequency value-noise field so the same variant
+    // covers a coherent PATCH (an area of grass, then a dry area, etc.) instead of
+    // per-tile static. Two octaves at different scales break up hard square seams.
+    const vnoise = (gx: number, gy: number): number => {
+      const h = Math.sin(gx * 127.1 + gy * 311.7) * 43758.5453;
+      return h - Math.floor(h); // 0..1
+    };
+    const SCALE = 5; // ~5-tile patches
+    const a = vnoise(Math.floor(tx / SCALE), Math.floor(ty / SCALE));
+    const b = vnoise(Math.floor((tx + 2) / (SCALE * 2)), Math.floor((ty + 2) / (SCALE * 2)));
+    const cell = Math.floor(((a * 0.65 + b * 0.35) % 1) * count) % count;
     return { sx: (cell % cols) * ISO_TILE_W, sy: Math.floor(cell / cols) * ISO_TILE_H };
   }
 
@@ -535,7 +544,8 @@ export class Renderer {
     }
 
     if (b.hp < b.def.maxHp || b.selected) {
-      this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
+      const bw = (maxX - minX) * 0.8;
+      this.drawHpBar((minX + maxX) / 2 - bw / 2, topY - 10, bw, b.hp / b.def.maxHp, !isEnemy);
     }
   }
 
@@ -1247,7 +1257,7 @@ export class Renderer {
 
   private drawHpBar(x: number, y: number, w: number, frac: number, friendly: boolean): void {
     const ctx = this.ctx;
-    const h = Math.max(5, w * 0.085); // thicker, scales with width
+    const h = Math.max(5, Math.min(w * 0.07, 10)); // thicker, but capped so big buildings aren't huge
     const f = Math.max(0, Math.min(1, frac));
     // Inked border + dark recessed track for a beveled, 3D look.
     ctx.fillStyle = "#15110d";
@@ -1478,12 +1488,12 @@ export class Renderer {
     for (const f of fx.floaters) {
       const k = f.t / f.dur;
       const s = this.cam.worldToScreen(f.x, f.y);
-      const y = s.y - 16 * z - k * 40 * z;
+      const y = s.y - 20 * z - k * 50 * z;
       ctx.globalAlpha = Math.max(0, 1 - k);
-      ctx.font = `bold ${Math.floor(24 * z)}px 'Segoe UI', sans-serif`;
+      ctx.font = `bold ${Math.floor(46 * z)}px 'Segoe UI', sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.lineWidth = Math.max(3, 5 * z);
+      ctx.lineWidth = Math.max(3, 7 * z);
       ctx.strokeStyle = "#15110d";
       ctx.strokeText(f.text, s.x, y);
       ctx.fillStyle = f.color;
