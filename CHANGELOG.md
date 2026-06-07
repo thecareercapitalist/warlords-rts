@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.61.0 — Scouted-base memory _(2026-06-07)_
+- Enemy buildings you've **scouted now linger as dimmed ghosts** in fogged areas
+  (last-known positions), brightening only when back in vision — units still
+  vanish into the fog. A proper Warcraft-style memory that rewards scouting.
+  Verified headlessly: enemy building lum 173 visible → 142 ghost → 11 hidden.
+
 ## v0.60.0 — Effective attack readout _(2026-06-07)_
 - The selection panel's Atk now reflects **effective** damage — base × veterancy
   rank + Forge bonus — instead of just the base stat, so upgrades are visible.

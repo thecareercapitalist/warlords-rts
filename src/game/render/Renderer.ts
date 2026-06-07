@@ -217,6 +217,7 @@ export class Renderer {
   // --- Entities (depth-sorted) -------------------------------------------
 
   private drawEntities(world: World, fog: Fog, humanId: number): void {
+    const ctx = this.ctx;
     interface Drawable {
       depth: number;
       draw: () => void;
@@ -227,8 +228,23 @@ export class Renderer {
       if (b.dead) continue;
       const isEnemy = b.playerId !== humanId;
       if (isEnemy && !this.anyTileVisible(fog, b.tile.x, b.tile.y, b.footprint)) continue;
+      // Scouted-but-unseen enemy buildings render as dimmed "last known" ghosts.
+      const remembered =
+        isEnemy && !this.anyTileLit(fog, b.tile.x, b.tile.y, b.footprint);
       const depth = b.tile.x + b.tile.y + b.footprint; // sort by far corner
-      list.push({ depth, draw: () => this.drawBuilding(world, b, isEnemy) });
+      list.push({
+        depth,
+        draw: () => {
+          if (remembered) {
+            ctx.save();
+            ctx.globalAlpha = 0.45;
+            this.drawBuilding(world, b, isEnemy);
+            ctx.restore();
+          } else {
+            this.drawBuilding(world, b, isEnemy);
+          }
+        },
+      });
     }
     for (const u of world.units) {
       if (u.dead) continue;
@@ -809,6 +825,16 @@ export class Renderer {
     for (let y = ty; y < ty + fp; y++) {
       for (let x = tx; x < tx + fp; x++) {
         if (fog.level(x, y) !== FOG_HIDDEN) return true;
+      }
+    }
+    return false;
+  }
+
+  /** True if any footprint tile is currently lit (not just explored). */
+  private anyTileLit(fog: Fog, tx: number, ty: number, fp: number): boolean {
+    for (let y = ty; y < ty + fp; y++) {
+      for (let x = tx; x < tx + fp; x++) {
+        if (fog.level(x, y) === FOG_VISIBLE) return true;
       }
     }
     return false;
