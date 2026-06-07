@@ -300,6 +300,13 @@ export class Renderer {
     ctx.ellipse(s.x, s.y + r * 0.5, r * 1.05, r * 0.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // Team-colored base ring (ownership reads from the ring, not just the body).
+    ctx.strokeStyle = color;
+    ctx.lineWidth = Math.max(1.5, 2 * z);
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y + r * 0.55, r * 1.15, r * 0.6, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
     if (u.selected) {
       ctx.strokeStyle = COLORS.selection;
       ctx.lineWidth = 2;
@@ -312,8 +319,8 @@ export class Renderer {
     ctx.beginPath();
     ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = "rgba(0,0,0,0.55)";
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#15110d"; // heavy inked outline
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     ctx.fillStyle = "rgba(255,255,255,0.95)";

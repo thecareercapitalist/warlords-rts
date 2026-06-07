@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.16.0 — Unit base rings + inked outlines _(2026-06-07)_
+- Units now sit on a **team-colored ground ring** (ownership reads from the ring,
+  per the art direction) and carry a **heavier dark inked outline** for the
+  chunky gothic look. Forward-compatible with real sprites later (the ring keeps
+  team identity even when bodies become painted art). Verified the ring renders
+  in the player color.
+
 ## v0.15.0 — Double-click select-all-of-type _(2026-06-07)_
 - Double-click a unit to select every friendly unit of that same kind currently
   in view — the standard RTS shortcut for grabbing your whole footman line or
