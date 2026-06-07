@@ -383,7 +383,13 @@ export class Renderer {
     // travelled so it's deterministic and stops when the unit is still.
     const moving = u.path.length > 0 || u.finalTarget !== null;
     let bx = s.x;
-    let by = s.y - (moving ? Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z : 0);
+    let by = s.y;
+    if (moving) {
+      by -= Math.abs(Math.sin((u.pos.x + u.pos.y) * 0.12)) * 3 * z; // walk bob
+    } else if (u.state !== "gathering") {
+      // Idle breathing — gentle, phase-offset per unit so they don't pulse in unison.
+      by -= Math.sin(this.now * 2 + (u.pos.x + u.pos.y) * 0.5) * 1.2 * z;
+    }
 
     // Gather swing: workers rhythmically lurch toward the resource they harvest.
     if (u.state === "gathering" && u.resourceTile) {

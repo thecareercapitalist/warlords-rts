@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.36.0 — Idle breathing _(2026-06-07)_
+- Resting units now gently bob (phase-offset per unit so they don't pulse in
+  unison), completing the always-alive motion set with walk-bob and gather-swing.
+  Verified headlessly: an idle unit's body animates between clock values.
+
 ## v0.35.0 — Gather-swing animation _(2026-06-07)_
 - Threaded an animation clock into the renderer and used it for a **gather
   swing**: workers now rhythmically lurch toward the resource they're harvesting
