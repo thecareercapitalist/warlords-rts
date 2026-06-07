@@ -113,6 +113,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
         world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
       }
       t.hp -= u.def.damage;
+      world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
         world.events.push({

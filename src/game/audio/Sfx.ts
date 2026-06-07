@@ -90,6 +90,13 @@ export class Sfx {
     this.tone({ freq: 660, type: "square", dur: 0.04, gain: 0.18 });
   }
 
+  /** Ominous low two-tone "under attack" warning. */
+  alert(): void {
+    if (!this.gate("alert", 800)) return;
+    this.tone({ freq: 220, type: "sawtooth", dur: 0.22, gain: 0.4 });
+    this.tone({ freq: 165, type: "sawtooth", dur: 0.3, gain: 0.4, delay: 0.18 });
+  }
+
   // --- Synthesis helpers --------------------------------------------------
 
   /** Rate-limit a given sound so big battles don't machine-gun the speakers. */

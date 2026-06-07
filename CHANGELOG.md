@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.14.0 — "Under attack" alert _(2026-06-07)_
+- When your units or buildings take damage you now get a throttled warning — an
+  on-screen "⚔ Your forces are under attack!" message plus an ominous low
+  two-tone Web Audio cue (6s cooldown so it doesn't spam). Pairs with the AI's
+  new aggression so a base assault never goes unnoticed. Verified headlessly.
+
 ## v0.13.0 — Building repair _(2026-06-07)_
 - Right-click a damaged friendly building with worker(s) selected to **repair**
   it: assigned workers restore ~28 HP/sec each (up to 3) for a small gold cost

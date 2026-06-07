@@ -60,6 +60,7 @@ export class Game {
 
   private message: string | null = null;
   private messageTimer = 0;
+  private attackAlertCd = 0; // throttles the "under attack" warning
 
   private gameOver: "won" | "lost" | null = null;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
@@ -193,6 +194,7 @@ export class Game {
       this.messageTimer -= dt;
       if (this.messageTimer <= 0) this.message = null;
     }
+    if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
 
     this.ai.update(this.world, dt);
     updateProduction(this.world, dt);
@@ -209,6 +211,11 @@ export class Game {
         this.sfx.death();
       } else if (e.type === "attack") this.sfx.attack(e.ranged);
       else if (e.type === "build") this.sfx.build();
+      else if (e.type === "damaged" && e.playerId === this.humanId && this.attackAlertCd <= 0) {
+        this.setMessage("⚔ Your forces are under attack!");
+        this.sfx.alert();
+        this.attackAlertCd = 6;
+      }
     }
     this.world.events.length = 0;
     this.effects.update(dt);
