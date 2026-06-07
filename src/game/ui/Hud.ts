@@ -334,6 +334,7 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(this.selectionSummary(units), x, y + 20);
+      ctx.fillText(this.groupHpLine(units), x, y + 38);
       return;
     }
     if (units.length === 1) {
@@ -418,6 +419,17 @@ export class Hud {
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
     return s;
+  }
+
+  /** "HP 240/360" — combined current/max health of a multi-unit selection. */
+  groupHpLine(units: Unit[]): string {
+    let cur = 0;
+    let max = 0;
+    for (const u of units) {
+      cur += u.hp;
+      max += u.def.maxHp;
+    }
+    return `HP ${Math.ceil(cur)}/${max}`;
   }
 
   /** "3 Footman · 2 Archer" — composition of a multi-unit selection, most first. */
