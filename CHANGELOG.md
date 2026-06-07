@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.60.0 — Effective attack readout _(2026-06-07)_
+- The selection panel's Atk now reflects **effective** damage — base × veterancy
+  rank + Forge bonus — instead of just the base stat, so upgrades are visible.
+  Verified headlessly: a knight reads Atk 16, →18 with a Forge; a 2-kill veteran
+  reads 18, →20 with a Forge.
+
 ## v0.59.0 — Forge furnace visual _(2026-06-07)_
 - The Forge now reads as a **dark furnace with a glowing, flickering ember mouth**
   rather than a generic stone tile — leaning into the North Star's warm

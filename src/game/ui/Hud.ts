@@ -1,7 +1,7 @@
 import type { World } from "../World.ts";
 import type { Camera } from "../Camera.ts";
 import type { Unit } from "../entities/Unit.ts";
-import { veterancyRank } from "../entities/Unit.ts";
+import { veterancyRank, veterancyMult } from "../entities/Unit.ts";
 import type { Building } from "../entities/Building.ts";
 import type { BuildingKind, UnitKind, Vec2 } from "../types.ts";
 import { MAP_W, MAP_H, TILE, COLORS } from "../constants.ts";
@@ -229,7 +229,7 @@ export class Hud {
     ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, 1.5);
 
     this.renderMinimap(world, cam, humanId, fogVis);
-    this.renderSelectionInfo(units, buildings);
+    this.renderSelectionInfo(world, humanId, units, buildings);
     this.renderButtons();
   }
 
@@ -301,8 +301,18 @@ export class Hud {
     ctx.strokeRect(r.x, r.y, r.w, r.h);
   }
 
-  private renderSelectionInfo(units: Unit[], buildings: Building[]): void {
+  private renderSelectionInfo(
+    world: World,
+    humanId: number,
+    units: Unit[],
+    buildings: Building[],
+  ): void {
     const ctx = this.ctx;
+    const forgeBonus = world
+      .buildingsOf(humanId)
+      .some((b) => b.kind === "forge" && b.state === "complete" && !b.dead)
+      ? 2
+      : 0;
     const x = this.minimapRect.x + this.minimapRect.w + 20;
     const y = this.barRect.y + 24;
     ctx.fillStyle = COLORS.uiText;
@@ -323,7 +333,7 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
-      ctx.fillText(this.unitStatLine(u), x, y + 38);
+      ctx.fillText(this.unitStatLine(u, forgeBonus), x, y + 38);
       ctx.fillText(`State: ${u.state}`, x, y + 56);
       if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 74);
       return;
@@ -379,9 +389,10 @@ export class Hud {
       ).length;
   }
 
-  /** "Atk 16 · Def 2 · Vet 1" — combat stats for the selection panel. */
-  unitStatLine(u: Unit): string {
-    let s = `Atk ${u.def.damage}`;
+  /** "Atk 18 · Def 2 · Vet 1" — effective combat stats (veterancy + Forge bonus). */
+  unitStatLine(u: Unit, atkBonus = 0): string {
+    const eff = Math.round(u.def.damage * veterancyMult(u.kills)) + atkBonus;
+    let s = `Atk ${eff}`;
     if (u.def.armor) s += ` · Def ${u.def.armor}`;
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
