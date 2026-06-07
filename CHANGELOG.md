@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.43.0 — AI builds towers _(2026-06-07)_
+- The AI now fortifies its base with up to two **Guard Towers**, but only from
+  genuine surplus (gold ≥ 300, wood ≥ 120) as the lowest-priority structure — so
+  it never starves its army or economy. Verified headlessly: a surplus base tick
+  builds a tower, and a full game is unchanged (still wins ~6.5 min with 8
+  fighters), confirming no offensive regression.
+
 ## v0.42.0 — Turret visual _(2026-06-07)_
 - The Guard Tower now reads as a proper **crenellated stone turret** — a tall
   column with merlons, a team-colored trim band, and a flickering ember

@@ -12,6 +12,7 @@ import { toTile, dist2 } from "../util/math.ts";
 const TICK = 1.0; // seconds between AI decisions
 const TARGET_WORKERS = 8;
 const MAX_BARRACKS = 2;
+const MAX_TOWERS = 2;
 const ATTACK_ARMY_SIZE = 6; // launch a wave once this many fighters exist
 const DEFEND_RADIUS = 12; // tiles: enemies this close to a building trigger defense
 const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
@@ -159,6 +160,13 @@ export class AIController {
     }
     if (barracksCount < MAX_BARRACKS && workers.length >= 8 && p.gold >= 220 && p.wood >= 100) {
       this.tryBuild(world, "barracks", townhall, workers);
+      return;
+    }
+    // Fortify the base with Guard Towers — only from genuine surplus, so this
+    // never starves the army/economy (gold tends to pile up; wood is the gate).
+    const towerCount = buildings.filter((b) => b.kind === "tower").length;
+    if (hasBarracks && towerCount < MAX_TOWERS && p.gold >= 300 && p.wood >= 120) {
+      this.tryBuild(world, "tower", townhall, workers);
       return;
     }
   }
