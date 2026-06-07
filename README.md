@@ -14,6 +14,11 @@ army, and destroy an AI opponent that does the same.
 
 ## Run it
 
+**Easiest (Windows):** double-click **`Play Warlords.cmd`** — it starts a local
+server and opens the game in your browser. Keep that window open while you play.
+
+From a terminal:
+
 ```bash
 npm install
 npm run dev      # http://localhost:5173
@@ -22,9 +27,22 @@ npm run dev      # http://localhost:5173
 Build for production:
 
 ```bash
-npm run build    # outputs to dist/
-npm run preview
+npm run build    # outputs to dist/  (relative paths; serve over http)
+npm run preview  # serves the built bundle over http
 ```
+
+### Play with no server (single file)
+
+```bash
+npm run build:offline   # writes Warlords.html at the repo root
+```
+
+`Warlords.html` is fully self-contained (JS + terrain tiles inlined), so you can
+**double-click it** to play straight from disk — no server needed.
+
+> **Heads-up:** you can't just double-click `dist/index.html`. Browsers block
+> ES-module loading over `file://`, so it'd hang on "Loading Warlords…". Use the
+> launcher, `npm run preview`, or the single-file `Warlords.html` above.
 
 > **Note:** the game uses `requestAnimationFrame`, which browsers pause in
 > hidden/background tabs — so the game only runs while its tab is visible and

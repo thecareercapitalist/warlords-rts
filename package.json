@@ -1,12 +1,13 @@
 {
   "name": "warlords-rts",
   "private": true,
-  "version": "0.112.0",
+  "version": "0.113.0",
   "type": "module",
   "description": "A Warcraft I-style real-time strategy game. Original code and art, no third-party IP.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:offline": "tsc && vite build && node tools/make-offline.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

@@ -19,6 +19,9 @@ export class Assets {
   }
 
   async loadAll(): Promise<void> {
+    // Offline single-file builds inject base64 tiles here so the game needs no
+    // server; otherwise we fetch the PNGs by URL as usual.
+    const inlined = (globalThis as { __TILES?: Record<string, string> }).__TILES;
     const entries = Object.entries(TILE_URLS) as [TileKey, string][];
     await Promise.all(
       entries.map(
@@ -31,7 +34,7 @@ export class Assets {
             };
             // On error, resolve anyway — the renderer falls back to flat colors.
             img.onerror = () => resolve();
-            img.src = url;
+            img.src = inlined?.[key] ?? url;
           }),
       ),
     );

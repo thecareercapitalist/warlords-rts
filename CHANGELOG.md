@@ -6,6 +6,20 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.113.0 — Portable build + offline single-file _(2026-06-07)_
+- Fixed "stuck on Loading Warlords…" when opening the build directly: the
+  production bundle now uses **relative asset paths** (`base: "./"`), so it works
+  from `npm run preview`, a static host, or any subpath — not just the server root.
+- Added **`npm run build:offline`** → generates a self-contained **`Warlords.html`**
+  at the repo root (bundled JS inlined as an inline module, terrain tiles inlined
+  as base64). It runs by **double-click** with no server. `Assets.loadAll` now
+  prefers inlined `window.__TILES` when present (guarded; no change to dev/normal
+  builds). Verified: the offline file boots clean over http (loading overlay
+  hidden, no console errors, production bundle confirmed).
+- README "Run it" now explains the launcher, `preview`, and the offline file, and
+  warns that double-clicking `dist/index.html` can't work (browsers block ES
+  modules over `file://`).
+
 ## v0.112.0 — Temple heal ring when selected _(2026-06-07)_
 - Selecting a **Temple** now shows its **green heal-aura ring** (matching the Guard
   Tower's range ring on selection), so you can see its coverage at any time, not
