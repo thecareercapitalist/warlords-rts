@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.30.0 — Cancel queued unit _(2026-06-07)_
+- A producing building now shows a **Cancel** button (`C`) that cancels the last
+  queued unit and refunds its cost — the unit-queue counterpart to building
+  cancel. Verified headlessly: cancelling refunds 90g per footman and clears the
+  queue/timer.
+
 ## v0.29.0 — Production progress bar _(2026-06-07)_
 - A building training a unit now shows an ember progress bar above it (filled by
   productionTimer/buildTime), so you can see how close the next unit is at a

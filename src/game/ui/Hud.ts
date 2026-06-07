@@ -11,6 +11,7 @@ export type HudAction =
   | { type: "build"; kind: BuildingKind }
   | { type: "train"; kind: UnitKind }
   | { type: "cancel" }
+  | { type: "cancelUnit" }
   | { type: "stop" };
 
 interface Button {
@@ -119,6 +120,17 @@ export class Hud {
           enabled: techOk && p.gold >= d.costGold && p.wood >= d.costWood,
         });
       });
+      // Cancel the last queued unit (refund) when something is training.
+      if (prod.queue.length > 0) {
+        this.buttons.push({
+          rect: place(prod.def.produces.length),
+          label: "Cancel",
+          sub: `queue ${prod.queue.length}`,
+          hotkey: "C",
+          action: { type: "cancelUnit" },
+          enabled: true,
+        });
+      }
       return;
     }
 

@@ -158,6 +158,21 @@ export function enqueueUnit(world: World, b: Building, kind: UnitKind): string |
   return null;
 }
 
+/**
+ * Cancel the most-recently-queued unit at a building and refund its cost. The
+ * in-progress unit (index 0) is preserved unless it's the only one queued.
+ */
+export function cancelQueuedUnit(world: World, b: Building): boolean {
+  if (b.queue.length === 0) return false;
+  const kind = b.queue.pop()!;
+  const def = UNIT_DEFS[kind];
+  const p = world.player(b.playerId);
+  p.gold += def.costGold;
+  p.wood += def.costWood;
+  if (b.queue.length === 0) b.productionTimer = 0;
+  return true;
+}
+
 /** Supply already committed to in-progress production queues. */
 function queuedSupply(world: World, playerId: number): number {
   let s = 0;

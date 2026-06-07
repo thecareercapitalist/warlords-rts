@@ -19,7 +19,7 @@ import { tileCenter, toTile, normalizeRect, clamp } from "./util/math.ts";
 import { updateMovement } from "./systems/movement.ts";
 import { updateGather } from "./systems/gather.ts";
 import { updateCombat } from "./systems/combat.ts";
-import { updateProduction, enqueueUnit } from "./systems/production.ts";
+import { updateProduction, enqueueUnit, cancelQueuedUnit } from "./systems/production.ts";
 import { placeBuilding, canPlace, cancelBuilding } from "./systems/placement.ts";
 import {
   orderMove,
@@ -633,6 +633,12 @@ export class Game {
       if (!worker) return;
       this.builder = worker;
       this.buildMode = action.kind;
+      return;
+    }
+    if (action.type === "cancelUnit") {
+      const b = this.selBuildings.find((b) => b.def.produces.length > 0 && b.queue.length > 0);
+      if (b) cancelQueuedUnit(this.world, b);
+      this.rebuildHudButtons();
       return;
     }
     if (action.type === "train") {
