@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.98.0 — Enemy worker tool (faction set complete) _(2026-06-07)_
+- The enemy **peon** now wields a crude dark bone pick vs the human's wood-handled
+  steel tool — completing distinct enemy silhouettes across **every** unit (worker,
+  footman/grunt, archer, knight) plus buildings. Verified post-build via direct
+  draw calls: all four unit types differ enemy-vs-friendly (peon 181, footman 359,
+  archer 559, knight 509 px), retiring earlier verification doubt.
+
 ## v0.97.0 — Enemy banner + verify-order fix _(2026-06-07)_
 - Enemy **buildings now fly a ragged forked (swallowtail) pennant** vs the human's
   clean triangular one — extending faction identity onto structures. Verified
