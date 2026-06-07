@@ -6,6 +6,21 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.114.0 — Real building structures (no more glyph blocks) _(2026-06-07)_
+- Replaced the flat "colored diamond + 2-letter glyph" placeholders with proper
+  **raised, code-drawn isometric structures** for Farm, Barracks, Sawmill, Temple,
+  and Town Hall: extruded stone walls (lit/shadowed faces, inked outlines) plus a
+  per-building roof and emblem —
+  - **Farm/Barracks:** pitched gable roof (thatch / timber); Barracks adds an arched
+    doorway + crossed-blades, Farm a chimney with an ember.
+  - **Sawmill:** plank roof with a toothed circular saw blade + a log pile.
+  - **Temple:** pale-stone columns, a tall spire, and a glowing arched window.
+  - **Town Hall:** slate keep with a crenellated parapet (merlons) + hearth glow.
+  Glyph labels now only show while a building is under construction. Verified by
+  direct-render pixel sampling (the preview window here is 15px wide, so live
+  screenshots aren't possible): all five render a raised mass with distinct roof
+  colors and no errors; temple spire-glow confirmed.
+
 ## v0.113.0 — Portable build + offline single-file _(2026-06-07)_
 - Fixed "stuck on Loading Warlords…" when opening the build directly: the
   production bundle now uses **relative asset paths** (`base: "./"`), so it works

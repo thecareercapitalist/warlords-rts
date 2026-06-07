@@ -349,26 +349,16 @@ export class Renderer {
       this.drawForge(center);
     } else if (b.kind === "wall" && b.state === "complete") {
       this.drawWall(center);
+    } else if (b.state === "complete") {
+      // Raised, code-drawn isometric structure (walls + roof + per-kind feature).
+      this.drawStructure(b, corners, center);
     } else {
-      // A warm, flickering hearth window on the completed Town Hall — home-fire
-      // glow at the heart of the base, against the gloom.
-      if (b.kind === "townhall" && b.state === "complete") {
-        const z = this.cam.zoom;
-        const glow = 0.5 + 0.35 * Math.abs(Math.sin(this.now * 3 + center.x * 0.08));
-        ctx.fillStyle = `rgba(255,150,55,${glow.toFixed(3)})`;
-        ctx.fillRect(center.x - 4.5 * z, center.y + 3 * z, 9 * z, 7 * z);
-        ctx.fillStyle = `rgba(255,226,150,${(glow * 0.85).toFixed(3)})`;
-        ctx.fillRect(center.x - 2 * z, center.y + 4.4 * z, 4 * z, 4 * z);
-      }
+      // Under construction: a glyph label reads over the scaffolding.
       ctx.fillStyle = "rgba(255,255,255,0.92)";
       ctx.font = `bold ${Math.floor(16 * this.cam.zoom)}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      // Town Hall glyph nudges up so the hearth window below stays clear.
-      const glyphY = b.kind === "townhall" && b.state === "complete"
-        ? center.y - 6 * this.cam.zoom
-        : center.y;
-      ctx.fillText(b.def.glyph, center.x, glyphY);
+      ctx.fillText(b.def.glyph, center.x, center.y);
     }
 
     // Team banner on a pole at the top vertex — clear ownership cue.
@@ -485,6 +475,190 @@ export class Renderer {
 
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
+    }
+  }
+
+  /**
+   * A raised isometric structure on a building's footprint: extruded stone walls
+   * plus a per-kind roof and emblem. Reads as a real building at small scale,
+   * not a labeled tile. `corners` are the footprint diamond [N, E, S, W].
+   */
+  private drawStructure(
+    b: import("../entities/Building.ts").Building,
+    corners: Vec2[],
+    center: Vec2,
+  ): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    const [N, E, S, W] = corners;
+    // Wall height + roof palette per building kind.
+    const cfg: Record<string, { wall: number; roof: string; roofHi: string }> = {
+      farm: { wall: 13, roof: "#8a6a38", roofHi: "#a8854a" }, // thatch
+      barracks: { wall: 19, roof: "#5b4631", roofHi: "#6f5640" }, // timber
+      sawmill: { wall: 16, roof: "#6a5436", roofHi: "#806746" }, // plank
+      temple: { wall: 24, roof: "#7d776a", roofHi: "#9a9384" }, // pale stone
+      townhall: { wall: 27, roof: "#3f3a32", roofHi: "#564f43" }, // slate keep
+    };
+    const c = cfg[b.kind] ?? { wall: 16, roof: "#5b5346", roofHi: "#6e6555" };
+    const h = c.wall * z;
+    const up = (p: Vec2): Vec2 => ({ x: p.x, y: p.y - h });
+    const Nu = up(N);
+    const Eu = up(E);
+    const Su = up(S);
+    const Wu = up(W);
+
+    const quad = (a: Vec2, bb: Vec2, cc: Vec2, dd: Vec2, fill: string): void => {
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(bb.x, bb.y);
+      ctx.lineTo(cc.x, cc.y);
+      ctx.lineTo(dd.x, dd.y);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = Math.max(1, 1.2 * z);
+      ctx.stroke();
+    };
+
+    // The two viewer-facing walls (SW: W→S, SE: S→E). Left lit, right shadowed.
+    quad(W, S, Su, Wu, "#534a3c");
+    quad(S, E, Eu, Su, "#39342b");
+
+    // Roof: flat top diamond as a base, then a kind-specific cap on top.
+    quad(Nu, Eu, Su, Wu, c.roof);
+    const rcx = center.x;
+    const rcy = center.y - h; // roof-plane center (screen)
+    const half = (Math.max(...corners.map((p) => p.x)) - Math.min(...corners.map((p) => p.x))) / 2;
+
+    ctx.lineJoin = "round";
+    if (b.kind === "farm" || b.kind === "barracks") {
+      // Gable roof: a ridge running N–S, raised; two slopes meet at it. Each
+      // slope is the eave path (N→W/E→S) closed up over the raised ridge.
+      const ridge = 9 * z;
+      const ridgeN = { x: Nu.x, y: Nu.y - ridge };
+      const ridgeS = { x: Su.x, y: Su.y - ridge };
+      const slope = (eave: Vec2, fill: string): void => {
+        ctx.beginPath();
+        ctx.moveTo(Nu.x, Nu.y);
+        ctx.lineTo(eave.x, eave.y);
+        ctx.lineTo(Su.x, Su.y);
+        ctx.lineTo(ridgeS.x, ridgeS.y);
+        ctx.lineTo(ridgeN.x, ridgeN.y);
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = "#15110d";
+        ctx.lineWidth = Math.max(1, 1.2 * z);
+        ctx.stroke();
+      };
+      slope(Wu, c.roofHi); // west slope, lit
+      slope(Eu, c.roof); // east slope, shadowed
+      // Ridge beam.
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = Math.max(1, 1.4 * z);
+      ctx.beginPath();
+      ctx.moveTo(ridgeN.x, ridgeN.y);
+      ctx.lineTo(ridgeS.x, ridgeS.y);
+      ctx.stroke();
+      if (b.kind === "barracks") {
+        // Dark arched doorway on the front (south) wall + crossed-blades mark.
+        ctx.fillStyle = "#1c1812";
+        ctx.beginPath();
+        ctx.ellipse(rcx, S.y - 5 * z, 4 * z, 6 * z, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#cdb27a";
+        ctx.lineWidth = Math.max(1, 1.3 * z);
+        ctx.beginPath();
+        ctx.moveTo(rcx - 4 * z, rcy - 3 * z);
+        ctx.lineTo(rcx + 4 * z, rcy + 3 * z);
+        ctx.moveTo(rcx + 4 * z, rcy - 3 * z);
+        ctx.lineTo(rcx - 4 * z, rcy + 3 * z);
+        ctx.stroke();
+      } else {
+        // Farm: a little chimney with a warm ember glow.
+        ctx.fillStyle = "#3a2f24";
+        ctx.fillRect(rcx + half * 0.3, rcy - ridge - 5 * z, 3 * z, 7 * z);
+        ctx.fillStyle = "rgba(255,150,55,0.8)";
+        ctx.fillRect(rcx + half * 0.3, rcy - ridge - 6 * z, 3 * z, 2 * z);
+      }
+    } else if (b.kind === "temple") {
+      // Pale columns on the front + a tall spire with an ember-lit window.
+      ctx.strokeStyle = "#b8b1a0";
+      ctx.lineWidth = Math.max(1, 2 * z);
+      for (const fxr of [-0.5, 0, 0.5]) {
+        const px = rcx + fxr * half * 0.8;
+        ctx.beginPath();
+        ctx.moveTo(px, S.y - 1 * z);
+        ctx.lineTo(px, rcy + 2 * z);
+        ctx.stroke();
+      }
+      // Spire.
+      const spireH = 16 * z;
+      ctx.beginPath();
+      ctx.moveTo(rcx, rcy - spireH);
+      ctx.lineTo(rcx - 5 * z, rcy);
+      ctx.lineTo(rcx + 5 * z, rcy);
+      ctx.closePath();
+      ctx.fillStyle = c.roofHi;
+      ctx.fill();
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = Math.max(1, 1.2 * z);
+      ctx.stroke();
+      // Glowing arched window.
+      const glow = 0.55 + 0.3 * Math.abs(Math.sin(this.now * 2 + center.x * 0.05));
+      ctx.fillStyle = `rgba(255,170,70,${glow.toFixed(3)})`;
+      ctx.beginPath();
+      ctx.ellipse(rcx, rcy - spireH * 0.45, 2.2 * z, 3.4 * z, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (b.kind === "townhall") {
+      // Crenellated parapet (merlons) around the roof rim + a hearth window.
+      ctx.fillStyle = c.roofHi;
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = Math.max(1, 1 * z);
+      const merlons = 5;
+      for (let i = 0; i <= merlons; i++) {
+        const t = i / merlons;
+        // Along the front-left edge (Wu→Su) and front-right (Su→Eu).
+        const lx = Wu.x + (Su.x - Wu.x) * t;
+        const ly = Wu.y + (Su.y - Wu.y) * t;
+        const rx = Su.x + (Eu.x - Su.x) * t;
+        const ry = Su.y + (Eu.y - Su.y) * t;
+        for (const [mx, my] of [[lx, ly], [rx, ry]]) {
+          ctx.fillRect(mx - 1.6 * z, my - 5 * z, 3.2 * z, 5 * z);
+          ctx.strokeRect(mx - 1.6 * z, my - 5 * z, 3.2 * z, 5 * z);
+        }
+      }
+      // Warm flickering hearth window on the front wall.
+      const glow = 0.5 + 0.35 * Math.abs(Math.sin(this.now * 3 + center.x * 0.08));
+      ctx.fillStyle = `rgba(255,150,55,${glow.toFixed(3)})`;
+      ctx.fillRect(rcx - 4.5 * z, S.y - 9 * z, 9 * z, 7 * z);
+      ctx.fillStyle = `rgba(255,226,150,${(glow * 0.85).toFixed(3)})`;
+      ctx.fillRect(rcx - 2 * z, S.y - 7.6 * z, 4 * z, 4 * z);
+    } else if (b.kind === "sawmill") {
+      // A big circular saw blade on the roof + a stacked log pile in front.
+      const r = 6 * z;
+      ctx.fillStyle = "#9aa0a6";
+      ctx.beginPath();
+      ctx.arc(rcx - half * 0.2, rcy - 2 * z, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#15110d";
+      ctx.lineWidth = Math.max(1, 1.2 * z);
+      ctx.stroke();
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2;
+        ctx.moveTo(rcx - half * 0.2, rcy - 2 * z);
+        ctx.lineTo(rcx - half * 0.2 + Math.cos(a) * r, rcy - 2 * z + Math.sin(a) * r);
+      }
+      ctx.stroke();
+      // Log pile (front).
+      ctx.fillStyle = "#7a5a32";
+      for (const [dx, dy] of [[-3, 0], [0, 0], [3, 0], [-1.5, -2.4], [1.5, -2.4]]) {
+        ctx.beginPath();
+        ctx.arc(rcx + half * 0.35 + dx * z, S.y - 3 * z + dy * z, 1.6 * z, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
