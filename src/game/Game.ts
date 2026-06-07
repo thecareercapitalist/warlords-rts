@@ -231,6 +231,11 @@ export class Game {
       if (e.type === "projectile") {
         this.effects.spawnProjectile(e.from, e.to);
         this.effects.spawnImpact(e.from.x, e.from.y); // muzzle flash at the shooter
+        if (e.heavy) {
+          // Siege shot lands with weight: a burst at the impact + a jolt.
+          this.effects.spawnImpact(e.to.x, e.to.y);
+          this.shake = Math.max(this.shake, 4);
+        }
       }
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);

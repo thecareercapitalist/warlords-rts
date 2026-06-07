@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.78.0 — Siege impact feel _(2026-06-07)_
+- A Catapult's shot now **lands with weight**: an impact burst at the target plus a
+  screen-shake jolt, so siege reads differently from an arrow. Threaded a `heavy`
+  flag through the projectile event. Verified headlessly: a catapult hit drives
+  shake to 4 while an archer's hit leaves it at 0.
+
 ## v0.77.0 — AI fields catapults _(2026-06-07)_
 - Once the AI owns a **Forge** (and has the gold/wood), it now mixes **Catapults**
   into its army rotation alongside footmen/archers/knights — so it can siege the

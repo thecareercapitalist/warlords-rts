@@ -165,9 +165,10 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       u.aim = { x: c.x, y: c.y };
       t.hitFlash = 0.12;
       const ranged = u.def.attackRange > 1;
+      const heavy = (u.def.siegeMult ?? 1) > 1; // siege engines lob a weighty shot
       world.events.push({ type: "attack", ranged });
       if (ranged) {
-        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y } });
+        world.events.push({ type: "projectile", from: { x: u.pos.x, y: u.pos.y }, to: { x: c.x, y: c.y }, heavy });
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
       const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;
