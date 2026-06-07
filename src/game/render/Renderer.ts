@@ -245,13 +245,32 @@ export class Renderer {
     ctx.stroke();
 
     if (b.state !== "complete") {
+      const z = this.cam.zoom;
       ctx.save();
       poly();
       ctx.clip();
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
       const bottomY = Math.max(...corners.map((c) => c.y));
-      const h = (bottomY - topY) * (1 - b.construction);
-      ctx.fillRect(minX, topY, maxX - minX, h);
+      // The structure "rises" from the bottom: dark unbuilt region up top.
+      const builtY = bottomY - (bottomY - topY) * b.construction;
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      ctx.fillRect(minX, topY, maxX - minX, builtY - topY);
+      // Wooden scaffolding over the unbuilt region: horizontal beams + poles.
+      ctx.strokeStyle = "#6b4a2a";
+      ctx.lineWidth = Math.max(1.5, 2 * z);
+      for (let i = 1; i <= 3; i++) {
+        const yy = topY + (builtY - topY) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(minX, yy);
+        ctx.lineTo(maxX, yy);
+        ctx.stroke();
+      }
+      for (const fx of [0.3, 0.7]) {
+        const px = minX + (maxX - minX) * fx;
+        ctx.beginPath();
+        ctx.moveTo(px, topY);
+        ctx.lineTo(px, builtY);
+        ctx.stroke();
+      }
       ctx.restore();
     }
 

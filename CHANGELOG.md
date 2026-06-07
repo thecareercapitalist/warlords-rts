@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.33.0 — Construction scaffolding _(2026-06-07)_
+- Buildings under construction now visibly **rise from the bottom** with wooden
+  scaffold beams and poles over the unbuilt portion, instead of a plain dark
+  fill — a clearer, more characterful "under construction" cue. Verified
+  headlessly: a 30%-built barracks shows the dark unbuilt overlay plus a wood
+  scaffold beam.
+
 ## v0.32.0 — Jump-to-base hotkey _(2026-06-07)_
 - Press `Space` (rebindable) to snap the camera to your town hall — or to the
   latest attack location while you're under assault. Space is prevented from
