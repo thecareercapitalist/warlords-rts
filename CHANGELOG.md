@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.41.0 — Tower range ring _(2026-06-07)_
+- Selecting a Guard Tower (or any defensive building) now shows its **attack
+  range** as a dashed ember ring (iso-squashed to match the ground plane), so you
+  can plan coverage and overlap. Verified headlessly: the ring renders for a
+  selected tower but not for a selected farm.
+
 ## v0.40.0 — Guard Tower _(2026-06-07)_
 - New defensive building: the **Guard Tower** (`T`, 120g/40w, 1×1) auto-fires
   arrows at the nearest enemy unit within 6 tiles — finally a way to fortify
