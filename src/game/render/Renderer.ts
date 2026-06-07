@@ -279,6 +279,23 @@ export class Renderer {
     ctx.strokeStyle = "#15110d";
     ctx.lineWidth = 2;
     ctx.stroke();
+    // Rim light on the upper edges, shadow on the lower edges — painted depth.
+    // corners: [0]=top, [1]=right, [2]=bottom, [3]=left.
+    const rimW = Math.max(1, 1.5 * this.cam.zoom);
+    ctx.strokeStyle = "rgba(255,244,214,0.4)";
+    ctx.lineWidth = rimW;
+    ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+    ctx.lineTo(corners[0].x, corners[0].y);
+    ctx.lineTo(corners[1].x, corners[1].y);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(0,0,0,0.4)";
+    ctx.lineWidth = rimW;
+    ctx.beginPath();
+    ctx.moveTo(corners[3].x, corners[3].y);
+    ctx.lineTo(corners[2].x, corners[2].y);
+    ctx.lineTo(corners[1].x, corners[1].y);
+    ctx.stroke();
 
     if (b.state !== "complete") {
       const z = this.cam.zoom;

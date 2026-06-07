@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.54.0 — Building rim light _(2026-06-07)_
+- Buildings now carry the same painted depth as units: a **warm rim light** on
+  their upper edges and a **shadow** on the lower edges. Verified headlessly: a
+  building's upper edge (lum 268) is far brighter than its shadowed lower edge
+  (34).
+
 ## v0.53.0 — Unit rim light _(2026-06-07)_
 - Units now get a **warm rim light** along their upper-left edge and a soft shadow
   on the lower-right, for the dramatic top-lit, painted look the North Star calls
