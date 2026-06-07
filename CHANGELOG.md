@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.97.0 — Enemy banner + verify-order fix _(2026-06-07)_
+- Enemy **buildings now fly a ragged forked (swallowtail) pennant** vs the human's
+  clean triangular one — extending faction identity onto structures. Verified
+  headlessly (post-build): `drawBuilding` rendered enemy-vs-friendly differs 234 px
+  (the banner is the only isEnemy-dependent draw for a full-HP building).
+- Process fix: confirmed the preview serves the **built bundle**, so verification
+  now runs **after `npm run build`**, not before. (No game-behavior change.)
+
 ## v0.96.0 — Enemy archer bone bow _(2026-06-07)_
 - The enemy **archer** now carries a longer, pale **bone recurve** instead of the
   human wooden bow — completing the enemy faction's combat silhouette set (cleaver
