@@ -27,6 +27,7 @@ const COMBAT_KINDS: UnitKind[] = ["footman", "grunt", "archer"];
 export class AIController {
   private timer = 0;
   private attacking = false;
+  private wavesSent = 0; // each launched wave raises the bar for the next
   private trainTick = 0; // rotates the mixed-army unit choice
 
   constructor(private readonly playerId: number) {}
@@ -234,7 +235,10 @@ export class AIController {
       if (fighters.length < 2) this.attacking = false;
       return;
     }
-    if (fighters.length >= ATTACK_ARMY_SIZE) {
+    // Each wave the AI commits raises the muster threshold for the next, so its
+    // attacks grow larger and scarier as the game wears on (capped).
+    const threshold = ATTACK_ARMY_SIZE + Math.min(this.wavesSent * 2, 8);
+    if (fighters.length >= threshold) {
       const target = this.findEnemyTarget(world);
       if (target) {
         // Hold a small home guard back; send the rest on the wave. The guards
@@ -252,6 +256,7 @@ export class AIController {
         }
         for (const f of wave) orderAttackMove(world, f, target);
         this.attacking = true;
+        this.wavesSent++;
       }
     }
   }

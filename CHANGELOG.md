@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.109.0 — Escalating AI attack waves _(2026-06-07)_
+- Each attack wave the AI commits now **raises the muster threshold for the next**
+  (6 → 8 → 10 … capped at 14), so its assaults grow larger and more dangerous as a
+  game drags on instead of staying a steady trickle of six. Verified headlessly:
+  with 0 waves sent it attacks at 6 fighters; after 2 waves it holds until 10
+  (won't launch at 8).
+
 ## v0.108.0 — Temple heal-radius preview _(2026-06-07)_
 - Placing a **Temple** now shows its **green heal-aura ring** (like the Guard
   Tower's range ring), so you can position it to cover your front line before
