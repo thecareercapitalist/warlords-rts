@@ -31,6 +31,8 @@ for (const t of tiles) {
 }
 // Building roof sprite sheet (Assets reads window.__TILES.roofs when present).
 tileData.roofs = `data:image/png;base64,${readFileSync(resolve(root, "public", "buildings-roofs.png")).toString("base64")}`;
+// Generated unit sprite sheet (Assets reads window.__TILES.units when present).
+tileData.units = `data:image/png;base64,${readFileSync(resolve(root, "public", "gen_units.png")).toString("base64")}`;
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");

@@ -958,10 +958,17 @@ export class Renderer {
       ctx.stroke();
     }
 
-    // --- Body: a small figure (head + torso + legs) instead of a labeled disc. ---
+    // Prefer a generated sprite (Pixelcut). Fall back to the code-art figure.
+    const sprite = this.assets.unitSprite(u.kind);
     const pal = UNIT_BODY[u.kind] ?? { tunic: "#6b5e48", head: "#c9a06a" };
     const ink = "#15110d";
-    if (u.kind === "catapult") {
+    if (sprite) {
+      const cw = (sprite as HTMLCanvasElement).width;
+      const ch = (sprite as HTMLCanvasElement).height;
+      const sh = r * 3.3; // sprite height relative to unit radius
+      const sw = sh * (cw / ch);
+      ctx.drawImage(sprite, bx - sw / 2, by + r * 0.55 - sh, sw, sh); // feet at base ring
+    } else if (u.kind === "catapult") {
       this.drawSiegeEngine(bx, by, r);
     } else {
       const he = r * 0.46; // head radius
@@ -1018,7 +1025,8 @@ export class Renderer {
       }
     }
 
-    // Per-kind weapon silhouette — read a unit's role by shape, not just letter.
+    // Per-kind weapon silhouette (code-art only; generated sprites include weapons).
+    if (!sprite) {
     ctx.lineWidth = Math.max(1, 1.5 * z);
     if (u.kind === "archer") {
       // Human: warm wooden bow. Enemy: a longer, pale bone recurve.
@@ -1090,6 +1098,7 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(bx + r * 0.7, by - r * 0.85, 3 * z, 0, Math.PI * 2);
       ctx.fill();
+    }
     }
 
     // Hold-position stance: a steel-blue anchoring bracket beneath the unit.

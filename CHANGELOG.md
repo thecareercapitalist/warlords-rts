@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.117.0 — Generated unit sprites (Pixelcut) _(2026-06-07)_
+- Peon, Footman, Archer, and Knight now render as **real generated gothic sprites**
+  (Pixelcut / Nano-Banana, one 2×2 sheet). The loader magenta-keys the flat
+  background and slices each figure to a tight transparent sprite; `drawUnit` blits
+  it, feet anchored to the team base ring (ownership stays on the ring; the sprite
+  is faction-neutral). Code-art figures remain the fallback (and still draw the
+  catapult). Verified in-game via screenshot (`screenshots/units_sprited.png`):
+  all four sprites load, slice, and render with correct team rings.
+
 ## v0.116.0 — Unit figures (code-art, fallback) _(2026-06-07)_
 - Units now draw as small **figures** (head + torso + legs, hooded) with the team
   colour on the base ring and a kind-specific weapon, replacing the disc + letter

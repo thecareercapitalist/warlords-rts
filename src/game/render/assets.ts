@@ -17,6 +17,66 @@ const SHEET_URLS: Record<SheetKey, string> = {
   roofs: "/buildings-roofs.png",
 };
 
+// Generated (Pixelcut) unit sheet: a 2×2 grid on flat magenta, sliced into four
+// trimmed sprites. Cell order matches the generation prompt.
+const UNIT_SHEET_URL = "/gen_units.png";
+const UNIT_SHEET_ORDER = ["peon", "footman", "archer", "knight"];
+
+/** True for the magenta/pink chroma-key backdrop (incl. tinted soft shadows). */
+function isMagenta(r: number, g: number, b: number): boolean {
+  return r - g > 40 && b - g > 25;
+}
+
+/** Magenta-key a generated sheet and slice its 2×2 grid into trimmed sprites. */
+function sliceUnitSheet(img: HTMLImageElement): Map<string, CanvasImageSource> {
+  const out = new Map<string, CanvasImageSource>();
+  const W = img.width;
+  const H = img.height;
+  const full = document.createElement("canvas");
+  full.width = W;
+  full.height = H;
+  const fx = full.getContext("2d");
+  if (!fx) return out;
+  fx.drawImage(img, 0, 0);
+  let data: ImageData;
+  try {
+    data = fx.getImageData(0, 0, W, H);
+  } catch {
+    return out;
+  }
+  const p = data.data;
+  for (let i = 0; i < p.length; i += 4) {
+    if (isMagenta(p[i], p[i + 1], p[i + 2])) p[i + 3] = 0;
+  }
+  fx.putImageData(data, 0, 0);
+  const hw = Math.floor(W / 2);
+  const hh = Math.floor(H / 2);
+  const quads: [number, number][] = [[0, 0], [hw, 0], [0, hh], [hw, hh]];
+  UNIT_SHEET_ORDER.forEach((kind, idx) => {
+    const [qx, qy] = quads[idx];
+    let minx = 1e9, miny = 1e9, maxx = -1, maxy = -1;
+    for (let y = qy; y < qy + hh; y++) {
+      for (let x = qx; x < qx + hw; x++) {
+        if (p[(y * W + x) * 4 + 3] > 40) {
+          if (x < minx) minx = x;
+          if (x > maxx) maxx = x;
+          if (y < miny) miny = y;
+          if (y > maxy) maxy = y;
+        }
+      }
+    }
+    if (maxx < 0) return;
+    const w = maxx - minx + 1;
+    const h = maxy - miny + 1;
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    c.getContext("2d")?.drawImage(full, minx, miny, w, h, 0, 0, w, h);
+    out.set(kind, c);
+  });
+  return out;
+}
+
 /** Knock out a sprite sheet's flat background colour (sampled from a corner). */
 function chromaKey(img: HTMLImageElement): CanvasImageSource {
   const cv = document.createElement("canvas");
@@ -48,6 +108,7 @@ function chromaKey(img: HTMLImageElement): CanvasImageSource {
 export class Assets {
   private images = new Map<TileKey, HTMLImageElement>();
   private sheets = new Map<SheetKey, CanvasImageSource>();
+  private unitSprites = new Map<string, CanvasImageSource>();
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -57,6 +118,11 @@ export class Assets {
   /** A loaded, chroma-keyed sprite sheet (or undefined if it failed to load). */
   sheet(key: SheetKey): CanvasImageSource | undefined {
     return this.sheets.get(key);
+  }
+
+  /** A trimmed, transparent generated unit sprite for a kind (or undefined). */
+  unitSprite(kind: string): CanvasImageSource | undefined {
+    return this.unitSprites.get(kind);
   }
 
   async loadAll(): Promise<void> {
@@ -78,6 +144,11 @@ export class Assets {
     for (const [key, url] of Object.entries(SHEET_URLS) as [SheetKey, string][]) {
       jobs.push(load(inlined?.[key] ?? url).then((img) => { if (img) this.sheets.set(key, chromaKey(img)); }));
     }
+    jobs.push(
+      load((inlined as Record<string, string> | undefined)?.units ?? UNIT_SHEET_URL).then((img) => {
+        if (img) this.unitSprites = sliceUnitSheet(img);
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }
