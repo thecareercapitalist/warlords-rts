@@ -45,17 +45,31 @@ interface Impact {
   dur: number;
 }
 
+interface Decal {
+  x: number;
+  y: number;
+  seed: number;
+  t: number;
+  dur: number;
+}
+
 export class Effects {
   readonly projectiles: Projectile[] = [];
   readonly deaths: DeathFx[] = [];
   readonly floaters: Floater[] = [];
   readonly collapses: Collapse[] = [];
   readonly impacts: Impact[] = [];
+  readonly decals: Decal[] = [];
 
   spawnImpact(x: number, y: number): void {
     // Cap so a big melee doesn't pile up thousands of sparks.
     if (this.impacts.length > 80) return;
     this.impacts.push({ x, y, seed: (x * 13 + y * 7) % 6.283, t: 0, dur: 0.18 });
+  }
+
+  spawnDecal(x: number, y: number): void {
+    if (this.decals.length > 120) this.decals.shift(); // cap oldest out
+    this.decals.push({ x, y, seed: (x * 17 + y * 11) % 6.283, t: 0, dur: 7 });
   }
 
   spawnFloater(x: number, y: number, text: string, color: string): void {
@@ -97,6 +111,10 @@ export class Effects {
       this.impacts[i].t += dt;
       if (this.impacts[i].t >= this.impacts[i].dur) this.impacts.splice(i, 1);
     }
+    for (let i = this.decals.length - 1; i >= 0; i--) {
+      this.decals[i].t += dt;
+      if (this.decals[i].t >= this.decals[i].dur) this.decals.splice(i, 1);
+    }
   }
 
   clear(): void {
@@ -105,5 +123,6 @@ export class Effects {
     this.floaters.length = 0;
     this.collapses.length = 0;
     this.impacts.length = 0;
+    this.decals.length = 0;
   }
 }

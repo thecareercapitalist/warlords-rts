@@ -50,6 +50,7 @@ export class Renderer {
       ctx.translate(Math.sin(now * 53) * shake, Math.cos(now * 47) * shake);
     }
     this.drawTerrain(world, fog);
+    this.drawDecals(effects);
     this.drawFogOverlay(fog);
     if (state.buildPreview) this.drawBuildPreview(state.buildPreview);
     this.drawEntities(world, fog, humanId);
@@ -586,6 +587,26 @@ export class Renderer {
     ctx.strokeStyle = p.valid ? "#3cc85a" : "#dc3c3c";
     ctx.lineWidth = 2;
     ctx.stroke();
+  }
+
+  /** Ground stains left by the dead — a grim touch that fades over several seconds. */
+  private drawDecals(fx: Effects): void {
+    const ctx = this.ctx;
+    const z = this.cam.zoom;
+    for (const d of fx.decals) {
+      const k = d.t / d.dur;
+      const s = this.cam.worldToScreen(d.x, d.y);
+      ctx.globalAlpha = (1 - k) * 0.5;
+      ctx.fillStyle = "#2a0e0c"; // dark dried-blood / scorch
+      for (let i = 0; i < 4; i++) {
+        const a = d.seed + (i / 4) * Math.PI * 2;
+        const rr = (3 + ((i * 2.3 + d.seed) % 3)) * z;
+        ctx.beginPath();
+        ctx.ellipse(s.x + Math.cos(a) * 4 * z, s.y + Math.sin(a) * 2.2 * z, rr, rr * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
   }
 
   private drawEffects(fx: Effects): void {

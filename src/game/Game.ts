@@ -224,6 +224,7 @@ export class Game {
       if (e.type === "projectile") this.effects.spawnProjectile(e.from, e.to);
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
+        this.effects.spawnDecal(e.x, e.y); // lingering grimdark stain
         this.sfx.death();
         if (e.by === this.humanId) this.kills++;
       } else if (e.type === "collapse") {
