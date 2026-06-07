@@ -422,6 +422,28 @@ export class Renderer {
       ctx.fillRect(bx, yb, bw * Math.max(0, Math.min(1, frac)), 4);
     }
 
+    // Heavy damage: a rising smoke plume with an ember fleck.
+    if (b.state === "complete" && b.hp < b.def.maxHp * 0.35) {
+      const z = this.cam.zoom;
+      for (let i = 0; i < 3; i++) {
+        const ph = this.now * 0.8 + i * 2.1 + b.tile.x * 0.5;
+        const rise = (ph % 3) / 3; // 0..1 loop
+        const sx = center.x + Math.sin(ph * 1.7) * 6 * z;
+        const sy = topY - 4 * z - rise * 26 * z;
+        ctx.globalAlpha = (1 - rise) * 0.4;
+        ctx.fillStyle = "#3a342e";
+        ctx.beginPath();
+        ctx.arc(sx, sy, (3 + rise * 4) * z, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 0.7;
+      ctx.fillStyle = "#e88530";
+      ctx.beginPath();
+      ctx.arc(center.x + Math.sin(this.now * 3) * 5 * z, topY - 7 * z, 1.6 * z, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
     if (b.hp < b.def.maxHp || b.selected) {
       this.drawHpBar(minX, topY - 8, maxX - minX, b.hp / b.def.maxHp, !isEnemy);
     }

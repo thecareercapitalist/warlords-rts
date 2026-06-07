@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.63.0 — Damage smoke _(2026-06-07)_
+- Buildings below 35% HP now belch a **rising smoke plume with an ember fleck**,
+  so a base under siege visibly burns — clear damage feedback and grimdark decay.
+  Verified headlessly: a 20%-HP barracks shows ~433 px of smoke a full-HP one
+  doesn't.
+
 ## v0.62.0 — Build-preview range ring _(2026-06-07)_
 - Placing a Guard Tower now shows its **attack-range ring on the build preview**,
   so you can plan coverage and overlap before committing the spot. Verified
