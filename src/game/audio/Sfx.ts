@@ -98,6 +98,13 @@ export class Sfx {
     this.tone({ freq: 660, type: "square", dur: 0.04, gain: 0.18 });
   }
 
+  /** Soft two-note "unit ready" chime when a trained unit emerges. */
+  ready(): void {
+    if (!this.gate("ready", 90)) return;
+    this.tone({ freq: 700, type: "triangle", dur: 0.07, gain: 0.22 });
+    this.tone({ freq: 940, type: "triangle", dur: 0.1, gain: 0.22, delay: 0.06 });
+  }
+
   /** Triumphant rising chord on victory. */
   victory(): void {
     if (!this.gate("end", 2000)) return;

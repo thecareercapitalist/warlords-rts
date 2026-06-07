@@ -16,7 +16,8 @@ export type GameEvent =
   | { type: "attack"; ranged: boolean; heavy?: boolean }
   | { type: "damaged"; playerId: number; x: number; y: number }
   | { type: "gain"; playerId: number; x: number; y: number; kind: ResourceKind; amount: number }
-  | { type: "build" };
+  | { type: "build" }
+  | { type: "trained"; playerId: number };
 
 export class World {
   readonly map: TileMap;
