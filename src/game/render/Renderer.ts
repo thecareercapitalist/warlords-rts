@@ -991,7 +991,7 @@ export class Renderer {
       }
       const cw = (sprite as HTMLCanvasElement).width;
       const ch = (sprite as HTMLCanvasElement).height;
-      const sh = r * 6.6; // sprite height relative to unit radius (readable scale)
+      const sh = r * 13; // sprite height relative to unit radius (readable scale)
       const sw = sh * (cw / ch);
       const footY = by + r * 0.55;
       ctx.save();

@@ -6,6 +6,9 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.120.0 — Bigger units
+- Doubled the unit sprite scale again (6.6→13 × radius) per playtest feedback; troops now read clearly at the default play zoom.
+
 ## v0.119.0 — Sprite scale + facing polish _(2026-06-07)_
 - **Units are ~2× larger** (sprite height 3.3→6.6 × unit radius) so they're clearly
   readable next to buildings; building overhang trimmed 1.18→1.05 to rebalance the
