@@ -238,18 +238,26 @@ export class Hud {
     const p = world.player(humanId);
     this.attackPing = attackPing;
 
-    // Top resource bar — dark stone with an ember underline.
-    ctx.fillStyle = COLORS.uiPanel;
+    // Top resource bar — beveled dark stone with an ember underline.
+    const tg = ctx.createLinearGradient(0, 0, 0, 34);
+    tg.addColorStop(0, "#23211c");
+    tg.addColorStop(0.5, "#16140f");
+    tg.addColorStop(1, "#0c0b08");
+    ctx.fillStyle = tg;
     ctx.fillRect(0, 0, cam.viewW, 34);
+    ctx.fillStyle = "rgba(255,244,214,0.12)"; // top highlight
+    ctx.fillRect(0, 0, cam.viewW, 1);
     ctx.fillStyle = COLORS.uiEmber;
-    ctx.fillRect(0, 33, cam.viewW, 1.5);
+    ctx.fillRect(0, 33, cam.viewW, 2);
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(0, 35, cam.viewW, 2);
     ctx.font = "16px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     ctx.fillStyle = COLORS.uiGold;
-    ctx.fillText(`⛂ Gold ${p.gold}`, 16, 17);
+    ctx.fillText(`⛂ Gold ${Math.floor(p.gold)}`, 16, 17);
     ctx.fillStyle = COLORS.uiWood;
-    ctx.fillText(`🌲 Wood ${p.wood}`, 170, 17);
+    ctx.fillText(`🌲 Wood ${Math.floor(p.wood)}`, 170, 17);
     ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#c0492f" : COLORS.uiText;
     ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
     const idle = this.idleWorkerCount(world, humanId);
@@ -269,11 +277,39 @@ export class Hud {
       ctx.fillText(message, cam.viewW / 2, 17);
     }
 
-    // Bottom command bar — dark stone with an ember top edge.
-    ctx.fillStyle = COLORS.uiPanel;
-    ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, this.barRect.h);
+    // Bottom command bar — beveled dark stone with an ember top edge + a carved
+    // inset around the command-card area for a gothic console feel.
+    const by0 = this.barRect.y;
+    const bg = ctx.createLinearGradient(0, by0, 0, by0 + this.barRect.h);
+    bg.addColorStop(0, "#201d18");
+    bg.addColorStop(0.12, "#16140f");
+    bg.addColorStop(1, "#0b0a07");
+    ctx.fillStyle = bg;
+    ctx.fillRect(this.barRect.x, by0, this.barRect.w, this.barRect.h);
+    // Ember top edge with a thin highlight + shadow for a raised lip.
+    ctx.fillStyle = "rgba(255,244,214,0.10)";
+    ctx.fillRect(this.barRect.x, by0 - 1, this.barRect.w, 1);
     ctx.fillStyle = COLORS.uiEmber;
-    ctx.fillRect(this.barRect.x, this.barRect.y, this.barRect.w, 1.5);
+    ctx.fillRect(this.barRect.x, by0, this.barRect.w, 2);
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fillRect(this.barRect.x, by0 + 2, this.barRect.w, 3);
+    // Subtle vertical divider stones between minimap / info / command sections.
+    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    ctx.lineWidth = 1;
+    const dx1 = this.minimapRect.x + this.minimapRect.w + 14;
+    const dx2 = this.minimapRect.x + this.minimapRect.w + 222;
+    for (const dx of [dx1, dx2]) {
+      ctx.beginPath();
+      ctx.moveTo(dx, by0 + 12);
+      ctx.lineTo(dx, by0 + this.barRect.h - 12);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(255,244,214,0.06)";
+      ctx.beginPath();
+      ctx.moveTo(dx + 1, by0 + 12);
+      ctx.lineTo(dx + 1, by0 + this.barRect.h - 12);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    }
 
     this.renderMinimap(world, cam, humanId, fogVis);
     this.renderSelectionInfo(world, humanId, units, buildings);
@@ -407,8 +443,22 @@ export class Hud {
   private renderButtons(): void {
     const ctx = this.ctx;
     for (const b of this.buttons) {
-      ctx.fillStyle = b.enabled ? COLORS.uiBtn : COLORS.uiBtnDisabled;
-      ctx.fillRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);
+      const { x, y, w, h } = b.rect;
+      // Raised stone button: vertical gradient + top highlight + dark base.
+      const g = ctx.createLinearGradient(0, y, 0, y + h);
+      if (b.enabled) {
+        g.addColorStop(0, "#3a4150");
+        g.addColorStop(1, "#222730");
+      } else {
+        g.addColorStop(0, "#272a2f");
+        g.addColorStop(1, "#191b1f");
+      }
+      ctx.fillStyle = g;
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = "rgba(255,255,255,0.10)"; // top bevel
+      ctx.fillRect(x, y, w, 1.5);
+      ctx.fillStyle = "rgba(0,0,0,0.45)"; // bottom shade
+      ctx.fillRect(x, y + h - 2, w, 2);
       ctx.strokeStyle = b.enabled ? COLORS.uiEmber : COLORS.uiPanelEdge;
       ctx.lineWidth = 1;
       ctx.strokeRect(b.rect.x, b.rect.y, b.rect.w, b.rect.h);

@@ -6,6 +6,17 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.133.0 — UI polish + fixes _(2026-06-07)_
+- **Gold/Wood always show as integers** (floored on display) — no more
+  `1912.8000000…097` floating-point drift.
+- **Cooler HUD + menus:** the top resource bar and bottom command bar now use a
+  beveled stone gradient with an ember edge + highlight/shadow lips and section
+  dividers; command buttons are raised-stone (gradient + bevel + ember border);
+  the **pause menu** is reskinned (gradient panel, double ember/ink frame, titled
+  "⚔ Paused ⚔" with an underline, beveled buttons).
+- **Fixed HP-bar clipping:** tall building sprites (e.g. the Enclave) had their HP
+  bar drawn across the middle; it now sits above the actual sprite top.
+
 ## v0.132.0 — Spell system: Fireball, Freeze, mana, autocast _(2026-06-07)_
 - The Mage now has **mana** (120, regen 7/s; shown as a blue bar) and two spells:
   - **Fireball** (35 mana) — a targeted **area blast** (2-tile radius, 34 dmg) with

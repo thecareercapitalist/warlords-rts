@@ -597,7 +597,18 @@ export class Renderer {
 
     if (b.hp < b.def.maxHp || b.selected) {
       const bw = (maxX - minX) * 0.8;
-      this.drawHpBar((minX + maxX) / 2 - bw / 2, topY - 10, bw, b.hp / b.def.maxHp, !isEnemy);
+      // Place the bar above the actual sprite top (tall sprites rise well past the
+      // footprint), not at the footprint diamond — fixes the bar clipping the body.
+      let hpY = topY - 10;
+      if (bSprite) {
+        const cw = (bSprite as HTMLCanvasElement).width;
+        const ch = (bSprite as HTMLCanvasElement).height;
+        const maxY = Math.max(...corners.map((c) => c.y));
+        const dh = ch * ((maxX - minX) / cw) * 0.84;
+        const spriteTop = maxY - dh + (maxY - center.y) * 0.15;
+        hpY = spriteTop - 12;
+      }
+      this.drawHpBar((minX + maxX) / 2 - bw / 2, hpY, bw, b.hp / b.def.maxHp, !isEnemy);
     }
   }
 
