@@ -8,10 +8,50 @@ import { nearestWalkable, orderMove, orderGather, adjacentToBuilding } from "./o
 import { arrived } from "./movement.ts";
 
 const MAX_BUILDERS_SPEEDUP = 3;
+const REPAIR_RATE = 28; // HP/sec restored per assigned worker
+const REPAIR_GOLD_PER_HP = 0.2; // gold cost per HP repaired
 
 export function updateProduction(world: World, dt: number): void {
   updateConstruction(world, dt);
+  updateRepair(world, dt);
   updateQueues(world, dt);
+}
+
+// --- Repair ---------------------------------------------------------------
+// A worker assigned (buildTarget) to a COMPLETE but damaged friendly building
+// restores its HP over time for a trickle of gold. Stops when full or broke.
+
+function updateRepair(world: World, dt: number): void {
+  for (const b of world.buildings) {
+    if (b.dead || b.state !== "complete" || b.hp >= b.def.maxHp) continue;
+
+    let workers = 0;
+    for (const u of world.units) {
+      if (u.dead || u.buildTarget !== b || u.state !== "building") continue;
+      if (arrived(u) && adjacentToBuilding(u, b, 1)) workers++;
+    }
+    if (workers === 0) continue;
+
+    const p = world.player(b.playerId);
+    const need = b.def.maxHp - b.hp;
+    const byRate = REPAIR_RATE * Math.min(workers, MAX_BUILDERS_SPEEDUP) * dt;
+    const byGold = REPAIR_GOLD_PER_HP > 0 ? p.gold / REPAIR_GOLD_PER_HP : need;
+    const heal = Math.min(need, byRate, byGold);
+    if (heal <= 0) continue;
+
+    b.hp += heal;
+    p.gold -= heal * REPAIR_GOLD_PER_HP;
+
+    if (b.hp >= b.def.maxHp) {
+      b.hp = b.def.maxHp;
+      for (const u of world.units) {
+        if (u.buildTarget === b && u.state === "building") {
+          u.buildTarget = null;
+          u.state = "idle";
+        }
+      }
+    }
+  }
 }
 
 // --- Construction ---------------------------------------------------------

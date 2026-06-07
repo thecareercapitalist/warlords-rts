@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.13.0 — Building repair _(2026-06-07)_
+- Right-click a damaged friendly building with worker(s) selected to **repair**
+  it: assigned workers restore ~28 HP/sec each (up to 3) for a small gold cost
+  (0.2 gold/HP), stopping when full or out of gold and then returning to idle.
+  Verified headlessly (680→800 HP, 24 gold spent, worker released).
+
 ## v0.12.0 — Gothic HUD theming _(2026-06-07)_
 - Recolored the HUD to the art North Star: dark stone-brown panels, ember accent
   lines on the resource/command bars, ember-bordered command buttons, gold/ember

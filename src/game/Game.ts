@@ -388,18 +388,20 @@ export class Game {
     const tile = toTile(worldPt.x, worldPt.y);
     const node = this.world.map.at(tile.x, tile.y);
 
-    // Right-clicking one's own unfinished building sends workers to build it.
-    const buildSite =
-      target && target.etype === "building" && target.playerId === this.humanId &&
-      target.state !== "complete"
-        ? target
+    // Right-clicking one's own building with workers: build it if unfinished,
+    // or repair it if it's complete but damaged.
+    const ownBuilding =
+      target && target.etype === "building" && target.playerId === this.humanId ? target : null;
+    const workTarget =
+      ownBuilding && (ownBuilding.state !== "complete" || ownBuilding.hp < ownBuilding.def.maxHp)
+        ? ownBuilding
         : null;
 
     for (const u of this.selUnits) {
       if (u.playerId !== this.humanId) continue;
 
-      if (buildSite && u.def.canBuild) {
-        orderBuild(this.world, u, buildSite);
+      if (workTarget && u.def.canBuild) {
+        orderBuild(this.world, u, workTarget);
       } else if (target && target.playerId !== this.humanId) {
         orderAttack(this.world, u, target);
       } else if (u.def.canGather && node && node.resource > 0 &&

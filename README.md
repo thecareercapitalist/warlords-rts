@@ -43,6 +43,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Attack-move | Press `A`, then left-click a location |
 | Build (with a worker selected) | `F` Farm · `B` Barracks · `W` Sawmill · `E` Temple · `H` Town Hall, then click to place |
 | Help build / assign worker | Right-click an unfinished building with worker(s) selected |
+| Repair a building | Right-click a damaged friendly building with worker(s) selected |
 | Cancel a building (full refund) | Select the unfinished building, click Cancel (`C`) |
 | Stop | `S` |
 | Assign / recall control group | `Ctrl+1…9` to assign · `1…9` to recall |
