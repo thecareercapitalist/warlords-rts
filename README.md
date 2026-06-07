@@ -153,19 +153,26 @@ tagged `v0.3.0`→) has layered on a lot:
   Knights), **Forge** (+attack upgrade while it stands), **Guard Towers** (auto-
   firing defense). Cancel/refund for buildings *and* queued units.
 - **Combat depth:** armor (Knights shrug off part of each hit), **veterancy**
-  (kills → rank → +damage), projectiles, ranged towers.
+  (kills → rank → +damage, with a gold elite aura), projectiles, ranged towers,
+  and a Forge-gated **Catapult** siege unit (4× damage to buildings).
 - **Command suite:** control groups (Ctrl-assign / Shift-add / double-tap to
   center), drag-select, double-click select-all-of-type, select-army, idle-worker
   jump, formation move, **shift-click waypoint queues**, **patrol**, attack-move,
-  jump-to-base, rebindable keys, save/load.
-- **Game feel:** procedural Web-Audio SFX + victory/defeat stings, walk-bob, idle
-  breathing, gather-swing, banner flutter, construction scaffolding, hit sparks,
-  muzzle flashes, building collapse + camera shake, death decals, damage smoke,
-  rim-lit units & buildings, health-graded bars, under-attack screen pulse.
-- **Smarter AI:** balanced wood economy, mixed army (footmen/archers/knights),
-  defends its base, **workers flee raids**, **repairs damaged buildings**, and
-  spends surplus on Forges and Towers, and once it has a Forge it builds
-  **Catapults** to siege your base.
+  **hold-position stance**, jump-to-base, rebindable keys, save/load. Colored
+  move/attack-move destination rings.
+- **Game feel:** procedural Web-Audio SFX (incl. a deep siege thud + unit-ready
+  chime) + victory/defeat stings, walk-bob, idle breathing, gather-swing, banner
+  flutter, construction scaffolding, hit sparks, muzzle flashes, building collapse
+  + camera shake, death decals, damage smoke, Forge embers + Town Hall hearth glow,
+  Temple heal aura, rim-lit units & buildings, health-graded bars, under-attack
+  screen pulse.
+- **Faction identity:** the enemy host reads apart by silhouette (orcish cleavers,
+  bone bows, horned knights, bone tools, ragged banners) while staying
+  team-coloured — not a full recolour.
+- **Smarter AI:** balanced wood economy, mixed army (footmen/archers/knights/
+  catapults), defends its base, **workers flee raids**, **repairs** and **finishes
+  stalled buildings** (2 builders), keeps a small **home guard** during attack
+  waves, and spends surplus on Forges and Towers.
 
 ## What's intentionally not here (yet)
 

@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.102.0 — README accuracy refresh _(2026-06-07)_
+- Updated the README "What's here now" to match ~30 versions of additions:
+  Catapult siege unit, hold-position stance, colored move markers, Forge embers /
+  Town Hall hearth / Temple heal, veteran aura, the distinct enemy-faction
+  silhouettes, and the AI's home-guard / stalled-build handling. Keeps the front
+  door (and the loop's own reference) honest. No game-behavior change.
+
 ## v0.101.0 — Veteran aura _(2026-06-07)_
 - Battle-hardened units now carry a faint **gold halo ring** (brighter at rank 2),
   so your elites stand out in a packed melee — a selective ember-gold accent atop
