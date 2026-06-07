@@ -344,7 +344,8 @@ export class Hud {
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
       ctx.fillText(this.unitStatLine(u, forgeBonus), x, y + 38);
-      ctx.fillText(`State: ${u.state}`, x, y + 56);
+      const stance = this.stanceLabel(u);
+      ctx.fillText(stance ? `${u.state} · ${stance}` : `State: ${u.state}`, x, y + 56);
       if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 74);
       return;
     }
@@ -419,6 +420,13 @@ export class Hud {
     const rank = veterancyRank(u.kills);
     if (rank > 0) s += ` · Vet ${rank}`;
     return s;
+  }
+
+  /** Active stance label for a unit ("Holding" / "Patrolling"), or null. */
+  stanceLabel(u: Unit): string | null {
+    if (u.holdGround) return "Holding";
+    if (u.patrolA && u.patrolB) return "Patrolling";
+    return null;
   }
 
   /** "HP 240/360" — combined current/max health of a multi-unit selection. */

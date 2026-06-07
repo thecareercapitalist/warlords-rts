@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.92.0 — Stance in selection panel _(2026-06-07)_
+- A single selected unit's panel now appends its **stance** ("Holding" /
+  "Patrolling") to the state line, so orders are legible without watching the
+  field. Verified headlessly: stanceLabel returns null/Holding/Patrolling for
+  plain/held/patrolling units.
+
 ## v0.91.0 — Hold-stance indicator _(2026-06-07)_
 - Units on **Hold Position** now show a **steel-blue anchor bracket** beneath them,
   so you can see at a glance which troops are holding. Verified headlessly: toggling
