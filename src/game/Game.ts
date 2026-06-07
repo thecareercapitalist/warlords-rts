@@ -360,6 +360,24 @@ export class Game {
     if (ent) this.addToSelection(ent);
   }
 
+  /** Grid of destination points centered on `center` for a group move. */
+  private formationPoints(center: Vec2, n: number): Vec2[] {
+    if (n <= 1) return [{ ...center }];
+    const spacing = 26;
+    const cols = Math.ceil(Math.sqrt(n));
+    const rows = Math.ceil(n / cols);
+    const pts: Vec2[] = [];
+    for (let i = 0; i < n; i++) {
+      const cx = i % cols;
+      const cy = Math.floor(i / cols);
+      pts.push({
+        x: center.x + (cx - (cols - 1) / 2) * spacing,
+        y: center.y + (cy - (rows - 1) / 2) * spacing,
+      });
+    }
+    return pts;
+  }
+
   /** Select all idle workers and center the camera on one. */
   private selectIdleWorkers(): void {
     const idle = this.world.unitsOf(this.humanId).filter(
@@ -463,6 +481,17 @@ export class Game {
       ownBuilding && (ownBuilding.state !== "complete" || ownBuilding.hp < ownBuilding.def.maxHp)
         ? ownBuilding
         : null;
+
+    // Plain group move → spread into a loose grid so units don't pile on one tile.
+    const isEnemyTarget = !!(target && target.playerId !== this.humanId);
+    const isResource =
+      !!node && node.resource > 0 && (node.terrain === "forest" || node.terrain === "goldmine");
+    const movers = this.selUnits.filter((u) => u.playerId === this.humanId);
+    if (!workTarget && !isEnemyTarget && !isResource && movers.length > 1) {
+      const pts = this.formationPoints(worldPt, movers.length);
+      movers.forEach((u, i) => orderMove(this.world, u, pts[i]));
+      return;
+    }
 
     for (const u of this.selUnits) {
       if (u.playerId !== this.humanId) continue;

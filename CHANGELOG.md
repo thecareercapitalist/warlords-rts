@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.21.0 — Formation move _(2026-06-07)_
+- Right-clicking empty ground with several units selected now spreads them into a
+  centered grid instead of sending everyone to the exact same tile (where they'd
+  shove for position). Resource/attack/build commands are unaffected. Verified
+  headlessly: 5 units got 5 distinct destinations in a tidy grid.
+
 ## v0.20.0 — Idle-worker hotkey _(2026-06-07)_
 - Press `.` (rebindable) to select every idle worker and snap the camera to one —
   the staple for keeping your economy busy. Shows "No idle workers" when there are
