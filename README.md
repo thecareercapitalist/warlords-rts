@@ -48,7 +48,7 @@ You start with a Town Hall and 4 workers (auto-sent to mine gold).
 | Repair a building | Right-click a damaged friendly building with worker(s) selected |
 | Cancel a building (full refund) | Select the unfinished building, click Cancel (`C`) |
 | Stop | `S` |
-| Assign / recall control group | `Ctrl+1…9` to assign · `1…9` to recall |
+| Assign / recall control group | `Ctrl+1…9` to assign · `1…9` to recall (double-tap to center camera) |
 | Select idle workers | `.` (rebindable) |
 | Select whole army | `Q` (rebindable) |
 | Jump to base / latest attack | `Space` (rebindable) |

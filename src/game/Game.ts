@@ -54,6 +54,7 @@ export class Game {
   private selBuildings: Building[] = [];
   /** Ctrl+1..9 control groups → recall with 1..9. */
   private controlGroups = new Map<number, Unit[]>();
+  private lastRecall: { n: number; t: number } | null = null; // for double-tap-to-center
 
   private buildMode: BuildingKind | null = null;
   private builder: Unit | null = null;
@@ -750,6 +751,17 @@ export class Game {
     this.selBuildings = [];
     this.rebuildHudButtons();
     this.sfx.click();
+    // Double-tap the same group quickly → center the camera on it.
+    if (this.lastRecall && this.lastRecall.n === n && this.elapsed - this.lastRecall.t < 0.4) {
+      let sx = 0;
+      let sy = 0;
+      for (const u of alive) {
+        sx += u.pos.x;
+        sy += u.pos.y;
+      }
+      this.cam.centerOn({ x: sx / alive.length, y: sy / alive.length });
+    }
+    this.lastRecall = { n, t: this.elapsed };
   }
 
   // --- Selection helpers --------------------------------------------------
