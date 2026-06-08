@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.225.0 — Fixes: temple footprint, Heal autocast, dismissable hints _(2026-06-08)_
+- **Temple no longer overflows its mark** — the cathedral sprite was still ~30% too
+  big for its 3-tile footprint (read as shifted off-mark); draw scale 0.78 → 0.6 so
+  the base sits on the footprint (spire rises up-back as iso intends).
+- **Heal now autocasts** — right-click the Heal spell to autocast and the mage mends
+  the most-wounded ally in range automatically (was manual-only). Verified +40 heal.
+- **First-run hints card has an × close button** — click it to dismiss immediately
+  instead of waiting for the fade. Verified click dismisses.
+
 ## v0.224.0 — Building battle-damage scorch _(2026-06-08)_
 - Wounded buildings now char the ground at their base — a scorch patch that spreads
   and darkens as HP falls (capped, drawn under the body, extending past the footprint

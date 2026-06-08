@@ -115,6 +115,23 @@ function nearestEnemyInRange(world: World, u: Unit, rangeTiles: number): Unit | 
   return best;
 }
 
+/** Nearest WOUNDED friendly unit in range (for Heal autocast) — prefers the most hurt. */
+function mostWoundedAllyInRange(world: World, u: Unit, rangeTiles: number): Unit | null {
+  const r2 = (rangeTiles * TILE) ** 2;
+  let best: Unit | null = null;
+  let worstFrac = 0.95; // only bother once below ~95% HP
+  for (const o of world.units) {
+    if (o.dead || o.playerId !== u.playerId) continue;
+    if (d2(o.pos, u.pos) > r2) continue;
+    const frac = o.hp / o.def.maxHp;
+    if (frac < worstFrac) {
+      worstFrac = frac;
+      best = o;
+    }
+  }
+  return best;
+}
+
 /** Per-frame: mana regen, cooldown/status decay, and autocast firing. */
 export function updateSpells(world: World, dt: number): void {
   for (const u of world.units) {
@@ -123,10 +140,13 @@ export function updateSpells(world: World, dt: number): void {
     if (u.slowT > 0) u.slowT -= dt;
     if (u.chillFx > 0) u.chillFx -= dt;
     if (u.def.maxMana) u.mana = Math.min(u.def.maxMana, u.mana + (u.def.manaRegen ?? 0) * dt);
-    if (u.kind === "mage" && u.autocast && u.autocast !== "heal") {
+    if (u.kind === "mage" && u.autocast) {
       const sp = SPELLS[u.autocast as SpellId];
       if (sp && canCast(u, sp)) {
-        const tgt: Targetable | null = nearestEnemyInRange(world, u, sp.range);
+        // Heal autocasts onto the most-wounded nearby ally; offensive spells onto the
+        // nearest enemy.
+        const tgt: Targetable | null =
+          sp.id === "heal" ? mostWoundedAllyInRange(world, u, sp.range) : nearestEnemyInRange(world, u, sp.range);
         if (tgt) castSpell(world, u, sp, { ...tgt.pos });
       }
     }

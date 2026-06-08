@@ -22,7 +22,7 @@ const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
 // Per-building draw-scale tweaks (× the default footprint fit). The temple's tall
 // cathedral sprite otherwise towers well past its 3-tile footprint, so rein it in.
 const BUILDING_SPRITE_SCALE: Partial<Record<BuildingKind, number>> = {
-  temple: 0.78,
+  temple: 0.6,
 };
 
 // CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92

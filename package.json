@@ -1,7 +1,7 @@
 {
   "name": "warlords-rts",
   "private": true,
-  "version": "0.224.0",
+  "version": "0.225.0",
   "type": "module",
   "description": "A Warcraft I-style real-time strategy game. Original code and art, no third-party IP.",
   "scripts": {

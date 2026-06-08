@@ -45,6 +45,8 @@ export class Hud {
   private attackPing: { x: number; y: number; t: number } | null = null;
   // Clickable top-bar hot regions, recomputed each render.
   private idleWorkerRect: Rect | null = null;
+  /** Close (×) box on the first-run hints card; click dismisses it. */
+  hintsCloseRect: Rect | null = null;
   private idleBuildingRect: Rect | null = null;
   private groupChips: { n: number; rect: Rect }[] = [];
   /** Set by Game once loaded — lets command buttons show sprite icons. */
@@ -901,6 +903,20 @@ export class Hud {
     ctx.font = "11px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("(shown once — full controls live in the Esc menu)", cam.viewW / 2, ly + 4);
+
+    // Close (×) button, top-right of the card.
+    const cb: Rect = { x: px + pw - 26, y: py + 8, w: 18, h: 18 };
+    this.hintsCloseRect = cb;
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillRect(cb.x, cb.y, cb.w, cb.h);
+    ctx.strokeStyle = "rgba(217,138,50,0.8)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(cb.x, cb.y, cb.w, cb.h);
+    ctx.fillStyle = "#f1ead8";
+    ctx.font = "bold 14px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("×", cb.x + cb.w / 2, cb.y + cb.h / 2 + 1);
     ctx.restore();
   }
 }

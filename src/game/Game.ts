@@ -15,7 +15,7 @@ import { Building } from "./entities/Building.ts";
 import type { BuildingKind, Vec2 } from "./types.ts";
 import { BUILDING_DEFS } from "./entities/defs.ts";
 import { CAMERA_SPEED, EDGE_SCROLL_MARGIN, MAP_W, MAP_H, TILE } from "./constants.ts";
-import { tileCenter, toTile, normalizeRect, clamp } from "./util/math.ts";
+import { tileCenter, toTile, normalizeRect, clamp, rectContains } from "./util/math.ts";
 import { updateMovement } from "./systems/movement.ts";
 import { updateGather } from "./systems/gather.ts";
 import { updateCombat } from "./systems/combat.ts";
@@ -572,6 +572,11 @@ export class Game {
   }
 
   private onLeftClick(p: Vec2): void {
+    // Dismiss the first-run hints card if its × is clicked.
+    if (this.hintsT > 0 && this.hud.hintsCloseRect && rectContains(this.hud.hintsCloseRect, p)) {
+      this.hintsT = 0;
+      return;
+    }
     // Top-bar widgets: idle pills + control-group chips.
     const top = this.hud.topHit(p);
     if (top) {
