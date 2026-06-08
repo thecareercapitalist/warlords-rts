@@ -885,6 +885,8 @@ export class Game {
         } catch {
           /* storage blocked */
         }
+      } else if (res.type === "toggleMusic") {
+        this.sfx.toggleMusic();
       } else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
     }
   }
@@ -1165,7 +1167,8 @@ export class Game {
     this.ctx.fillStyle = this.sfx.muted ? "#ff8888" : "#9fb2c2";
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
-    if (this.paused && !this.gameOver) this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll);
+    if (this.paused && !this.gameOver)
+      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }

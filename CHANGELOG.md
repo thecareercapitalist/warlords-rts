@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.155.0 — Pause-menu music toggle _(2026-06-07)_
+- The pause menu now has a **Music: ON/OFF** toggle (alongside Edge-scroll) wired to
+  the audio engine + persisted, so you can silence the gothic score independently of
+  the SFX mute. Toggle row tidied into two half-width buttons.
+
 ## v0.154.0 — Staged building damage _(2026-06-07)_
 - Buildings now visibly degrade as they take damage: **cracks** appear under 75% HP,
   **scorch darkening + more cracks** under 50%, and a **heavy smoke plume + embers**

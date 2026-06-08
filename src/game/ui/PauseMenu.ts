@@ -10,6 +10,7 @@ export type MenuResult =
   | { type: "load" }
   | { type: "reset" }
   | { type: "toggleEdgeScroll" }
+  | { type: "toggleMusic" }
   | { type: "rebind"; action: ActionId };
 
 interface Layout {
@@ -19,6 +20,7 @@ interface Layout {
   save: Rect;
   load: Rect;
   edgeToggle: Rect;
+  musicToggle: Rect;
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
 }
@@ -42,7 +44,9 @@ export class PauseMenu {
     const restart = btn(px + pw - 210, py + 56, 180);
     const save = btn(px + 30, py + 98, 180);
     const load = btn(px + pw - 210, py + 98, 180);
-    const edgeToggle = btn(px + 30, py + 140, pw - 60);
+    const halfW = (pw - 72) / 2;
+    const edgeToggle = btn(px + 30, py + 140, halfW);
+    const musicToggle = btn(px + 30 + halfW + 12, py + 140, halfW);
 
     const rows: Layout["rows"] = [];
     let ry = py + 202;
@@ -51,7 +55,7 @@ export class PauseMenu {
       ry += 40;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, save, load, edgeToggle, reset, rows };
+    return { panel, resume, restart, save, load, edgeToggle, musicToggle, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -61,6 +65,7 @@ export class PauseMenu {
     if (rectContains(l.save, p)) return { type: "save" };
     if (rectContains(l.load, p)) return { type: "load" };
     if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
+    if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
     if (rectContains(l.reset, p)) return { type: "reset" };
     for (const row of l.rows) {
       if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
@@ -68,7 +73,13 @@ export class PauseMenu {
     return null;
   }
 
-  render(ctx: CanvasRenderingContext2D, cam: Camera, kb: Keybindings, edgeScroll = false): void {
+  render(
+    ctx: CanvasRenderingContext2D,
+    cam: Camera,
+    kb: Keybindings,
+    edgeScroll = false,
+    musicOn = true,
+  ): void {
     const l = this.layoutFor(cam);
 
     // Dim the whole screen.
@@ -107,7 +118,8 @@ export class PauseMenu {
     this.button(ctx, l.restart, "Restart", true);
     this.button(ctx, l.save, "Save Game", true);
     this.button(ctx, l.load, "Load Game", true);
-    this.button(ctx, l.edgeToggle, `Edge-scroll camera: ${edgeScroll ? "ON" : "OFF"}`, true);
+    this.button(ctx, l.edgeToggle, `Edge-scroll: ${edgeScroll ? "ON" : "OFF"}`, true);
+    this.button(ctx, l.musicToggle, `Music: ${musicOn ? "ON" : "OFF"}`, true);
 
     // Controls header.
     ctx.fillStyle = "#9fb2c2";
