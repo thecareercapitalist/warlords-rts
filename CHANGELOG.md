@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.164.0 — Separate peon work anims + slower gather _(2026-06-07)_
+- Workers now have **distinct 3-frame animations per task**: mining = pickaxe
+  (existing), **chopping** = a sideways **axe** swing, **building** = kneeling on one
+  knee with a **vertical hammer** slam. drawUnit routes by state + the harvested
+  tile's terrain. Generated via Gemini.
+- **Resource gathering slowed ~20%** (GATHER_TIME 1.4→1.75s/load) so stockpiles
+  build up less explosively.
+
 ## v0.163.0 — Caster cast animation (3-frame) _(2026-06-07)_
 - The caster now plays a **3-frame cast** while attacking (gather → staff raised &
   flaring → thrust + burst), faction-specific (human **mage** blue / orc **warlock**

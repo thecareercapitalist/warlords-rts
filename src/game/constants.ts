@@ -12,7 +12,7 @@ export const EDGE_SCROLL_MARGIN = 24; // px from window edge that triggers scrol
 
 // Resource carrying
 export const PEON_CARRY_CAPACITY = 8; // gold or wood carried per trip
-export const GATHER_TIME = 1.4; // seconds to mine/chop one load
+export const GATHER_TIME = 1.75; // seconds to mine/chop one load (slowed ~20% from 1.4)
 export const RETURN_DROPOFF_RANGE = 1.6; // tiles
 
 // Starting resources

@@ -151,6 +151,10 @@ export class Assets {
   bastionSprite: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
+  /** Worker chopping (sideways axe) frames [windup, mid, follow]. */
+  chopFrames: CanvasImageSource[] = [];
+  /** Worker building (kneeling vertical hammer) frames [raise, mid, impact]. */
+  buildFrames: CanvasImageSource[] = [];
   /** Human footman attack frames [windup, mid, strike]. */
   footmanAtkFrames: CanvasImageSource[] = [];
   /** Orc grunt (enemy melee) attack frames [windup, mid, strike]. */
@@ -293,6 +297,23 @@ export class Assets {
         const a = m.get("mine0");
         const bb = m.get("mine1");
         if (a && bb) this.mineFrames = [a, bb];
+      }),
+    );
+    // Worker chopping (axe) + building (hammer) 3-frame swings.
+    jobs.push(
+      load(inl?.peonChop ?? "/gen_peon_chop.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["c0", "c1", "c2"]);
+        const fr = [m.get("c0"), m.get("c1"), m.get("c2")];
+        if (fr.every(Boolean)) this.chopFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.peonBuild ?? "/gen_peon_build.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["b0", "b1", "b2"]);
+        const fr = [m.get("b0"), m.get("b1"), m.get("b2")];
+        if (fr.every(Boolean)) this.buildFrames = fr as CanvasImageSource[];
       }),
     );
     // Human footman 3-frame attack swing.

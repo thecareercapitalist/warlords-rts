@@ -1160,8 +1160,17 @@ export class Renderer {
     // ground ellipses can scale proportionally to the (large) sprite.
     // A gathering worker plays a 2-frame pickaxe swing instead of the idle sprite.
     let sprite = this.assets.unitSprite(u.kind, isEnemy);
-    if (u.def.canGather && u.state === "gathering" && this.assets.mineFrames.length === 2) {
-      sprite = this.assets.mineFrames[Math.floor(this.now * 6) % 2];
+    if (u.def.canGather && u.state === "building" && this.assets.buildFrames.length === 3) {
+      // Kneeling vertical hammer swing while constructing/repairing.
+      sprite = this.assets.buildFrames[Math.floor(this.now * 7 + u.pos.x) % 3];
+    } else if (u.def.canGather && u.state === "gathering") {
+      // Chop (sideways axe) on forest, mine (pickaxe) on gold.
+      const onForest = !!u.resourceTile && world.map.at(u.resourceTile.x, u.resourceTile.y)?.terrain === "forest";
+      if (onForest && this.assets.chopFrames.length === 3) {
+        sprite = this.assets.chopFrames[Math.floor(this.now * 8 + u.pos.x) % 3];
+      } else if (this.assets.mineFrames.length === 2) {
+        sprite = this.assets.mineFrames[Math.floor(this.now * 6) % 2];
+      }
     } else if (u.kind === "footman" && u.attackAnim > 0) {
       // Play a 3-frame melee swing during an attack (strike → recover): humans
       // swing a sword, orcs an axe.

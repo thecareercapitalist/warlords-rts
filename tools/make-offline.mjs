@@ -63,6 +63,8 @@ tileData.orcCasterCast = dataUri(resolve(root, "public", "gen_orccaster_cast.jpg
 tileData.orccaster = dataUri(resolve(root, "public", "gen_orccaster.jpg"));
 tileData.griffin = dataUri(resolve(root, "public", "gen_griffin.jpg"));
 tileData.mine = dataUri(resolve(root, "public", "gen_mine.jpg"));
+tileData.peonChop = dataUri(resolve(root, "public", "gen_peon_chop.jpg"));
+tileData.peonBuild = dataUri(resolve(root, "public", "gen_peon_build.jpg"));
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");
