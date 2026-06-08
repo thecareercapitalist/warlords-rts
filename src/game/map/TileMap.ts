@@ -60,7 +60,7 @@ export class TileMap {
 
   private generate(rng: Rng): void {
     // 1. Lakes — several blobs of water, a couple of them large.
-    const lakeCount = rng.int(4, 7);
+    const lakeCount = rng.int(6, 10);
     for (let i = 0; i < lakeCount; i++) {
       const cx = rng.int(6, this.w - 6);
       const cy = rng.int(6, this.h - 6);
@@ -69,7 +69,7 @@ export class TileMap {
     }
 
     // 2. Mountains — a few clustered rock ranges (impassable), edges of the map.
-    const rockCount = rng.int(6, 10);
+    const rockCount = rng.int(10, 16);
     for (let i = 0; i < rockCount; i++) {
       const cx = rng.int(2, this.w - 2);
       const cy = rng.int(2, this.h - 2);
@@ -79,7 +79,7 @@ export class TileMap {
     }
 
     // 3. Forests — this is a forest map: many large blobs of harvestable trees.
-    const forestCount = rng.int(20, 30);
+    const forestCount = rng.int(32, 46);
     for (let i = 0; i < forestCount; i++) {
       const cx = rng.int(3, this.w - 3);
       const cy = rng.int(3, this.h - 3);
@@ -88,13 +88,25 @@ export class TileMap {
       });
     }
 
-    // 4. Goldmines — one near each of the two start corners plus a couple neutral.
+    // 4. Goldmines — one near each start corner, the two off-corners, plus several
+    // scattered neutral mines to fight over (each is finite, so you must expand).
     const mineSpots: Vec2[] = [
-      { x: 8, y: 8 },
-      { x: this.w - 9, y: this.h - 9 },
+      { x: 8, y: 8 }, // human start
+      { x: this.w - 9, y: this.h - 9 }, // orc start
       { x: this.w - 10, y: 10 },
       { x: 10, y: this.h - 10 },
     ];
+    const neutralCount = rng.int(6, 9);
+    let tries = 0;
+    while (mineSpots.length < 4 + neutralCount && tries < 400) {
+      tries++;
+      const x = rng.int(10, this.w - 10);
+      const y = rng.int(10, this.h - 10);
+      // Keep mines spaced out (≥12 tiles apart) so each anchors its own expansion.
+      if (mineSpots.every((m) => Math.abs(m.x - x) + Math.abs(m.y - y) >= 12)) {
+        mineSpots.push({ x, y });
+      }
+    }
     for (const spot of mineSpots) {
       // Clear a small grass apron and place the mine.
       this.blob(spot.x, spot.y, 2, rng, (x, y) => {

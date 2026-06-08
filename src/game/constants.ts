@@ -3,8 +3,8 @@
 
 export const TILE = 32; // pixel size of one map tile
 
-export const MAP_W = 64; // tiles
-export const MAP_H = 64; // tiles
+export const MAP_W = 80; // tiles — room for secondary base expansions
+export const MAP_H = 80; // tiles
 
 // Camera
 export const CAMERA_SPEED = 700; // px/sec keyboard/edge scroll
@@ -54,7 +54,7 @@ export const COLORS = {
 } as const;
 
 // Resource node yields
-export const GOLDMINE_AMOUNT = 25000;
+export const GOLDMINE_AMOUNT = 9000; // finite — one mine won't last a game; expand to more
 export const FOREST_TILE_WOOD = 400;
 
 export const FPS_CAP = 60;

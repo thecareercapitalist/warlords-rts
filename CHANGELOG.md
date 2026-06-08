@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.153.0 — Bigger map + finite gold mines _(2026-06-07)_
+- Map grown **64²→80²** with **~13 gold mines** scattered (≥12 tiles apart), and
+  each mine is now **finite at 9,000** (was 25k) — one mine won't fund a whole game,
+  so you must **expand to secondary base sites**. Forests/lakes/mountains scaled up
+  to match. Verified: both starts get a Town Hall + nearby mine, AI still boots.
+
 ## v0.152.0 — Griffin rider (human flyer) _(2026-06-07)_
 - The flying unit is now **faction-specific**: humans field an armored **griffin
   rider** (eagle-griffin + lancer), orcs keep the **dragon**. Same stats, different
