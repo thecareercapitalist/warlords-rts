@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.208.0 — Varied map each session _(2026-06-08)_
+- The first game on every page load used a hardcoded seed (1337) — always the same
+  map. Now all new games (initial + restart) draw a fresh `Date.now()`-based seed,
+  so terrain, forests, and scattered goldmines vary each session. Verified: two
+  seeds → different mine layouts; same seed still reproduces identically.
+
 ## v0.207.0 — Difficulty levels (Recruit / Soldier / Warlord) _(2026-06-08)_
 - Added a skirmish **difficulty** selector to the pause menu (Game tab). It scales
   the AI's economy (worker target 5 / 8 / 10) and how soon it commits attack waves

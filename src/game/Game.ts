@@ -125,7 +125,12 @@ export class Game {
     this.resize();
     window.addEventListener("resize", () => this.resize());
 
-    this.startNewGame(1337);
+    this.startNewGame(Game.freshSeed());
+  }
+
+  /** A varied map seed each session — so the first game isn't always the same map. */
+  private static freshSeed(): number {
+    return (Math.floor(Date.now()) % 1_000_000) + 1;
   }
 
   async start(): Promise<void> {
@@ -358,7 +363,7 @@ export class Game {
 
     // Restart on the end screen.
     if (this.gameOver && this.input.pressedKeys.includes("r")) {
-      this.startNewGame((Math.floor(performance.now()) % 100000) + 1);
+      this.startNewGame(Game.freshSeed());
       return;
     }
 
@@ -939,7 +944,7 @@ export class Game {
       if (res.type === "resume") this.setPaused(false);
       else if (res.type === "restart") {
         this.setPaused(false);
-        this.startNewGame((Math.floor(performance.now()) % 100000) + 1);
+        this.startNewGame(Game.freshSeed());
       } else if (res.type === "save") {
         const slot = nextSaveSlot();
         const ok = saveGame(this.world, this.fog.exportExplored(), slot, this.elapsed);
