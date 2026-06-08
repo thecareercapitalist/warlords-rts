@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.214.0 — Low-supply warning _(2026-06-08)_
+- The supply readout now turns **amber** within 2 of the cap and **pulsing red with a
+  "⚠ Build a Farm" hint** once capped — so a player who can't figure out why training
+  is blocked gets a clear, actionable nudge instead of a silent failure. Verified by
+  render.
+
 ## v0.213.0 — First-run controls hint _(2026-06-08)_
 - New players (esp. from the shared link) now get a brief gothic **"How to Command"**
   card on their first game — WASD pan, left-drag select, right-click move, Ctrl+right

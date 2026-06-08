@@ -326,8 +326,19 @@ export class Hud {
     ctx.fillText(`⛂ Gold ${Math.floor(p.gold)}`, 16, 17);
     ctx.fillStyle = COLORS.uiWood;
     ctx.fillText(`🌲 Wood ${Math.floor(p.wood)}`, 170, 17);
-    ctx.fillStyle = p.supplyUsed >= p.supplyCap ? "#c0492f" : COLORS.uiText;
+    // Supply: amber when nearly full, pulsing red + an actionable hint when capped
+    // (so a new player knows to build a Farm rather than wondering why training fails).
+    const capped = p.supplyUsed >= p.supplyCap;
+    const near = !capped && p.supplyUsed >= p.supplyCap - 2;
+    const pulse = 0.6 + 0.4 * Math.sin(performance.now() * 0.006);
+    ctx.fillStyle = capped ? `rgba(226,92,60,${pulse})` : near ? "#d8a24a" : COLORS.uiText;
     ctx.fillText(`👤 Supply ${p.supplyUsed}/${p.supplyCap}`, 320, 17);
+    if (capped) {
+      ctx.font = "bold 13px 'Segoe UI', sans-serif";
+      ctx.fillStyle = `rgba(226,92,60,${pulse})`;
+      ctx.fillText("⚠ Build a Farm", 436, 17);
+      ctx.font = "16px 'Segoe UI', sans-serif";
+    }
     // Idle indicators as clickable pills (right-aligned so they never collide with
     // the resource readouts). Stored rects drive the click handlers.
     this.idleWorkerRect = null;
