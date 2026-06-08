@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.184.0 — Focus-fire targeting _(2026-06-07)_
+- Units now **concentrate fire on wounded enemies**: target acquisition scores
+  in-range foes by `linearDistance × (0.55 + 0.45·hpFraction)`, so a hurt enemy
+  reads as "closer" and the army finishes it instead of spreading damage. The 0.55
+  floor keeps targeting local (no charging across the field for a distant sliver).
+  Applies to both sides; no new art (offline bundle unchanged). Verified.
+
 ## v0.183.0 — Peon walk cycle _(2026-06-07)_
 - Workers (human + orc) now play a **4-frame walk cycle** while travelling — heading
   to a resource, hauling back to a drop-off, or on a plain move — instead of sliding.

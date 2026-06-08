@@ -48,18 +48,25 @@ function acquireTarget(world: World, u: Unit, radiusTiles: number): Targetable |
   const rPx = radiusTiles * TILE;
   const r2 = rPx * rPx;
   let best: Targetable | null = null;
-  let bestD = Infinity;
+  let bestScore = Infinity;
   const melee = u.def.attackRange <= 1;
   for (const o of world.units) {
     if (o.dead || !isEnemy(u, o)) continue;
     if (o.def.flying && melee) continue; // melee can't reach flyers
     const d = dist2(u.pos, o.pos);
-    if (d < r2 && d < bestD) {
-      bestD = d;
+    if (d >= r2) continue;
+    // Focus fire: a wounded enemy counts as "closer", so units pile onto the
+    // weakest target in range and finish it rather than spreading damage. The
+    // 0.55 floor keeps it mostly local (no charging across the field).
+    const hpFrac = Math.max(0, Math.min(1, o.hp / o.def.maxHp));
+    const score = Math.sqrt(d) * (0.55 + 0.45 * hpFrac); // linear dist so HP can tip it
+    if (score < bestScore) {
+      bestScore = score;
       best = o;
     }
   }
   if (best) return best;
+  let bestD = Infinity;
   for (const b of world.buildings) {
     if (b.dead || !isEnemy(u, b)) continue;
     const d = dist2(u.pos, b.center());
