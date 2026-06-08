@@ -275,6 +275,8 @@ export class Game {
     if (this.warcryCd > 0) this.warcryCd -= dt; // War Cry cooldown
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 22); // decay shake
     if (this.hud.denyFlash > 0) this.hud.denyFlash = Math.max(0, this.hud.denyFlash - dt);
+    this.hud.warcryCd = this.warcryCd; // feed the War Cry command button its cooldown
+    this.hud.warcryMax = Game.WARCRY_CD;
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
     if (this.attackPing) {
       this.attackPing.t += dt;
@@ -1116,6 +1118,10 @@ export class Game {
     }
     if (action.type === "patrol") {
       this.patrolMode = true;
+      return;
+    }
+    if (action.type === "warcry") {
+      this.warCry();
       return;
     }
     if (action.type === "hold") {

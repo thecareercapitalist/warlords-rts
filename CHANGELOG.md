@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.218.0 — War Cry command button + cooldown indicator _(2026-06-08)_
+- War Cry was hotkey-only; added a **"Cry" command-card button** (alongside Move/
+  Attack/Stop/Patrol/Hold) that fires it and shows a **cooldown veil + seconds-left**
+  countdown while recharging — so the ability is discoverable and its readiness is
+  visible. Verified by render (button present, sweep at 20/35s).
+
 ## v0.217.0 — New ability: War Cry _(2026-06-08)_
 - A rebindable active ability (**F** by default): rally the selected fighters for a
   **+50% attack** burst for 6s on a 35s cooldown, with a pulsing ember aura, war-horn

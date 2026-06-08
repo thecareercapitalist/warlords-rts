@@ -21,6 +21,7 @@ export type HudAction =
   | { type: "attackMove" }
   | { type: "patrol" }
   | { type: "hold" }
+  | { type: "warcry" }
   | { type: "spell"; id: SpellId }
   | { type: "denied"; label: string; reason: string };
 
@@ -32,6 +33,7 @@ interface Button {
   action: HudAction;
   enabled: boolean;
   autocast?: boolean; // spell button: autocast is on for the selection
+  cooldown?: number; // 0..1 remaining fraction → draws a darkening sweep
 }
 
 const BAR_H = 150;
@@ -49,6 +51,9 @@ export class Hud {
   assets: Assets | null = null;
   /** Set by Game (decays over ~0.45s); reddens the resource bar on a denied action. */
   denyFlash = 0;
+  /** Set by Game each frame: War Cry cooldown seconds + its max, for the command button. */
+  warcryCd = 0;
+  warcryMax = 35;
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {}
 
@@ -163,16 +168,19 @@ export class Hud {
         { label: "Stop", key: "X", action: { type: "stop" } },
         { label: "Patrol", key: "R", action: { type: "patrol" } },
         { label: held ? "Unhold" : "Hold", key: "H", action: { type: "hold" } },
+        { label: "Cry", key: "F", action: { type: "warcry" } },
       ];
       cmds.forEach((c, i) => {
+        const isCry = c.action.type === "warcry";
         this.buttons.push({
           rect: place(i),
           label: c.label,
           sub: c.key,
           hotkey: c.key,
           action: c.action,
-          enabled: true,
+          enabled: !isCry || this.warcryCd <= 0,
           autocast: c.action.type === "hold" && held,
+          cooldown: isCry && this.warcryCd > 0 ? this.warcryCd / this.warcryMax : undefined,
         });
       });
       return;
@@ -695,6 +703,17 @@ export class Hud {
         ctx.fillStyle = "#eaf2ff";
         ctx.font = "bold 11px 'Segoe UI', sans-serif";
         ctx.fillText("A", x + w - 9, y + 9);
+      }
+
+      // Cooldown sweep (War Cry): a dark veil draining top→bottom + seconds left.
+      if (b.cooldown !== undefined && b.cooldown > 0) {
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(x + 1, y + 1, w - 2, (h - 2) * Math.min(1, b.cooldown));
+        ctx.fillStyle = "#f4c46a";
+        ctx.font = "bold 14px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${Math.ceil(b.cooldown * this.warcryMax)}`, x + w / 2, y + h / 2);
       }
     }
   }
