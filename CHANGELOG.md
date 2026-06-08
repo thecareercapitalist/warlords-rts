@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.167.0 — Ornate gothic UI framing _(2026-06-07)_
+- New hand-designed **ornate gothic frame** art (forged iron + carved stone rails,
+  ember corner gems, skull filigree, a demon crest) drawn as a **9-slice** around
+  the **pause menu**, and as **corner brackets** on the **HUD command bar**. The UI
+  finally looks designed, not just gradient panels. (`ui/frame.ts` 9-slice helper.)
+  More panels (main/selection) to follow.
+
 ## v0.166.0 — Move-vs-attack controls + WSAD _(2026-06-07)_
 - **You can now pull units out of a fight.** A plain move order is obeyed literally —
   units no longer auto-re-acquire while in the "moving" state (they still defend

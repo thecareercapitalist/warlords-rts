@@ -9,6 +9,7 @@ import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { clamp, type Rect, rectContains } from "../util/math.ts";
 import { SPELL_LIST, type SpellId } from "../systems/spells.ts";
 import type { Assets } from "../render/assets.ts";
+import { drawCorners } from "./frame.ts";
 
 export type HudAction =
   | { type: "build"; kind: BuildingKind }
@@ -368,6 +369,10 @@ export class Hud {
     ctx.fillRect(this.barRect.x, by0, this.barRect.w, 2);
     ctx.fillStyle = "rgba(0,0,0,0.55)";
     ctx.fillRect(this.barRect.x, by0 + 2, this.barRect.w, 3);
+    // Ornate forged-iron corner brackets on the command console.
+    if (this.assets?.frameSprite) {
+      drawCorners(ctx, this.assets.frameSprite, { x: this.barRect.x + 2, y: by0 + 2, w: this.barRect.w - 4, h: this.barRect.h - 4 }, 30);
+    }
     // Subtle vertical divider stones between minimap / info / command sections.
     ctx.strokeStyle = "rgba(0,0,0,0.5)";
     ctx.lineWidth = 1;

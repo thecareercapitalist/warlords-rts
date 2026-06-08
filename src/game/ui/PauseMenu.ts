@@ -3,6 +3,7 @@ import type { Vec2 } from "../types.ts";
 import { type Rect, rectContains } from "../util/math.ts";
 import { ACTION_ORDER, type ActionId, type Keybindings } from "./Keybindings.ts";
 import type { SlotMeta } from "../systems/persistence.ts";
+import { draw9Slice } from "./frame.ts";
 
 export type MenuResult =
   | { type: "resume" }
@@ -88,6 +89,7 @@ export class PauseMenu {
     edgeScroll = false,
     musicOn = true,
     slots: (SlotMeta | null)[] = [],
+    frame?: CanvasImageSource,
   ): void {
     const l = this.layoutFor(cam);
 
@@ -110,6 +112,11 @@ export class PauseMenu {
     ctx.strokeRect(l.panel.x + 3, l.panel.y + 3, l.panel.w - 6, l.panel.h - 6);
     ctx.fillStyle = "rgba(255,244,214,0.07)"; // top highlight
     ctx.fillRect(l.panel.x + 4, l.panel.y + 4, l.panel.w - 8, 2);
+
+    // Ornate gothic frame overlay (replaces the plain ember border when loaded).
+    if (frame) {
+      draw9Slice(ctx, frame, { x: l.panel.x - 6, y: l.panel.y - 10, w: l.panel.w + 12, h: l.panel.h + 16 }, 0.17, 46);
+    }
 
     ctx.fillStyle = "#f3ead2";
     ctx.font = "bold 28px 'Segoe UI', sans-serif";

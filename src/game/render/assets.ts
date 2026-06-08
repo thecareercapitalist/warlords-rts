@@ -149,6 +149,8 @@ export class Assets {
   wallSprite: CanvasImageSource | undefined;
   /** Square corner bastion that caps wall junctions. */
   bastionSprite: CanvasImageSource | undefined;
+  /** Ornate gothic 9-slice frame (hollow centre) for HUD/menu panels. */
+  frameSprite: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
   /** Worker chopping (sideways axe) frames [windup, mid, follow]. */
@@ -288,6 +290,13 @@ export class Assets {
         if (!img) return;
         const dr = sliceGrid(img, 1, 1, ["dragon"]).get("dragon");
         if (dr) { this.unitSprites.set("dragon", dr); this.enemyUnitSprites.set("dragon", dr); }
+      }),
+    );
+    jobs.push(
+      load(inl?.frame ?? "/gen_frame.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 1, 1, ["frame"]);
+        this.frameSprite = m.get("frame");
       }),
     );
     jobs.push(
