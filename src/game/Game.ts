@@ -352,7 +352,12 @@ export class Game {
           }
         }
       }
-      else if (e.type === "spell") {
+      else if (e.type === "rankup") {
+        // Veterancy promotion: a gold spark + floater + chime — a small reward beat.
+        this.effects.spawnFloater(e.x, e.y, "★ Rank up", "#f4c46a");
+        this.effects.spawnImpact(e.x, e.y);
+        this.sfx.ready();
+      } else if (e.type === "spell") {
         if (e.spell === "fireball") {
           this.effects.spawnBlast(e.x, e.y, "fire");
           this.shake = Math.max(this.shake, 3);

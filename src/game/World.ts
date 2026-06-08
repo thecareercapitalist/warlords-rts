@@ -20,7 +20,8 @@ export type GameEvent =
   | { type: "builtDone"; playerId: number; x: number; y: number }
   | { type: "trained"; playerId: number; x: number; y: number; kind?: string }
   | { type: "spell"; spell: "fireball" | "freeze" | "heal"; x: number; y: number }
-  | { type: "depleted"; x: number; y: number };
+  | { type: "depleted"; x: number; y: number }
+  | { type: "rankup"; x: number; y: number };
 
 export class World {
   readonly map: TileMap;

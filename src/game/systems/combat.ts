@@ -1,6 +1,6 @@
 import type { World } from "../World.ts";
 import type { Unit, Targetable } from "../entities/Unit.ts";
-import { veterancyMult } from "../entities/Unit.ts";
+import { veterancyMult, veterancyRank } from "../entities/Unit.ts";
 import { TILE, ATTACK_ANIM_DUR } from "../constants.ts";
 import { dist, dist2, clamp, tileCenter } from "../util/math.ts";
 import { pathTo, orderAttackMove, standAdjacentTo, nearestWalkable } from "./orders.ts";
@@ -223,7 +223,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
           world.events.push({ type: "damaged", playerId: o.playerId, x: o.pos.x, y: o.pos.y });
           if (o.hp <= 0 && o.state !== "dead") {
             o.state = "dead";
-            u.kills++;
+            { const _r0 = veterancyRank(u.kills); u.kills++; if (veterancyRank(u.kills) > _r0) world.events.push({ type: "rankup", x: u.pos.x, y: u.pos.y }); }
             world.events.push({
               type: "death",
               x: o.pos.x,
@@ -238,7 +238,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       }
       u.attackCooldown = u.def.attackCooldown;
       if (t.hp <= 0) {
-        u.kills++;
+        { const _r1 = veterancyRank(u.kills); u.kills++; if (veterancyRank(u.kills) > _r1) world.events.push({ type: "rankup", x: u.pos.x, y: u.pos.y }); }
         if (t.etype === "building") {
           world.events.push({ type: "collapse", x: c.x, y: c.y, size: t.footprint * TILE, by: u.playerId });
         } else {
