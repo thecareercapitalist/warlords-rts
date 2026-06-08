@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.221.0 — Objective prompt at game start _(2026-06-08)_
+- Each new game now opens with a brief on-screen objective — "⚔ Objective: raze the
+  enemy stronghold" — so the goal is explicit (esp. for cold players from the link).
+  Uses the existing message HUD with a longer 6s hold. Verified: message set at start.
+
 ## v0.220.0 — New mage spell: Heal _(2026-06-08)_
 - The mage gains a third spell, **Heal** (C): restores 40 HP to friendly units in a
   radius (green mending glow + soft chime), a support counterpart to Fireball/Freeze.

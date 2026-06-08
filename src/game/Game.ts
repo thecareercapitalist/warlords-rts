@@ -191,6 +191,8 @@ export class Game {
     // Defer centring until the viewport has real dimensions (see frame()).
     const th = this.world.buildingsOf(this.humanId).find((b) => b.kind === "townhall");
     this.pendingCenter = th ? th.center() : tileCenter(5, 5);
+
+    this.setMessage("⚔ Objective: raze the enemy stronghold", 6);
   }
 
   private spawnBase(playerId: number, thTile: Vec2, minePref: Vec2, human: boolean): void {
@@ -1313,9 +1315,9 @@ export class Game {
     this.hud.rebuildButtons(this.world, this.humanId, this.selUnits, this.selBuildings);
   }
 
-  private setMessage(text: string): void {
+  private setMessage(text: string, dur = 2.5): void {
     this.message = text;
-    this.messageTimer = 2.5;
+    this.messageTimer = dur;
   }
 
   // --- Win / loss ---------------------------------------------------------
