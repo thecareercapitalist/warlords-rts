@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.177.0 — AI forward base _(2026-06-07)_
+- The AI now **expands**: once its home gold is exhausted but a distant mine still
+  has ore (and it can afford a Town Hall), it plants a **second Town Hall beside
+  that mine** so its workers don't trek across the map. Verified: drained home gold
+  → AI builds a forward hall out by the live mines.
+
 ## v0.176.0 — Readable swings + pan-speed slider _(2026-06-07)_
 - **Attack/cast animations play longer** (0.18s → 0.36s, shared `ATTACK_ANIM_DUR`)
   so the footman swing, archer loose, and mage cast read as motion instead of a

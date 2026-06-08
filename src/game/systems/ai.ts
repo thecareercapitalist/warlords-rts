@@ -202,6 +202,25 @@ export class AIController {
 
     // C. One structure at a time, in priority order.
     if (constructing) return;
+
+    // Forward base: once the home gold is exhausted but a distant mine still has
+    // ore and we can afford it, plant a SECOND town hall beside that mine so
+    // workers don't trek across the whole map.
+    const homeGold = this.scanResource(world, townhall.center(), "gold", 12);
+    if (!homeGold) {
+      const mine = this.nearestLiveMine(world, townhall.center());
+      const thDef = BUILDING_DEFS.townhall;
+      const alreadyNear =
+        mine && buildings.some((b) => b.kind === "townhall" && Math.abs(b.tile.x - mine.x) + Math.abs(b.tile.y - mine.y) <= 10);
+      if (mine && !alreadyNear && p.gold >= thDef.costGold && p.wood >= thDef.costWood) {
+        const spot = this.findBuildSpot(world, "townhall", mine);
+        const builder = workers.find((w) => w.state !== "building") ?? workers[0];
+        if (spot && builder) {
+          placeBuilding(world, this.playerId, "townhall", spot.x, spot.y, builder);
+          return;
+        }
+      }
+    }
     if (p.supplyUsed + 2 >= p.supplyCap && p.supplyCap < 40) {
       this.tryBuild(world, "farm", townhall, workers);
       return;
