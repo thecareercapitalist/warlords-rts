@@ -308,6 +308,14 @@ export class Assets {
         if (oc) this.enemyUnitSprites.set("mage", oc);
       }),
     );
+    // Human flying unit is a griffin rider; orcs keep the dragon (enemy sprite).
+    jobs.push(
+      load(inl?.griffin ?? "/gen_griffin.jpg").then((img) => {
+        if (!img) return;
+        const gr = sliceGrid(img, 1, 1, ["griffin"]).get("griffin");
+        if (gr) this.unitSprites.set("dragon", gr);
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }

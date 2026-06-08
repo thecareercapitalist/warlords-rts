@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.152.0 — Griffin rider (human flyer) _(2026-06-07)_
+- The flying unit is now **faction-specific**: humans field an armored **griffin
+  rider** (eagle-griffin + lancer), orcs keep the **dragon**. Same stats, different
+  beast. Generated via Gemini → `unitSprites.dragon`; airborne with a ground shadow.
+
 ## v0.151.0 — Orc caster _(2026-06-07)_
 - The enemy **Mage** is now a distinct **orc warlock** (green-skinned, tattered
   robes, a bone totem-staff with a glowing green skull) — same stats as the human
