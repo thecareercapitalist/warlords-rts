@@ -1170,6 +1170,13 @@ export class Renderer {
         const ph = u.attackAnim / 0.18; // 1 just struck → 0
         sprite = frames[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
       }
+    } else if (u.kind === "dragon") {
+      // Flying units flap continuously (orc dragon vs human griffin), phase-offset
+      // per unit so a flight isn't perfectly in sync.
+      const flap = isEnemy ? this.assets.dragonFlapFrames : this.assets.griffinFlapFrames;
+      if (flap.length === 3) {
+        sprite = flap[Math.floor(this.now * 6 + u.pos.x * 0.05) % 3];
+      }
     }
     let spriteW = 0;
     let spriteH = 0;

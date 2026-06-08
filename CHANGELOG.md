@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.162.0 — Flying wing-flap (3-frame) _(2026-06-07)_
+- The flying unit now **flaps its wings continuously** — a 3-frame cycle
+  (high → level → low), faction-specific (orc **dragon** vs human **griffin**),
+  phase-offset per unit so a flight isn't perfectly in sync. Generated via Gemini.
+
 ## v0.161.0 — Orc grunt attack swing (3-frame) _(2026-06-07)_
 - The enemy melee unit (orc) now plays its own **3-frame axe swing** while attacking
   (wind-up → mid-swing → strike), matching the human footman's sword swing. drawUnit

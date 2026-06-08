@@ -155,6 +155,9 @@ export class Assets {
   footmanAtkFrames: CanvasImageSource[] = [];
   /** Orc grunt (enemy melee) attack frames [windup, mid, strike]. */
   gruntAtkFrames: CanvasImageSource[] = [];
+  /** Flying wing-flap cycles [high, level, low] per faction (dragon vs griffin). */
+  dragonFlapFrames: CanvasImageSource[] = [];
+  griffinFlapFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -296,6 +299,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
         const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Flying wing-flap cycles: orc dragon + human griffin.
+    jobs.push(
+      load(inl?.dragonFly ?? "/gen_dragon_fly.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["d0", "d1", "d2"]);
+        const fr = [m.get("d0"), m.get("d1"), m.get("d2")];
+        if (fr.every(Boolean)) this.dragonFlapFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.griffinFly ?? "/gen_griffin_fly.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["f0", "f1", "f2"]);
+        const fr = [m.get("f0"), m.get("f1"), m.get("f2")];
+        if (fr.every(Boolean)) this.griffinFlapFrames = fr as CanvasImageSource[];
       }),
     );
     // Orc grunt (enemy melee) 3-frame attack swing.
