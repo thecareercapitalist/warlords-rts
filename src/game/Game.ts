@@ -118,6 +118,7 @@ export class Game {
   private kills = 0; // enemy units slain by the human
   private razed = 0; // enemy buildings destroyed by the human
   private peakArmy = 0; // largest simultaneous human fighter count (end-screen stat)
+  private warcryCd = 0; // War Cry cooldown (seconds remaining)
   private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
@@ -173,6 +174,7 @@ export class Game {
     this.kills = 0;
     this.razed = 0;
     this.peakArmy = 0;
+    this.warcryCd = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.paused = false;
@@ -270,6 +272,7 @@ export class Game {
     }
     this.elapsed += dt;
     if (this.hintsT > 0) this.hintsT -= dt; // first-run controls card counts down
+    if (this.warcryCd > 0) this.warcryCd -= dt; // War Cry cooldown
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 22); // decay shake
     if (this.hud.denyFlash > 0) this.hud.denyFlash = Math.max(0, this.hud.denyFlash - dt);
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
@@ -461,6 +464,8 @@ export class Game {
         }
         this.setMessage(turnOn ? "Holding position" : "Hold released");
         this.sfx.click();
+      } else if (key === this.kb.get("warCry") && this.selUnits.some((u) => u.def.damage > 0 && !u.def.canGather)) {
+        this.warCry();
       } else if (key === this.kb.get("stop") && this.selUnits.length > 0) {
         for (const u of this.selUnits) u.stop();
       } else if (key === this.kb.get("idleWorker")) {
@@ -746,6 +751,27 @@ export class Game {
     this.setMessage(sent > 0 ? `${sent} worker${sent > 1 ? "s" : ""} sent to work` : "No resources left");
   }
 
+  private static readonly WARCRY_CD = 35; // seconds between War Cries
+  private static readonly WARCRY_DUR = 6; // buff duration
+
+  /** War Cry: rally selected fighters for a burst of attack power, on cooldown. */
+  private warCry(): void {
+    if (this.warcryCd > 0) {
+      this.setMessage(`War Cry ready in ${Math.ceil(this.warcryCd)}s`);
+      this.sfx.denied();
+      return;
+    }
+    const fighters = this.selUnits.filter(
+      (u) => u.playerId === this.humanId && u.def.damage > 0 && !u.def.canGather && !u.dead,
+    );
+    if (fighters.length === 0) return;
+    for (const u of fighters) u.buffT = Game.WARCRY_DUR;
+    this.warcryCd = Game.WARCRY_CD;
+    this.sfx.warCry();
+    this.shake = Math.max(this.shake, 3);
+    this.setMessage(`⚔ War Cry! ${fighters.length} rallied`);
+  }
+
   /** Cycle the camera through idle production buildings (empty queue), one per click. */
   private cycleIdleBuilding(): void {
     const idle = this.world
@@ -993,6 +1019,7 @@ export class Game {
     this.kills = 0;
     this.razed = 0;
     this.peakArmy = 0;
+    this.warcryCd = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.world.recomputeSupply();

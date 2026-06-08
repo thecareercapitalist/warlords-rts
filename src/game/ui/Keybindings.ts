@@ -14,7 +14,8 @@ export type ActionId =
   | "selectArmy"
   | "jumpBase"
   | "patrol"
-  | "holdGround";
+  | "holdGround"
+  | "warCry";
 
 export interface ActionInfo {
   id: ActionId;
@@ -31,6 +32,7 @@ export const ACTION_ORDER: ActionInfo[] = [
   { id: "stop", label: "Stop" },
   { id: "holdGround", label: "Hold Position" },
   { id: "patrol", label: "Patrol" },
+  { id: "warCry", label: "War Cry" },
   { id: "selectArmy", label: "Select Army" },
   { id: "idleWorker", label: "Idle Workers" },
   { id: "jumpBase", label: "Jump to Base" },
@@ -50,6 +52,7 @@ const DEFAULTS: Record<ActionId, string> = {
   jumpBase: " ",
   patrol: "r",
   holdGround: "h",
+  warCry: "f",
 };
 
 const STORAGE_KEY = "warlords.keybindings.v2"; // v2: WSAD camera scheme

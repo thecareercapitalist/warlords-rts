@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.217.0 — New ability: War Cry _(2026-06-08)_
+- A rebindable active ability (**F** by default): rally the selected fighters for a
+  **+50% attack** burst for 6s on a 35s cooldown, with a pulsing ember aura, war-horn
+  roar, and a screen jolt. Off-cooldown gating + "ready in Ns" feedback. Adds real
+  player agency to fights (Warcraft-style). Verified: trigger sets buff+cooldown,
+  buffed unit dealt 36 vs 24 (×1.5), aura renders.
+
 ## v0.216.0 — Idle workers: one-click back to work _(2026-06-08)_
 - Clicking the **"N idle"** HUD pill now selects idle workers *and* dispatches each to
   the nearest live gold mine (falling back to the nearest forest) — a one-click

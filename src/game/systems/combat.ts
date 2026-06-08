@@ -88,6 +88,7 @@ export function updateCombat(world: World, dt: number): void {
     if (u.attackAnim > 0) u.attackAnim -= dt;
     if (u.retaliateT > 0) u.retaliateT -= dt;
     if (u.moveGraceT > 0) u.moveGraceT -= dt;
+    if (u.buffT > 0) u.buffT -= dt;
 
     // Drop a target that has died.
     if (u.attackTarget && u.attackTarget.dead) u.attackTarget = null;
@@ -204,7 +205,8 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
       const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;
-      const raw = (u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId)) * siege;
+      const cry = u.buffT > 0 ? 1.5 : 1; // War Cry boosts attack while active
+      const raw = (u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId)) * siege * cry;
       t.hp -= Math.max(1, raw - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });
 

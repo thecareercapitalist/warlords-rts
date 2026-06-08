@@ -51,6 +51,7 @@ export class Unit {
   holdGround = false; // stance: fire at in-range foes but never chase/advance
   retaliateT = 0; // seconds left during which the unit fights back even while moving (set when hit)
   moveGraceT = 0; // grace after a fresh move order during which it ignores retaliation (lets you pull clear)
+  buffT = 0; // War Cry seconds remaining — boosts attack while active
 
   // Presentation-only animation timers (seconds remaining).
   hitFlash = 0; // white flash when damaged

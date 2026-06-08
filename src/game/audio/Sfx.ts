@@ -288,6 +288,15 @@ export class Sfx {
     this.noise({ dur: 0.3, gain: 0.14, filter: 3000, sweepTo: 1200 });
   }
 
+  /** Guttural rising war-horn + roar when War Cry fires. */
+  warCry(): void {
+    if (!this.gate("warcry", 300)) return;
+    const v = this.vary(1, 0.05);
+    this.tone({ freq: 110 * v, type: "sawtooth", dur: 0.6, gain: 0.32, slideTo: 220 });
+    this.tone({ freq: 70 * v, type: "square", dur: 0.55, gain: 0.18, slideTo: 130, delay: 0.04 });
+    this.noise({ dur: 0.5, gain: 0.16, filter: 700, sweepTo: 1600 });
+  }
+
   /** Soft muffled footfall/hoof tick when a move order is issued. */
   footfall(): void {
     if (!this.gate("footfall", 70)) return;

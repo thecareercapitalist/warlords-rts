@@ -1314,6 +1314,16 @@ export class Renderer {
     ctx.ellipse(s.x, ringY, gw, gw * 0.46, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // War Cry aura — a pulsing ember ring beneath rallied units.
+    if (u.buffT > 0) {
+      const pulse = 0.55 + 0.45 * Math.sin(this.now * 9 + s.x * 0.05);
+      ctx.strokeStyle = `rgba(232,120,40,${0.5 + 0.4 * pulse})`;
+      ctx.lineWidth = Math.max(2, 3 * z);
+      ctx.beginPath();
+      ctx.ellipse(s.x, ringY, gw * 1.25, gw * 0.62, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
     // Team-colored base ring (ownership reads from the ring, not just the body).
     ctx.strokeStyle = color;
     ctx.lineWidth = Math.max(1.5, 2.4 * z);
