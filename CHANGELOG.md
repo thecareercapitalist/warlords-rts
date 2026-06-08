@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.186.0 — Consistent infantry look (no shade-jump) _(2026-06-07)_
+- Footman/grunt now draw their **idle** pose from the same Gemini walk sheet
+  (frame 0) used for walking, instead of popping back to the older base sprite — so
+  idle/walk/attack share one consistent look (fixes the "different shade of green"
+  jump on the orc). Added a `public/archive/` folder convention for superseded
+  sheets.
+
 ## v0.185.0 — Relaxed resting pose for ranged/casters _(2026-06-07)_
 - Archers and mages now hold a **relaxed pose** (bow lowered / staff down — frame 0
   of their cycle) whenever they're not actually attacking, instead of the
