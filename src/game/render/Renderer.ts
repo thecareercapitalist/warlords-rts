@@ -576,26 +576,63 @@ export class Renderer {
       ctx.fillRect(bx, yb, fw, Math.max(1, bh * 0.3));
     }
 
-    // Heavy damage: a rising smoke plume with an ember fleck.
-    if (b.state === "complete" && b.hp < b.def.maxHp * 0.35) {
+    // Staged battle damage: cracks at <75%, scorch + chunks at <50%, heavy smoke
+    // + embers at <25%. Deterministic per building (hashed) so it never flickers.
+    if (b.state === "complete" && b.hp < b.def.maxHp * 0.75) {
       const z = this.cam.zoom;
-      for (let i = 0; i < 3; i++) {
-        const ph = this.now * 0.8 + i * 2.1 + b.tile.x * 0.5;
-        const rise = (ph % 3) / 3; // 0..1 loop
-        const sx = center.x + Math.sin(ph * 1.7) * 6 * z;
-        const sy = topY - 4 * z - rise * 26 * z;
-        ctx.globalAlpha = (1 - rise) * 0.4;
-        ctx.fillStyle = "#3a342e";
-        ctx.beginPath();
-        ctx.arc(sx, sy, (3 + rise * 4) * z, 0, Math.PI * 2);
-        ctx.fill();
+      const frac = b.hp / b.def.maxHp;
+      let seed = ((b.tile.x * 73856093) ^ (b.tile.y * 19349663)) >>> 0;
+      const rand = (): number => {
+        seed ^= seed << 13;
+        seed ^= seed >>> 17;
+        seed ^= seed << 5;
+        return ((seed >>> 0) % 10000) / 10000;
+      };
+      const bottomY = Math.max(...corners.map((c) => c.y));
+      // Scorch the stone darker as it's wrecked.
+      if (frac < 0.5) {
+        poly();
+        ctx.save();
+        ctx.clip();
+        ctx.fillStyle = `rgba(20,14,10,${frac < 0.25 ? 0.45 : 0.28})`;
+        ctx.fillRect(minX, topY, maxX - minX, bottomY - topY);
+        ctx.restore();
       }
-      ctx.globalAlpha = 0.7;
-      ctx.fillStyle = "#e88530";
-      ctx.beginPath();
-      ctx.arc(center.x + Math.sin(this.now * 3) * 5 * z, topY - 7 * z, 1.6 * z, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      // Jagged black cracks across the footprint, more as it crumbles.
+      const cracks = frac < 0.25 ? 5 : frac < 0.5 ? 3 : 2;
+      ctx.strokeStyle = "rgba(15,11,9,0.75)";
+      ctx.lineWidth = Math.max(1, 1.5 * z);
+      for (let i = 0; i < cracks; i++) {
+        const ax = minX + rand() * (maxX - minX);
+        const ay = topY + rand() * (bottomY - topY);
+        const len = (8 + rand() * 14) * z;
+        const ang = rand() * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(ax + Math.cos(ang) * len * 0.5, ay + Math.sin(ang) * len * 0.4 + 2 * z);
+        ctx.lineTo(ax + Math.cos(ang + 0.6) * len, ay + Math.sin(ang + 0.6) * len * 0.4);
+        ctx.stroke();
+      }
+      // Rising smoke plume (+ ember) once it's badly hurt.
+      if (frac < 0.35) {
+        for (let i = 0; i < 3; i++) {
+          const ph = this.now * 0.8 + i * 2.1 + b.tile.x * 0.5;
+          const rise = (ph % 3) / 3;
+          const sx = center.x + Math.sin(ph * 1.7) * 6 * z;
+          const sy = topY - 4 * z - rise * 26 * z;
+          ctx.globalAlpha = (1 - rise) * 0.4;
+          ctx.fillStyle = "#3a342e";
+          ctx.beginPath();
+          ctx.arc(sx, sy, (3 + rise * 4) * z, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = "#e88530";
+        ctx.beginPath();
+        ctx.arc(center.x + Math.sin(this.now * 3) * 5 * z, topY - 7 * z, 1.6 * z, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
     }
 
     if (b.hp < b.def.maxHp || b.selected) {

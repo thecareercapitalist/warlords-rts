@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.154.0 — Staged building damage _(2026-06-07)_
+- Buildings now visibly degrade as they take damage: **cracks** appear under 75% HP,
+  **scorch darkening + more cracks** under 50%, and a **heavy smoke plume + embers**
+  under 25%. Crack placement is hashed per building so it's stable (no flicker).
+  Replaces the old single-stage low-HP smoke.
+
 ## v0.153.0 — Bigger map + finite gold mines _(2026-06-07)_
 - Map grown **64²→80²** with **~13 gold mines** scattered (≥12 tiles apart), and
   each mine is now **finite at 9,000** (was 25k) — one mine won't fund a whole game,
