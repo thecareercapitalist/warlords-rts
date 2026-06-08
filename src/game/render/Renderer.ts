@@ -183,6 +183,21 @@ export class Renderer {
           }
         }
 
+        // Water: a soft cool glint that drifts across each tile, with a per-tile
+        // phase offset so the lake ripples as a field rather than in lockstep.
+        if (t.terrain === "water") {
+          ctx.save();
+          this.diamondPath(s.x, s.y);
+          ctx.clip();
+          const ph = this.now * 0.7 + tx * 0.8 + ty * 0.55;
+          const a = 0.05 + 0.05 * (0.5 + 0.5 * Math.sin(ph));
+          ctx.fillStyle = `rgba(150,180,225,${a})`;
+          ctx.beginPath();
+          ctx.ellipse(s.x + Math.cos(ph * 0.6) * hw * 0.28, s.y + Math.sin(ph) * hh * 0.32, hw * 0.5, hh * 0.32, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
         // Map-decoration props: trees on forest, ore on goldmines, mountains on rock.
         if (t.terrain === "forest") {
           const tree = this.assets.propSprite(((tx * 7 + ty * 13) & 3) === 0 ? "deadtree" : "pines");

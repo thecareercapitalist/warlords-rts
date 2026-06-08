@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.210.0 — Animated water shimmer _(2026-06-08)_
+- Lakes were static; now each water tile carries a soft cool moonlit glint that
+  drifts with the render clock, phase-offset per tile so the water ripples as a
+  living field. Purely presentational, clipped to the tile diamond. Verified by
+  render.
+
 ## v0.209.0 — Difficulty-scaled first-wave grace _(2026-06-08)_
 - The AI now holds its **first** attack wave until a difficulty-scaled minimum game
   age (Recruit 120s · Soldier 85s · Warlord 55s), building its army in the meantime —
