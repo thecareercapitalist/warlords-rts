@@ -1200,13 +1200,19 @@ export class Renderer {
         sprite = frames[i];
       }
     } else if (u.kind === "footman") {
-      // Walk cycle while travelling, else the relaxed frame 0 when standing — both
-      // from the Gemini walk sheet, so idle/walk/attack share one consistent look
-      // (no popping back to the older base sprite). walk-bob still applies.
+      // Walk cycle while travelling; when standing, the planted "ready" stance
+      // (attack frame 0 — weapon up, feet set) rather than a mid-stride walk frame,
+      // so an idle soldier looks ready, not frozen mid-step. Both Gemini-sourced so
+      // the look stays consistent. walk-bob still applies.
       const walk = isEnemy ? this.assets.gruntWalkFrames : this.assets.footmanWalkFrames;
-      if (walk.length === 4) {
-        const moving = u.path.length > 0 || u.finalTarget !== null;
-        sprite = moving ? walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4] : walk[0];
+      const atk = isEnemy ? this.assets.gruntAtkFrames : this.assets.footmanAtkFrames;
+      const moving = u.path.length > 0 || u.finalTarget !== null;
+      if (moving && walk.length === 4) {
+        sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      } else if (atk.length > 0) {
+        sprite = atk[0];
+      } else if (walk.length === 4) {
+        sprite = walk[0];
       }
     } else if (u.kind === "dragon") {
       // Flying units flap continuously (orc dragon vs human griffin), phase-offset
@@ -1224,16 +1230,18 @@ export class Renderer {
         sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
       }
     } else if (u.kind === "archer") {
-      // Draw the bow only while shooting; otherwise hold the relaxed pose (frame 0,
-      // bow lowered) so a standing/walking archer isn't perpetually aiming.
+      // Shoot → draw cycle; moving → walk cycle (bow lowered); idle → relaxed
+      // frame 0, so an archer is never perpetually aiming or sliding.
       const shot = isEnemy ? this.assets.orcArcherShotFrames : this.assets.archerShotFrames;
-      if (shot.length > 0) {
-        if (u.attackAnim > 0) {
-          const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
-          sprite = shot[Math.min(shot.length - 1, Math.floor((1 - ph) * shot.length))];
-        } else {
-          sprite = shot[0];
-        }
+      const walk = isEnemy ? this.assets.orcArcherWalkFrames : this.assets.archerWalkFrames;
+      const moving = u.path.length > 0 || u.finalTarget !== null;
+      if (u.attackAnim > 0 && shot.length > 0) {
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
+        sprite = shot[Math.min(shot.length - 1, Math.floor((1 - ph) * shot.length))];
+      } else if (moving && walk.length === 4) {
+        sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      } else if (shot.length > 0) {
+        sprite = shot[0];
       }
     } else if (u.kind === "mage") {
       // Charge the staff only while casting; otherwise hold it lowered (frame 0).

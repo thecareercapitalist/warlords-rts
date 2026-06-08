@@ -249,6 +249,9 @@ export class Assets {
   /** Archer draw-and-loose frames [nock, draw, loose] per faction. */
   archerShotFrames: CanvasImageSource[] = [];
   orcArcherShotFrames: CanvasImageSource[] = [];
+  /** Archer 4-frame walk cycles per faction (bow lowered, while moving). */
+  archerWalkFrames: CanvasImageSource[] = [];
+  orcArcherWalkFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -469,6 +472,23 @@ export class Assets {
         const m = sliceGrid(img, 5, 1, ["o0", "o1", "o2", "o3", "o4"]);
         const fr = [m.get("o0"), m.get("o1"), m.get("o2"), m.get("o3"), m.get("o4")];
         if (fr.every(Boolean)) this.orcArcherShotFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Archer walk cycles: human archer + orc hunter.
+    jobs.push(
+      load(inl?.archerWalk ?? "/gen_archer_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.archerWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.orcArcherWalk ?? "/gen_orcarcher_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.orcArcherWalkFrames = fr as CanvasImageSource[];
       }),
     );
     // Caster walk cycles: human mage + orc warlock.

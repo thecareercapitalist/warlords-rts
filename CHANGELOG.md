@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.202.0 — Archer walk + planted footman idle _(2026-06-08)_
+- **Archers now walk** instead of sliding — new 4-frame walk cycle (human + orc,
+  bow lowered) plays while moving; idle holds the relaxed bow-lowered pose, the bow
+  only draws while shooting.
+- **Footman/grunt idle is now a planted, weapon-ready stance** (attack frame 0) —
+  feet set, not frozen mid-step like the old walk-frame-0 idle.
+
 ## v0.201.0 — Worker build hotkeys + temple footprint fit _(2026-06-08)_
 - **Sawmill (R) and Enclave (Q) now build correctly with a peon selected.** Peons
   have a bit of attack damage, so the patrol(R)/attack-move(Q)/hold(H) commands were
