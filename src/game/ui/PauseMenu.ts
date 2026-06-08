@@ -16,68 +16,94 @@ export type MenuResult =
   | { type: "toggleFullscreen" }
   | { type: "rebind"; action: ActionId };
 
+type Tab = "game" | "controls";
+
 interface Layout {
   panel: Rect;
   resume: Rect;
   restart: Rect;
+  tabGame: Rect;
+  tabControls: Rect;
+  // Game tab
   save: Rect;
   slots: Rect[];
   edgeToggle: Rect;
   musicToggle: Rect;
   fullscreenToggle: Rect;
+  // Controls tab
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
 }
 
 /**
- * The Escape pause menu: resume/restart plus a rebindable controls list.
- * Stateless except for which action is currently awaiting a new key.
+ * The Escape pause menu: a tabbed panel — "Game" (resume/restart, save/load
+ * slots, toggles) and "Controls" (the rebindable key list) — to cut clutter.
  */
 export class PauseMenu {
   awaiting: ActionId | null = null;
+  activeTab: Tab = "game";
 
   private layoutFor(cam: Camera): Layout {
-    const pw = 460;
-    const ph = 250 + ACTION_ORDER.length * 40 + 70;
+    const pw = 470;
+    const ph = this.activeTab === "game" ? 360 : 196 + ACTION_ORDER.length * 34 + 54;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
 
-    const btn = (x: number, y: number, w: number): Rect => ({ x, y, w, h: 34 });
-    const resume = btn(px + 30, py + 56, 180);
-    const restart = btn(px + pw - 210, py + 56, 180);
-    const save = btn(px + 30, py + 98, pw - 60); // full width — auto-rotates slots
-    const thirdW = (pw - 60 - 20) / 3;
-    // Three dated save slots (click to load).
-    const slots = [0, 1, 2].map((i) => btn(px + 30 + (thirdW + 10) * i, py + 140, thirdW));
-    const edgeToggle = btn(px + 30, py + 182, thirdW);
-    const musicToggle = btn(px + 30 + thirdW + 10, py + 182, thirdW);
-    const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 182, thirdW);
+    const btn = (x: number, y: number, w: number, h = 34): Rect => ({ x, y, w, h });
+    const halfW = (pw - 60 - 14) / 2;
+    const resume = btn(px + 30, py + 56, halfW);
+    const restart = btn(px + pw - 30 - halfW, py + 56, halfW);
+    // Tab strip.
+    const tabGame = btn(px + 30, py + 98, halfW, 30);
+    const tabControls = btn(px + pw - 30 - halfW, py + 98, halfW, 30);
 
+    // --- Game tab ---
+    const save = btn(px + 30, py + 158, pw - 60, 32);
+    const thirdW = (pw - 60 - 20) / 3;
+    const slots = [0, 1, 2].map((i) => btn(px + 30 + (thirdW + 10) * i, py + 198, thirdW, 46));
+    const edgeToggle = btn(px + 30, py + 258, thirdW, 30);
+    const musicToggle = btn(px + 30 + thirdW + 10, py + 258, thirdW, 30);
+    const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 258, thirdW, 30);
+
+    // --- Controls tab ---
     const rows: Layout["rows"] = [];
-    let ry = py + 244;
+    let ry = py + 144;
     for (const a of ACTION_ORDER) {
-      rows.push({ action: a.id, label: a.label, keyBox: { x: px + pw - 150, y: ry, w: 110, h: 28 } });
-      ry += 40;
+      rows.push({ action: a.id, label: a.label, keyBox: { x: px + pw - 150, y: ry, w: 110, h: 26 } });
+      ry += 34;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, save, slots, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
+
+    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
     const l = this.layoutFor(cam);
     if (rectContains(l.resume, p)) return { type: "resume" };
     if (rectContains(l.restart, p)) return { type: "restart" };
-    if (rectContains(l.save, p)) return { type: "save" };
-    for (let i = 0; i < l.slots.length; i++) {
-      if (rectContains(l.slots[i], p)) return { type: "loadSlot", slot: i };
+    // Tab switches are handled internally (no result bubbles to the game).
+    if (rectContains(l.tabGame, p)) {
+      this.activeTab = "game";
+      return null;
     }
-    if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
-    if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
-    if (rectContains(l.fullscreenToggle, p)) return { type: "toggleFullscreen" };
-    if (rectContains(l.reset, p)) return { type: "reset" };
-    for (const row of l.rows) {
-      if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
+    if (rectContains(l.tabControls, p)) {
+      this.activeTab = "controls";
+      return null;
+    }
+    if (this.activeTab === "game") {
+      if (rectContains(l.save, p)) return { type: "save" };
+      for (let i = 0; i < l.slots.length; i++) {
+        if (rectContains(l.slots[i], p)) return { type: "loadSlot", slot: i };
+      }
+      if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
+      if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
+      if (rectContains(l.fullscreenToggle, p)) return { type: "toggleFullscreen" };
+    } else {
+      if (rectContains(l.reset, p)) return { type: "reset" };
+      for (const row of l.rows) {
+        if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
+      }
     }
     return null;
   }
@@ -97,74 +123,105 @@ export class PauseMenu {
     ctx.fillStyle = "rgba(0,0,0,0.62)";
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
 
-    // Panel — beveled gothic stone with a double (ember + ink) border.
+    // Panel fill — beveled gothic stone.
     const pg = ctx.createLinearGradient(0, l.panel.y, 0, l.panel.y + l.panel.h);
     pg.addColorStop(0, "#262318");
     pg.addColorStop(0.5, "#1b1810");
     pg.addColorStop(1, "#131009");
     ctx.fillStyle = pg;
     ctx.fillRect(l.panel.x, l.panel.y, l.panel.w, l.panel.h);
-    ctx.strokeStyle = "#15110d";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(l.panel.x - 1, l.panel.y - 1, l.panel.w + 2, l.panel.h + 2);
-    ctx.strokeStyle = "rgba(217,138,50,0.85)"; // ember frame
-    ctx.lineWidth = 2;
-    ctx.strokeRect(l.panel.x + 3, l.panel.y + 3, l.panel.w - 6, l.panel.h - 6);
-    ctx.fillStyle = "rgba(255,244,214,0.07)"; // top highlight
+    ctx.fillStyle = "rgba(255,244,214,0.07)";
     ctx.fillRect(l.panel.x + 4, l.panel.y + 4, l.panel.w - 8, 2);
 
-    // Ornate gothic frame overlay (replaces the plain ember border when loaded).
+    // Ornate gothic frame overlay.
     if (frame) {
       draw9Slice(ctx, frame, { x: l.panel.x - 6, y: l.panel.y - 10, w: l.panel.w + 12, h: l.panel.h + 16 }, 0.17, 46);
+    } else {
+      ctx.strokeStyle = "rgba(217,138,50,0.85)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(l.panel.x + 3, l.panel.y + 3, l.panel.w - 6, l.panel.h - 6);
     }
 
     ctx.fillStyle = "#f3ead2";
-    ctx.font = "bold 28px 'Segoe UI', sans-serif";
+    ctx.font = "bold 26px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("⚔ Paused ⚔", cam.viewW / 2, l.panel.y + 30);
-    ctx.strokeStyle = "rgba(217,138,50,0.7)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(cam.viewW / 2 - 90, l.panel.y + 46);
-    ctx.lineTo(cam.viewW / 2 + 90, l.panel.y + 46);
-    ctx.stroke();
+    ctx.fillText("⚔ Paused ⚔", cam.viewW / 2, l.panel.y + 28);
 
     this.button(ctx, l.resume, "Resume", true);
     this.button(ctx, l.restart, "Restart", true);
-    this.button(ctx, l.save, "Save Game (auto-slot)", true);
-    // Three dated save slots (click to load).
+
+    // Tab strip.
+    this.tab(ctx, l.tabGame, "Game", this.activeTab === "game");
+    this.tab(ctx, l.tabControls, "Controls", this.activeTab === "controls");
+
+    if (this.activeTab === "game") {
+      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots);
+    } else {
+      this.renderControlsTab(ctx, l, kb);
+    }
+
+    ctx.fillStyle = "#7e8a98";
+    ctx.font = "12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Esc to resume", cam.viewW / 2, l.panel.y + l.panel.h - 12);
+  }
+
+  private renderGameTab(
+    ctx: CanvasRenderingContext2D,
+    l: Layout,
+    edgeScroll: boolean,
+    musicOn: boolean,
+    slots: (SlotMeta | null)[],
+  ): void {
+    // SAVE / LOAD heading.
+    ctx.fillStyle = "#cdbb95";
+    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("SAVE  /  LOAD", l.panel.x + 30, l.save.y - 8);
+
+    this.button(ctx, l.save, "💾  Save Game", true);
+
     for (let i = 0; i < l.slots.length; i++) {
       const m = slots[i] ?? null;
       const r = l.slots[i];
-      this.button(ctx, r, m ? `Slot ${i + 1}` : `Slot ${i + 1}`, !!m);
+      this.button(ctx, r, "", !!m);
+      ctx.textAlign = "center";
       if (m) {
-        ctx.fillStyle = "#cdbb95";
-        ctx.font = "9px 'Segoe UI', sans-serif";
-        ctx.textAlign = "center";
+        ctx.fillStyle = "#f1ead8";
+        ctx.font = "bold 14px 'Segoe UI', sans-serif";
         ctx.textBaseline = "alphabetic";
-        ctx.fillText(this.fmtClock(m.savedAt), r.x + r.w / 2, r.y + r.h - 6);
+        ctx.fillText(`💾 Slot ${i + 1}`, r.x + r.w / 2, r.y + 20);
+        ctx.fillStyle = "#cdbb95";
+        ctx.font = "10px 'Segoe UI', sans-serif";
+        ctx.fillText(this.fmtClock(m.savedAt), r.x + r.w / 2, r.y + 35);
       } else {
-        ctx.fillStyle = "#6b6356";
-        ctx.font = "9px 'Segoe UI', sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("empty", r.x + r.w / 2, r.y + r.h - 6);
+        ctx.fillStyle = "#8a7e6a";
+        ctx.font = "13px 'Segoe UI', sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`Slot ${i + 1}`, r.x + r.w / 2, r.y + r.h / 2 - 6);
+        ctx.font = "10px 'Segoe UI', sans-serif";
+        ctx.fillText("— empty —", r.x + r.w / 2, r.y + r.h / 2 + 9);
       }
     }
+
     const isFs = typeof document !== "undefined" && !!document.fullscreenElement;
     this.button(ctx, l.edgeToggle, `Edge: ${edgeScroll ? "ON" : "OFF"}`, true);
     this.button(ctx, l.musicToggle, `Music: ${musicOn ? "ON" : "OFF"}`, true);
-    this.button(ctx, l.fullscreenToggle, `Fullscreen: ${isFs ? "ON" : "OFF"}`, true);
+    this.button(ctx, l.fullscreenToggle, `Fullscr: ${isFs ? "ON" : "OFF"}`, true);
+  }
 
-    // Controls header.
+  private renderControlsTab(ctx: CanvasRenderingContext2D, l: Layout, kb: Keybindings): void {
     ctx.fillStyle = "#9fb2c2";
     ctx.font = "13px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("CONTROLS — click a key to rebind", l.panel.x + 30, l.panel.y + 230);
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("Click a key to rebind", l.panel.x + 30, l.rows[0].keyBox.y - 10);
 
     for (const row of l.rows) {
       ctx.fillStyle = "#dfe6ee";
-      ctx.font = "15px 'Segoe UI', sans-serif";
+      ctx.font = "14px 'Segoe UI', sans-serif";
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(row.label, l.panel.x + 30, row.keyBox.y + row.keyBox.h / 2);
@@ -176,7 +233,7 @@ export class PauseMenu {
       ctx.lineWidth = 1;
       ctx.strokeRect(row.keyBox.x, row.keyBox.y, row.keyBox.w, row.keyBox.h);
       ctx.fillStyle = "#eef2f7";
-      ctx.font = "14px 'Segoe UI', sans-serif";
+      ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.textAlign = "center";
       ctx.fillText(
         awaiting ? "press a key…" : kb.display(row.action),
@@ -186,11 +243,6 @@ export class PauseMenu {
     }
 
     this.button(ctx, l.reset, "Reset to Defaults", true);
-
-    ctx.fillStyle = "#7e8a98";
-    ctx.font = "12px 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("Esc to resume", cam.viewW / 2, l.panel.y + l.panel.h - 12);
   }
 
   /** "6/7 19:05" — short month/day + 24h time of a save's timestamp. */
@@ -199,6 +251,22 @@ export class PauseMenu {
     const hh = `${d.getHours()}`.padStart(2, "0");
     const mm = `${d.getMinutes()}`.padStart(2, "0");
     return `${d.getMonth() + 1}/${d.getDate()} ${hh}:${mm}`;
+  }
+
+  private tab(ctx: CanvasRenderingContext2D, r: Rect, label: string, active: boolean): void {
+    const g = ctx.createLinearGradient(0, r.y, 0, r.y + r.h);
+    g.addColorStop(0, active ? "#4a3a22" : "#22252c");
+    g.addColorStop(1, active ? "#2c2110" : "#15171b");
+    ctx.fillStyle = g;
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.strokeStyle = active ? "rgba(217,138,50,0.95)" : "rgba(120,130,150,0.5)";
+    ctx.lineWidth = active ? 2 : 1;
+    ctx.strokeRect(r.x, r.y, r.w, r.h);
+    ctx.fillStyle = active ? "#f4c46a" : "#9aa3b0";
+    ctx.font = `${active ? "bold " : ""}15px 'Segoe UI', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, r.x + r.w / 2, r.y + r.h / 2);
   }
 
   private button(ctx: CanvasRenderingContext2D, r: Rect, label: string, enabled: boolean): void {
@@ -214,10 +282,12 @@ export class PauseMenu {
     ctx.strokeStyle = "rgba(217,138,50,0.65)";
     ctx.lineWidth = 1;
     ctx.strokeRect(r.x, r.y, r.w, r.h);
-    ctx.fillStyle = "#f1ead8";
-    ctx.font = "15px 'Segoe UI', sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(label, r.x + r.w / 2, r.y + r.h / 2);
+    if (label) {
+      ctx.fillStyle = enabled ? "#f1ead8" : "#6b6356";
+      ctx.font = "15px 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, r.x + r.w / 2, r.y + r.h / 2);
+    }
   }
 }

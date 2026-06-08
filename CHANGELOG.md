@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.168.0 — Tabbed pause menu + clearer save slots _(2026-06-07)_
+- The pause menu is now **tabbed**: **Game** (resume/restart, save/load, toggles)
+  and **Controls** (the rebind list) — far less cluttered.
+- **Save slots are obvious now**: a "SAVE / LOAD" heading, a 💾 Save Game button,
+  and each slot clearly shows "💾 Slot N + date/time" or "— empty —".
+- Both tabs sit inside the ornate gothic frame.
+
 ## v0.167.0 — Ornate gothic UI framing _(2026-06-07)_
 - New hand-designed **ornate gothic frame** art (forged iron + carved stone rails,
   ember corner gems, skull filigree, a demon crest) drawn as a **9-slice** around
