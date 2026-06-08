@@ -9,7 +9,7 @@ import { Hud, type HudAction } from "./ui/Hud.ts";
 import { Keybindings } from "./ui/Keybindings.ts";
 import { PauseMenu } from "./ui/PauseMenu.ts";
 import { Fog } from "./systems/fog.ts";
-import { AIController } from "./systems/ai.ts";
+import { AIController, type Difficulty } from "./systems/ai.ts";
 import { Unit } from "./entities/Unit.ts";
 import { Building } from "./entities/Building.ts";
 import type { BuildingKind, Vec2 } from "./types.ts";
@@ -65,6 +65,17 @@ export class Game {
       /* ignore */
     }
     return 1.8; // brisker default — the old 1.0 felt sluggish
+  })();
+
+  /** Skirmish difficulty (scales the AI economy + aggression), set in the pause menu. */
+  private difficulty: Difficulty = ((): Difficulty => {
+    try {
+      const v = localStorage.getItem("warlords.difficulty");
+      if (v === "easy" || v === "normal" || v === "hard") return v;
+    } catch {
+      /* ignore */
+    }
+    return "normal";
   })();
 
   private world!: World;
@@ -132,6 +143,7 @@ export class Game {
     this.world = new World(seed);
     this.fog = new Fog(this.humanId);
     this.ai = new AIController(AI_PLAYER);
+    this.ai.setDifficulty(this.difficulty);
     this.selUnits = [];
     this.selBuildings = [];
     this.buildMode = null;
@@ -885,6 +897,7 @@ export class Game {
     this.fog = new Fog(this.humanId);
     this.fog.importExplored(res.explored);
     this.ai = new AIController(AI_PLAYER);
+    this.ai.setDifficulty(this.difficulty);
     this.selUnits = [];
     this.selBuildings = [];
     this.controlGroups.clear();
@@ -956,6 +969,14 @@ export class Game {
           else void document.documentElement.requestFullscreen();
         } catch {
           /* fullscreen unavailable */
+        }
+      } else if (res.type === "setDifficulty") {
+        this.difficulty = res.value;
+        this.ai.setDifficulty(this.difficulty);
+        try {
+          localStorage.setItem("warlords.difficulty", this.difficulty);
+        } catch {
+          /* storage blocked */
         }
       } else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
     }
@@ -1265,7 +1286,7 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} N`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver)
-      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed);
+      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed, this.difficulty);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }

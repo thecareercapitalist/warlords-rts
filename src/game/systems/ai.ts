@@ -9,6 +9,9 @@ import { BUILDING_DEFS } from "../entities/defs.ts";
 import { TILE } from "../constants.ts";
 import { toTile, dist2 } from "../util/math.ts";
 
+/** Skirmish difficulty — scales the AI's economy and how soon it commits waves. */
+export type Difficulty = "easy" | "normal" | "hard";
+
 const TICK = 1.0; // seconds between AI decisions
 const TARGET_WORKERS = 8;
 const MAX_BARRACKS = 2;
@@ -29,8 +32,19 @@ export class AIController {
   private attacking = false;
   private wavesSent = 0; // each launched wave raises the bar for the next
   private trainTick = 0; // rotates the mixed-army unit choice
+  private difficulty: Difficulty = "normal";
 
   constructor(private readonly playerId: number) {}
+
+  /** Set skirmish difficulty (live — affects the next decisions). */
+  setDifficulty(d: Difficulty): void {
+    this.difficulty = d;
+  }
+
+  /** Worker economy target, scaled by difficulty (weaker AI economy on Recruit). */
+  private targetWorkers(): number {
+    return this.difficulty === "easy" ? 5 : this.difficulty === "hard" ? 10 : TARGET_WORKERS;
+  }
 
   update(world: World, dt: number): void {
     const p = world.player(this.playerId);
@@ -196,7 +210,7 @@ export class AIController {
     }
 
     // B. Keep workers coming.
-    if (workers.length < TARGET_WORKERS && townhall.queue.length === 0) {
+    if (workers.length < this.targetWorkers() && townhall.queue.length === 0) {
       enqueueUnit(world, townhall, "peon");
     }
 
@@ -308,8 +322,11 @@ export class AIController {
       this.attacking = false;
     }
     // Each wave the AI commits raises the muster threshold for the next, so its
-    // attacks grow larger and scarier as the game wears on (capped).
-    const threshold = ATTACK_ARMY_SIZE + Math.min(this.wavesSent * 2, 8);
+    // attacks grow larger and scarier as the game wears on (capped). Difficulty
+    // shifts the base: Recruit musters more before attacking (later, rarer waves),
+    // Warlord commits sooner.
+    const diffAdj = this.difficulty === "easy" ? 3 : this.difficulty === "hard" ? -2 : 0;
+    const threshold = Math.max(3, ATTACK_ARMY_SIZE + diffAdj + Math.min(this.wavesSent * 2, 8));
     if (fighters.length >= threshold) {
       const target = this.findEnemyTarget(world);
       if (target) {

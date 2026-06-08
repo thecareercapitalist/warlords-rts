@@ -15,7 +15,16 @@ export type MenuResult =
   | { type: "toggleMusic" }
   | { type: "toggleFullscreen" }
   | { type: "setPanSpeed"; value: number }
+  | { type: "setDifficulty"; value: Difficulty }
   | { type: "rebind"; action: ActionId };
+
+/** Skirmish difficulty levels, easiest → hardest, with player-facing labels. */
+export type Difficulty = "easy" | "normal" | "hard";
+const DIFFICULTIES: { id: Difficulty; label: string }[] = [
+  { id: "easy", label: "Recruit" },
+  { id: "normal", label: "Soldier" },
+  { id: "hard", label: "Warlord" },
+];
 
 /** Pan-speed slider range (× base camera speed). */
 const PAN_MIN = 0.5;
@@ -36,6 +45,7 @@ interface Layout {
   musicToggle: Rect;
   fullscreenToggle: Rect;
   panSlider: Rect;
+  diff: Rect[];
   // Controls tab
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
@@ -51,7 +61,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 470;
-    const ph = this.activeTab === "game" ? 396 : 196 + ACTION_ORDER.length * 34 + 54;
+    const ph = this.activeTab === "game" ? 452 : 196 + ACTION_ORDER.length * 34 + 54;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -72,6 +82,9 @@ export class PauseMenu {
     const musicToggle = btn(px + 30 + thirdW + 10, py + 258, thirdW, 30);
     const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 258, thirdW, 30);
     const panSlider = btn(px + 30, py + 322, pw - 60, 16);
+    // Difficulty selector: three equal segments.
+    const diffW = (pw - 60 - 16) / 3;
+    const diff = [0, 1, 2].map((i) => btn(px + 30 + (diffW + 8) * i, py + 372, diffW, 32));
 
     // --- Controls tab ---
     const rows: Layout["rows"] = [];
@@ -82,7 +95,7 @@ export class PauseMenu {
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
 
-    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, panSlider, reset, rows };
+    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, panSlider, diff, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -112,6 +125,9 @@ export class PauseMenu {
         const f = Math.max(0, Math.min(1, (p.x - s.x) / s.w));
         return { type: "setPanSpeed", value: PAN_MIN + f * (PAN_MAX - PAN_MIN) };
       }
+      for (let i = 0; i < l.diff.length; i++) {
+        if (rectContains(l.diff[i], p)) return { type: "setDifficulty", value: DIFFICULTIES[i].id };
+      }
     } else {
       if (rectContains(l.reset, p)) return { type: "reset" };
       for (const row of l.rows) {
@@ -130,6 +146,7 @@ export class PauseMenu {
     slots: (SlotMeta | null)[] = [],
     frame?: CanvasImageSource,
     panSpeed = 1,
+    difficulty: Difficulty = "normal",
   ): void {
     const l = this.layoutFor(cam);
 
@@ -170,7 +187,7 @@ export class PauseMenu {
     this.tab(ctx, l.tabControls, "Controls", this.activeTab === "controls");
 
     if (this.activeTab === "game") {
-      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots, panSpeed);
+      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots, panSpeed, difficulty);
     } else {
       this.renderControlsTab(ctx, l, kb);
     }
@@ -188,6 +205,7 @@ export class PauseMenu {
     musicOn: boolean,
     slots: (SlotMeta | null)[],
     panSpeed: number,
+    difficulty: Difficulty,
   ): void {
     // SAVE / LOAD heading.
     ctx.fillStyle = "#cdbb95";
@@ -248,6 +266,30 @@ export class PauseMenu {
     ctx.fillRect(kx - 4, s.y - 1, 8, s.h + 2);
     ctx.strokeStyle = "#15110d";
     ctx.strokeRect(kx - 4, s.y - 1, 8, s.h + 2);
+
+    // Difficulty selector — three segmented buttons, active one lit.
+    ctx.fillStyle = "#cdbb95";
+    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("DIFFICULTY", l.diff[0].x, l.diff[0].y - 8);
+    for (let i = 0; i < l.diff.length; i++) {
+      const r = l.diff[i];
+      const active = DIFFICULTIES[i].id === difficulty;
+      const g = ctx.createLinearGradient(0, r.y, 0, r.y + r.h);
+      g.addColorStop(0, active ? "#4a3a22" : "#23272f");
+      g.addColorStop(1, active ? "#2c2110" : "#191b1f");
+      ctx.fillStyle = g;
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = active ? "rgba(217,138,50,0.95)" : "rgba(120,130,150,0.5)";
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+      ctx.fillStyle = active ? "#f4c46a" : "#9aa3b0";
+      ctx.font = `${active ? "bold " : ""}14px 'Segoe UI', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(DIFFICULTIES[i].label, r.x + r.w / 2, r.y + r.h / 2);
+    }
   }
 
   private renderControlsTab(ctx: CanvasRenderingContext2D, l: Layout, kb: Keybindings): void {
