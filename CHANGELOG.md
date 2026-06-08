@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.192.0 — AI retreats wounded casters/dragons _(2026-06-07)_
+- The AI now **pulls a badly-hurt mage or dragon (&lt;30% HP) back toward home** when
+  an enemy is within ~6 tiles, instead of feeding its expensive caster/flyer into
+  the melee. Fleeing units drop their target and won't re-engage while withdrawing.
+  Verified: a wounded AI mage drops its target and moves to base.
+- (Consistency audit: dragon + griffin confirmed coherent — flyers always render
+  their flap sheet, which is internally consistent — so no regen needed.)
+
 ## v0.191.0 — Wolf-rider gallop matches its base _(2026-06-07)_
 - Regenerated the orc wolf-rider gallop to match the idle base: bare-headed green
   orc, single spiked left pauldron, skull-buckle belt, bracers, jagged axe, on the

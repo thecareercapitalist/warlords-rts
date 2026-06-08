@@ -259,7 +259,31 @@ export class AIController {
   }
 
   private manageArmy(world: World, units: Unit[]): void {
-    const fighters = this.fighters(units);
+    const allFighters = this.fighters(units);
+
+    // Preserve fragile, expensive units: a badly-wounded mage or dragon retreats
+    // toward home rather than feeding itself to the enemy line. Fleeing units go to
+    // "moving" state so they won't auto-re-engage on the way out.
+    const myB = world.buildingsOf(this.playerId);
+    const home = (myB.find((b) => b.kind === "townhall") ?? myB[0])?.center() ?? null;
+    const retreating = new Set<Unit>();
+    if (home) {
+      // Scan ALL AI units (mage/dragon aren't in COMBAT_KINDS / allFighters).
+      for (const f of units) {
+        if (f.dead) continue;
+        if (f.kind !== "mage" && f.kind !== "dragon") continue;
+        if (f.hp >= f.def.maxHp * 0.3) continue;
+        const danger = world.units.some(
+          (o) => !o.dead && o.playerId !== this.playerId && o.def.damage > 0 && dist2(f.pos, o.pos) < (6 * TILE) ** 2,
+        );
+        if (!danger) continue;
+        retreating.add(f);
+        f.attackTarget = null;
+        f.holdGround = false;
+        if (!f.finalTarget || dist2(f.finalTarget, home) > (2 * TILE) ** 2) orderMove(world, f, home);
+      }
+    }
+    const fighters = allFighters.filter((f) => !retreating.has(f));
 
     // Defense first: if enemies are near the base, pull the whole army home,
     // interrupting any offensive wave.
