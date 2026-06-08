@@ -106,6 +106,7 @@ export class Game {
   private shake = 0; // screen-shake magnitude (px), decays each frame
   private kills = 0; // enemy units slain by the human
   private razed = 0; // enemy buildings destroyed by the human
+  private peakArmy = 0; // largest simultaneous human fighter count (end-screen stat)
   private endFanfarePlayed = false;
   private pendingCenter: Vec2 | null = null; // centred once the viewport is real
   private lastTime = 0;
@@ -160,6 +161,7 @@ export class Game {
     this.elapsed = 0;
     this.kills = 0;
     this.razed = 0;
+    this.peakArmy = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.paused = false;
@@ -919,6 +921,7 @@ export class Game {
     this.elapsed = res.elapsed ?? 0;
     this.kills = 0;
     this.razed = 0;
+    this.peakArmy = 0;
     this.shake = 0;
     this.endFanfarePlayed = false;
     this.world.recomputeSupply();
@@ -1210,6 +1213,13 @@ export class Game {
   // --- Win / loss ---------------------------------------------------------
 
   private checkWinLoss(): void {
+    // Track the player's largest simultaneous fighting force (end-screen stat).
+    let army = 0;
+    for (const u of this.world.unitsOf(this.humanId)) {
+      if (!u.dead && u.def.damage > 0 && !u.def.canGather) army++;
+    }
+    if (army > this.peakArmy) this.peakArmy = army;
+
     for (const p of this.world.players) {
       if (p.defeated) continue;
       const hasBuildings = this.world.buildingsOf(p.id).length > 0;
@@ -1294,6 +1304,6 @@ export class Game {
 
     if (this.paused && !this.gameOver)
       this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed, this.difficulty);
-    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
+    if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed, this.peakArmy);
   }
 }

@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.212.0 — Richer victory/defeat screen (score + verdict) _(2026-06-08)_
+- The end screen now shows a **Score** (slain ×10 + razed ×30 + peak army ×5 + a
+  speed bonus on a fast win), a flavor **verdict** by tier ("Warlord of the Wastes" /
+  "Dread Commander" / "Victor"; "Fell with honor" / "Cut down" on defeat), and a new
+  **peak army** stat alongside time/slain/razed. Tracks peak simultaneous fighter
+  count over the match. Verified by render.
+
 ## v0.211.0 — Building rubble decals _(2026-06-08)_
 - Destroyed buildings now leave a lingering **ruin** — a scorched ground scar with
   scattered broken masonry, sized by footprint — instead of vanishing after the

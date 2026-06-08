@@ -756,14 +756,14 @@ export class Hud {
       .join(" · ");
   }
 
-  renderEndScreen(cam: Camera, won: boolean, elapsed = 0, kills = 0, razed = 0): void {
+  renderEndScreen(cam: Camera, won: boolean, elapsed = 0, kills = 0, razed = 0, peakArmy = 0): void {
     const ctx = this.ctx;
     ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
 
     // Framed gothic panel behind the result.
     const pw = 480;
-    const ph = 240;
+    const ph = 286;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const pg = ctx.createLinearGradient(0, py, 0, py + ph);
@@ -781,18 +781,41 @@ export class Hud {
     ctx.font = "bold 54px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(won ? "⚔ VICTORY ⚔" : "☠ DEFEAT ☠", cx, py + 78);
+    ctx.fillText(won ? "⚔ VICTORY ⚔" : "☠ DEFEAT ☠", cx, py + 64);
     const mins = Math.floor(elapsed / 60);
     const secs = Math.floor(elapsed % 60);
+
+    // Score rewards aggression + efficiency; a quick, decisive win scores highest.
+    const speedBonus = won ? Math.max(0, 600 - Math.floor(elapsed)) : 0;
+    const score = kills * 10 + razed * 30 + peakArmy * 5 + speedBonus;
+    // Flavor verdict by score tier (and outcome).
+    const verdict = !won
+      ? score > 250
+        ? "Fell with honor"
+        : "Cut down"
+      : score > 700
+        ? "Warlord of the Wastes"
+        : score > 400
+          ? "Dread Commander"
+          : "Victor";
+
     ctx.fillStyle = COLORS.uiEmber;
-    ctx.font = "18px 'Segoe UI', sans-serif";
-    ctx.fillText(
-      `Time: ${mins}m ${secs.toString().padStart(2, "0")}s    Slain: ${kills}    Razed: ${razed}`,
-      cx,
-      py + 132,
-    );
+    ctx.font = "italic 20px 'Segoe UI', sans-serif";
+    ctx.fillText(verdict, cx, py + 104);
+
     ctx.fillStyle = COLORS.uiText;
-    ctx.font = "20px 'Segoe UI', sans-serif";
-    ctx.fillText("Press R to play again", cx, py + 178);
+    ctx.font = "17px 'Segoe UI', sans-serif";
+    ctx.fillText(
+      `Time ${mins}m ${secs.toString().padStart(2, "0")}s    Slain ${kills}    Razed ${razed}    Peak army ${peakArmy}`,
+      cx,
+      py + 146,
+    );
+    ctx.fillStyle = "#f4c46a";
+    ctx.font = "bold 24px 'Segoe UI', sans-serif";
+    ctx.fillText(`Score ${score}`, cx, py + 188);
+
+    ctx.fillStyle = COLORS.uiText;
+    ctx.font = "18px 'Segoe UI', sans-serif";
+    ctx.fillText("Press R to play again", cx, py + 232);
   }
 }
