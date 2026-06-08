@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.150.0 — Cavalry: mounted knight + wolf rider _(2026-06-07)_
+- The **Knight** is now mounted, with **faction-specific art**: humans ride an
+  armored **warhorse** (lance + caparison), orcs ride a snarling **dire wolf**
+  (wolf-rider). Both generated via Gemini. Knights are now drawn bigger (radius
+  11→13) and ride faster (speed 95→105) befitting cavalry.
+
 ## v0.149.0 — Balance: faster training + mage nerf _(2026-06-07)_
 - **Faster training** to match the cheaper/bigger-army economy: footman & grunt
   16→9s, archer 18→11s, knight 26→18s. (Cost was already halved; train time wasn't

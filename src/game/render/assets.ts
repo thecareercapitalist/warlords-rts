@@ -285,6 +285,21 @@ export class Assets {
         if (a && bb) this.mineFrames = [a, bb];
       }),
     );
+    // Faction knight variants: human = mounted knight, orc = wolf rider.
+    jobs.push(
+      load(inl?.knight ?? "/gen_knight.jpg").then((img) => {
+        if (!img) return;
+        const k = sliceGrid(img, 1, 1, ["knight"]).get("knight");
+        if (k) this.unitSprites.set("knight", k);
+      }),
+    );
+    jobs.push(
+      load(inl?.wolfrider ?? "/gen_wolfrider.jpg").then((img) => {
+        if (!img) return;
+        const w = sliceGrid(img, 1, 1, ["wolfrider"]).get("wolfrider");
+        if (w) this.enemyUnitSprites.set("knight", w);
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }

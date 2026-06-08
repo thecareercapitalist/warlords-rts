@@ -135,8 +135,8 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     label: "Knight",
     glyph: "K",
     maxHp: 110,
-    speed: 95,
-    radius: 11,
+    speed: 105, // cavalry — faster than infantry now that it's mounted
+    radius: 13, // mounted: drawn noticeably larger than footmen
     damage: 16,
     armor: 2, // heavily armored — shrugs off a chunk of every blow
     attackRange: 1,
