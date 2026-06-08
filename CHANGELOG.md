@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.190.0 — Fix units freezing instead of attacking buildings _(2026-06-07)_
+- Units that acquired a building but couldn't find a free tile adjacent to its
+  footprint (crowded by other attackers, a gold mine, or terrain) would just **stand
+  there with an unreachable target** — exactly the "grunt + archer do nothing while
+  one shoots the Town Hall" bug. They now **fall back to the nearest reachable tile**
+  near the building and advance; ranged units halt at firing range en route. Verified
+  in a deliberately cluttered map: all attackers engage now.
+
 ## v0.189.0 — Knight gallop matches the barded warhorse _(2026-06-07)_
 - Regenerated the mounted-knight gallop so its warhorse wears the same **heavy plate
   barding** (chamfron + neck/flank plates) and crimson caparison as the idle base

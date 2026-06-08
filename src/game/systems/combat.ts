@@ -3,7 +3,7 @@ import type { Unit, Targetable } from "../entities/Unit.ts";
 import { veterancyMult } from "../entities/Unit.ts";
 import { TILE, ATTACK_ANIM_DUR } from "../constants.ts";
 import { dist, dist2, clamp, tileCenter } from "../util/math.ts";
-import { pathTo, orderAttackMove, standAdjacentTo } from "./orders.ts";
+import { pathTo, orderAttackMove, standAdjacentTo, nearestWalkable } from "./orders.ts";
 
 const REPATH_INTERVAL = 0.4; // seconds between chase repaths
 
@@ -257,7 +257,15 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
     // nearest open adjacent tile so attackers spread around the footprint.
     if (u.repathTimer <= 0 || u.path.length === 0) {
       if (t.etype === "building") {
-        const stand = standAdjacentTo(world, t, u.tile());
+        // Prefer an open tile adjacent to the footprint; but if the ring is full
+        // (other attackers, the mine, terrain), fall back to the nearest reachable
+        // tile near the building's centre so the unit still advances and attacks
+        // instead of freezing with an unreachable target. Ranged units halt at
+        // firing range on the way in (the in-range check above).
+        const c = t.center();
+        const ctx = Math.floor(c.x / TILE);
+        const cty = Math.floor(c.y / TILE);
+        const stand = standAdjacentTo(world, t, u.tile()) ?? nearestWalkable(world, ctx, cty, 8);
         if (stand) pathTo(world, u, stand.x, stand.y, tileCenter(stand.x, stand.y));
       } else {
         pathTo(world, u, t.tile().x, t.tile().y, t.pos);
