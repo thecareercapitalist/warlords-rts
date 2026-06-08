@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.182.0 — Footman/grunt walk cycle _(2026-06-07)_
+- The footman (human) and grunt (orc) now play a **4-frame walk cycle** while moving
+  (contact → passing → contact → passing), phase-offset per unit, on top of the
+  existing walk-bob — so infantry actually stride instead of sliding. Falls back to
+  the static sprite if frames are missing. Generated via Gemini.
+
 ## v0.181.0 — Archer range buff _(2026-06-07)_
 - **Archer attack range 4 → 5 tiles.** Archers had 8 vision but only 4 range, so
   they barely out-ranged melee and couldn't kite; matching the mage's 5 lets them

@@ -1185,6 +1185,13 @@ export class Renderer {
         const i = Math.min(frames.length - 1, Math.floor((1 - ph) * frames.length));
         sprite = frames[i];
       }
+    } else if (u.kind === "footman" && (u.path.length > 0 || u.finalTarget !== null)) {
+      // 4-frame walk cycle while travelling (human footman vs orc grunt); the
+      // walk-bob still applies on top. Falls back to the static sprite if absent.
+      const walk = isEnemy ? this.assets.gruntWalkFrames : this.assets.footmanWalkFrames;
+      if (walk.length === 4) {
+        sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      }
     } else if (u.kind === "dragon") {
       // Flying units flap continuously (orc dragon vs human griffin), phase-offset
       // per unit so a flight isn't perfectly in sync.

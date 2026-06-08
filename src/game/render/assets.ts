@@ -157,6 +157,9 @@ export class Assets {
   chopFrames: CanvasImageSource[] = [];
   /** Worker building (kneeling vertical hammer) frames [raise, mid, impact]. */
   buildFrames: CanvasImageSource[] = [];
+  /** Footman/grunt 4-frame walk cycles per faction (while moving). */
+  footmanWalkFrames: CanvasImageSource[] = [];
+  gruntWalkFrames: CanvasImageSource[] = [];
   /** Human footman attack frames [windup, mid, strike]. */
   footmanAtkFrames: CanvasImageSource[] = [];
   /** Orc grunt (enemy melee) attack frames [windup, mid, strike]. */
@@ -328,6 +331,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["b0", "b1", "b2"]);
         const fr = [m.get("b0"), m.get("b1"), m.get("b2")];
         if (fr.every(Boolean)) this.buildFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Footman/grunt 4-frame walk cycles.
+    jobs.push(
+      load(inl?.footmanWalk ?? "/gen_footman_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.footmanWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.gruntWalk ?? "/gen_grunt_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.gruntWalkFrames = fr as CanvasImageSource[];
       }),
     );
     // Human footman 3-frame attack swing.
