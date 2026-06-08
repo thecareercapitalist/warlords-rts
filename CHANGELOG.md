@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.200.0 — Knight rest pose tightened (horse reads at full size) _(2026-06-08)_
+- The idle knight's upright lance made its sprite tall, so the renderer (sizes by
+  height) drew the horse small and below the galloping knight's scale. Regenerated
+  the rest pose with the **lance couched low** → wider silhouette (aspect 0.70 →
+  0.84), so the horse renders ~20% larger and matches the gallop. Still a calm
+  four-hooves-down stance. Tall version archived.
+
 ## v0.199.0 — Fix sprites failing to load under a subpath (GitHub Pages) _(2026-06-08)_
 - The hosted build (GitHub Pages, served from `/warlords-rts/`) showed flat
   programmer-art — tiles, unit/building sprites all 404'd. Cause: the asset loader
