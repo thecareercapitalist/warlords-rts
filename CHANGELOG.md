@@ -6,6 +6,19 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.166.0 — Move-vs-attack controls + WSAD _(2026-06-07)_
+- **You can now pull units out of a fight.** A plain move order is obeyed literally —
+  units no longer auto-re-acquire while in the "moving" state (they still defend
+  themselves once idle and hunt while attack-moving).
+- **Right-click = Move, Ctrl+Right-click = Attack-Move.** Plain right-click on ground
+  now just walks there (even for soldiers); hold Ctrl to attack-move (engage en
+  route, red marker). Right-click on an enemy still attacks; on a resource, gathers.
+- **Move command hotkey:** press **M**, then click a destination.
+- **WSAD camera panning** is now the default (arrow keys still pan too). Action keys
+  rebound around it: Attack-Move **Q**, Stop **X**, Hold **H**, Patrol **R**, Select
+  Army **E**, Move **M**; mute moved to **N**. (Keybindings reset to the new v2
+  scheme.)
+
 ## v0.165.0 — Work-anim sequencing + smoother mining _(2026-06-07)_
 - Workers now **walk to the site, stop, then start the work animation** — no more
   hammering or swinging mid-stride (the work anim is gated on actually having

@@ -7,6 +7,7 @@ export type ActionId =
   | "scrollDown"
   | "scrollLeft"
   | "scrollRight"
+  | "moveCmd"
   | "attackMove"
   | "stop"
   | "idleWorker"
@@ -21,34 +22,37 @@ export interface ActionInfo {
 }
 
 export const ACTION_ORDER: ActionInfo[] = [
-  { id: "scrollUp", label: "Scroll Up" },
-  { id: "scrollDown", label: "Scroll Down" },
-  { id: "scrollLeft", label: "Scroll Left" },
-  { id: "scrollRight", label: "Scroll Right" },
+  { id: "scrollUp", label: "Pan Up" },
+  { id: "scrollLeft", label: "Pan Left" },
+  { id: "scrollDown", label: "Pan Down" },
+  { id: "scrollRight", label: "Pan Right" },
+  { id: "moveCmd", label: "Move" },
   { id: "attackMove", label: "Attack-Move" },
   { id: "stop", label: "Stop" },
-  { id: "idleWorker", label: "Idle Workers" },
-  { id: "selectArmy", label: "Select Army" },
-  { id: "jumpBase", label: "Jump to Base" },
-  { id: "patrol", label: "Patrol" },
   { id: "holdGround", label: "Hold Position" },
+  { id: "patrol", label: "Patrol" },
+  { id: "selectArmy", label: "Select Army" },
+  { id: "idleWorker", label: "Idle Workers" },
+  { id: "jumpBase", label: "Jump to Base" },
 ];
 
+// Defaults built around WSAD camera panning (arrow keys also pan, hard-wired).
 const DEFAULTS: Record<ActionId, string> = {
-  scrollUp: "arrowup",
-  scrollDown: "arrowdown",
-  scrollLeft: "arrowleft",
-  scrollRight: "arrowright",
-  attackMove: "a",
-  stop: "s",
+  scrollUp: "w",
+  scrollLeft: "a",
+  scrollDown: "s",
+  scrollRight: "d",
+  moveCmd: "m",
+  attackMove: "q",
+  stop: "x",
   idleWorker: ".",
-  selectArmy: "q",
+  selectArmy: "e",
   jumpBase: " ",
-  patrol: "p",
-  holdGround: "z",
+  patrol: "r",
+  holdGround: "h",
 };
 
-const STORAGE_KEY = "warlords.keybindings.v1";
+const STORAGE_KEY = "warlords.keybindings.v2"; // v2: WSAD camera scheme
 
 export class Keybindings {
   private map: Record<ActionId, string> = { ...DEFAULTS };

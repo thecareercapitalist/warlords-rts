@@ -70,6 +70,7 @@ export class Game {
   private buildMode: BuildingKind | null = null;
   private builder: Unit | null = null;
   private attackMoveMode = false;
+  private moveMode = false; // armed by the Move hotkey; next click issues a move
   private castMode: SpellId | null = null; // armed spell awaiting a target click
   private patrolMode = false;
 
@@ -125,6 +126,7 @@ export class Game {
     this.buildMode = null;
     this.builder = null;
     this.attackMoveMode = false;
+    this.moveMode = false;
     this.patrolMode = false;
     this.gameOver = null;
     this.elapsed = 0;
@@ -333,7 +335,7 @@ export class Game {
     if (this.input.leftClicks.length || this.input.rightClicks.length || this.input.pressedKeys.length) {
       this.sfx.unlock();
     }
-    if (this.input.pressedKeys.includes("m")) this.sfx.toggleMute();
+    if (this.input.pressedKeys.includes("n")) this.sfx.toggleMute(); // N = mute (M is Move)
 
     // Escape: cancel a pending action, or toggle the pause menu.
     if (this.input.pressedKeys.includes("escape")) this.onEscape();
@@ -347,10 +349,11 @@ export class Game {
     // Camera: bound scroll keys + edge scroll.
     let cdx = 0;
     let cdy = 0;
-    if (k.has(this.kb.get("scrollLeft"))) cdx -= 1;
-    if (k.has(this.kb.get("scrollRight"))) cdx += 1;
-    if (k.has(this.kb.get("scrollUp"))) cdy -= 1;
-    if (k.has(this.kb.get("scrollDown"))) cdy += 1;
+    // WSAD (rebindable) plus the arrow keys (always on) both pan the camera.
+    if (k.has(this.kb.get("scrollLeft")) || k.has("arrowleft")) cdx -= 1;
+    if (k.has(this.kb.get("scrollRight")) || k.has("arrowright")) cdx += 1;
+    if (k.has(this.kb.get("scrollUp")) || k.has("arrowup")) cdy -= 1;
+    if (k.has(this.kb.get("scrollDown")) || k.has("arrowdown")) cdy += 1;
     // Edge scroll only once the pointer has actually moved into the window, so
     // the default (0,0) position doesn't drag the camera into the corner.
     const m = this.input.mouse;
@@ -378,8 +381,12 @@ export class Game {
         else this.recallControlGroup(n);
         continue;
       }
-      if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0)) {
+      if (key === this.kb.get("moveCmd") && this.selUnits.some((u) => u.playerId === this.humanId)) {
+        this.moveMode = true;
+        this.attackMoveMode = false;
+      } else if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0)) {
         this.attackMoveMode = true;
+        this.moveMode = false;
       } else if (key === this.kb.get("patrol") && this.selUnits.some((u) => u.def.damage > 0)) {
         this.patrolMode = true;
       } else if (key === this.kb.get("holdGround") && this.selUnits.some((u) => u.def.damage > 0)) {
@@ -515,6 +522,14 @@ export class Game {
     // Placing a building.
     if (this.buildMode) {
       this.tryPlaceBuilding(world);
+      return;
+    }
+
+    // Move targeting (Move hotkey armed): send everyone to the clicked point.
+    if (this.moveMode) {
+      for (const u of this.selUnits) if (u.playerId === this.humanId) orderMove(this.world, u, world);
+      this.effects.spawnMoveMarker(world.x, world.y, false);
+      this.moveMode = false;
       return;
     }
 
@@ -698,8 +713,9 @@ export class Game {
       this.buildMode = null;
       return;
     }
-    if (this.attackMoveMode) {
+    if (this.attackMoveMode || this.moveMode) {
       this.attackMoveMode = false;
+      this.moveMode = false;
       return;
     }
     if (this.patrolMode) {
@@ -753,15 +769,17 @@ export class Game {
       u.patrolB = null;
     }
 
-    // Combat units treat a right-click on open ground as attack-move (engage
-    // anything en route); workers just walk. Red marker when aggressive.
+    // Right-click on open ground = plain MOVE (obeyed literally). Hold CTRL to
+    // attack-move instead (combat units engage anything en route). Red marker only
+    // for the aggressive (attack-move) variant.
     const isFighter = (u: Unit): boolean => u.def.damage > 0 && !u.def.canGather;
-    const aggressive = movers.some(isFighter);
+    const attackMoveMod = this.input.ctrl;
+    const aggressive = attackMoveMod && movers.some(isFighter);
     if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y, aggressive);
 
-    // Plain group move → form up facing the direction of travel (melee front,
-    // ranged/siege behind), so the squad arrives as a battle line.
-    if (plainMove && movers.length > 1) {
+    // Plain group move (no Ctrl) → form up facing the direction of travel (melee
+    // front, ranged/siege behind), so the squad arrives as a battle line.
+    if (plainMove && !attackMoveMod && movers.length > 1) {
       let cx = 0;
       let cy = 0;
       for (const u of movers) {
@@ -787,10 +805,10 @@ export class Game {
       } else if (u.def.canGather && node && node.resource > 0 &&
         (node.terrain === "forest" || node.terrain === "goldmine")) {
         orderGather(this.world, u, tile);
-      } else if (isFighter(u)) {
-        orderAttackMove(this.world, u, worldPt); // combat units engage en route
+      } else if (isFighter(u) && attackMoveMod) {
+        orderAttackMove(this.world, u, worldPt); // Ctrl+right-click: engage en route
       } else {
-        orderMove(this.world, u, worldPt);
+        orderMove(this.world, u, worldPt); // plain right-click: just go there
       }
     }
   }
@@ -807,8 +825,9 @@ export class Game {
       this.buildMode = null;
       return;
     }
-    if (this.attackMoveMode) {
+    if (this.attackMoveMode || this.moveMode) {
       this.attackMoveMode = false;
+      this.moveMode = false;
       return;
     }
     if (this.patrolMode) {
@@ -839,6 +858,7 @@ export class Game {
     this.buildMode = null;
     this.builder = null;
     this.attackMoveMode = false;
+    this.moveMode = false;
     this.patrolMode = false;
     this.effects.clear();
     this.attackPing = null;
@@ -1175,7 +1195,7 @@ export class Game {
     this.ctx.textAlign = "right";
     this.ctx.textBaseline = "middle";
     this.ctx.fillStyle = this.sfx.muted ? "#ff8888" : "#9fb2c2";
-    this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
+    this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} N`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver)
       this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots());

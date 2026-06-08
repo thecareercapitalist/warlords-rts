@@ -87,7 +87,10 @@ export function updateCombat(world: World, dt: number): void {
     // enemies they encounter while attack-moving. Workers fight only when
     // explicitly ordered (which sets attackTarget directly).
     if (!u.attackTarget && u.def.damage > 0 && !u.def.canGather) {
-      if (u.state === "attackMoving" || u.state === "idle" || u.state === "moving") {
+      // A plain MOVE order is obeyed literally — units no longer auto-engage while
+      // "moving", so the player can pull them out of a fight and reposition. They
+      // still defend themselves once idle, and hunt while attack-moving.
+      if (u.state === "attackMoving" || u.state === "idle") {
         // Generous aggro so units defend themselves against anything that wanders
         // near; a bit wider while attack-moving. Hold-ground is filtered below.
         const aggro = u.state === "attackMoving" ? u.def.visionRadius + 2 : u.def.visionRadius + 3;
