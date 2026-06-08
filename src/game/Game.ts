@@ -555,7 +555,7 @@ export class Game {
     // Top-bar widgets: idle pills + control-group chips.
     const top = this.hud.topHit(p);
     if (top) {
-      if (top.type === "idleWorkers") this.selectIdleWorkers();
+      if (top.type === "idleWorkers") this.putIdleWorkersToWork();
       else if (top.type === "idleBuildings") this.cycleIdleBuilding();
       else this.recallControlGroup(top.n);
       return;
@@ -685,6 +685,65 @@ export class Game {
     this.rebuildHudButtons();
     this.cam.centerOn(idle[0].pos);
     this.sfx.click();
+  }
+
+  /** Select idle workers AND send each to the nearest live resource — one-click
+   *  economy fix from the HUD pill (the keyboard hotkey stays a pure selector). */
+  private putIdleWorkersToWork(): void {
+    const idle = this.world.unitsOf(this.humanId).filter(
+      (u) =>
+        u.def.canGather &&
+        u.state === "idle" &&
+        !u.carrying &&
+        !u.buildTarget &&
+        u.path.length === 0 &&
+        u.finalTarget === null,
+    );
+    if (idle.length === 0) {
+      this.setMessage("No idle workers");
+      return;
+    }
+    const liveMines = this.world.map.goldmines.filter((m) => {
+      const t = this.world.map.at(m.x, m.y);
+      return t != null && t.resource > 0;
+    });
+    const liveForests: Vec2[] = [];
+    for (let y = 0; y < MAP_H; y++) {
+      for (let x = 0; x < MAP_W; x++) {
+        const t = this.world.map.at(x, y);
+        if (t && t.terrain === "forest" && t.resource > 0) liveForests.push({ x, y });
+      }
+    }
+    const nearest = (from: Vec2, list: Vec2[]): Vec2 | null => {
+      let best: Vec2 | null = null;
+      let bd = Infinity;
+      for (const c of list) {
+        const d = (c.x - from.x) ** 2 + (c.y - from.y) ** 2;
+        if (d < bd) {
+          bd = d;
+          best = c;
+        }
+      }
+      return best;
+    };
+
+    this.clearSelection();
+    let sent = 0;
+    for (const u of idle) {
+      u.selected = true;
+      this.selUnits.push(u);
+      const t = u.tile();
+      const target = nearest(t, liveMines) ?? nearest(t, liveForests);
+      if (target) {
+        orderGather(this.world, u, target);
+        sent++;
+      }
+    }
+    this.selBuildings = [];
+    this.rebuildHudButtons();
+    this.cam.centerOn(idle[0].pos);
+    this.sfx.click();
+    this.setMessage(sent > 0 ? `${sent} worker${sent > 1 ? "s" : ""} sent to work` : "No resources left");
   }
 
   /** Cycle the camera through idle production buildings (empty queue), one per click. */

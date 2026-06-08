@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.216.0 — Idle workers: one-click back to work _(2026-06-08)_
+- Clicking the **"N idle"** HUD pill now selects idle workers *and* dispatches each to
+  the nearest live gold mine (falling back to the nearest forest) — a one-click
+  economy fix. The keyboard idle-worker hotkey stays a pure selector for manual
+  control. Verified: 4 idle workers → all dispatched to a resource.
+
 ## v0.215.0 — Fog-of-war edge softening _(2026-06-08)_
 - Explored-but-unseen tiles that border the unknown now deepen toward black per
   hidden neighbour, so the remembered map dissolves into darkness instead of
