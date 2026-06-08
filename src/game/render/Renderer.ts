@@ -1201,18 +1201,18 @@ export class Renderer {
         sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
       }
     } else if (u.kind === "archer" && u.attackAnim > 0) {
-      // Bow draw-and-loose (loose → recover): human archer vs orc hunter.
+      // Bow draw-and-loose played forward across the window: human vs orc hunter.
       const shot = isEnemy ? this.assets.orcArcherShotFrames : this.assets.archerShotFrames;
-      if (shot.length === 3) {
+      if (shot.length > 0) {
         const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
-        sprite = shot[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
+        sprite = shot[Math.min(shot.length - 1, Math.floor((1 - ph) * shot.length))];
       }
     } else if (u.kind === "mage" && u.attackAnim > 0) {
-      // Cast cycle (release → recover): human mage vs orc warlock.
+      // Cast cycle played forward across the window: human mage vs orc warlock.
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
-      if (cast.length === 3) {
+      if (cast.length > 0) {
         const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
-        sprite = cast[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
+        sprite = cast[Math.min(cast.length - 1, Math.floor((1 - ph) * cast.length))];
       }
     }
     let spriteW = 0;

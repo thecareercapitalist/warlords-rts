@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.180.0 — 5-frame archer + caster attacks _(2026-06-07)_
+- Archer bow (human + orc) and caster (mage + warlock) attacks regenerated as
+  **5-frame** sheets and now play **forward across the 0.36s window** (frame-count
+  agnostic, like the melee swings). Every combat unit's attack — melee, ranged,
+  and cast — now reads as smooth motion rather than a flash.
+
 ## v0.179.0 — Caster spell hotkeys fixed _(2026-06-07)_
 - With a caster selected, the spell hotkeys (Fireball **R**, Freeze **X**) now win
   over the generic patrol/stop keys that share those letters — pressing them arms

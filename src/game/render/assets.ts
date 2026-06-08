@@ -343,16 +343,16 @@ export class Assets {
     jobs.push(
       load(inl?.archerShot ?? "/gen_archer_shot.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
-        const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
+        const m = sliceGrid(img, 5, 1, ["a0", "a1", "a2", "a3", "a4"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2"), m.get("a3"), m.get("a4")];
         if (fr.every(Boolean)) this.archerShotFrames = fr as CanvasImageSource[];
       }),
     );
     jobs.push(
       load(inl?.orcArcherShot ?? "/gen_orcarcher_shot.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["o0", "o1", "o2"]);
-        const fr = [m.get("o0"), m.get("o1"), m.get("o2")];
+        const m = sliceGrid(img, 5, 1, ["o0", "o1", "o2", "o3", "o4"]);
+        const fr = [m.get("o0"), m.get("o1"), m.get("o2"), m.get("o3"), m.get("o4")];
         if (fr.every(Boolean)) this.orcArcherShotFrames = fr as CanvasImageSource[];
       }),
     );
@@ -377,16 +377,16 @@ export class Assets {
     jobs.push(
       load(inl?.mageCast ?? "/gen_mage_cast.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["m0", "m1", "m2"]);
-        const fr = [m.get("m0"), m.get("m1"), m.get("m2")];
+        const m = sliceGrid(img, 5, 1, ["m0", "m1", "m2", "m3", "m4"]);
+        const fr = [m.get("m0"), m.get("m1"), m.get("m2"), m.get("m3"), m.get("m4")];
         if (fr.every(Boolean)) this.mageCastFrames = fr as CanvasImageSource[];
       }),
     );
     jobs.push(
       load(inl?.orcCasterCast ?? "/gen_orccaster_cast.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["o0", "o1", "o2"]);
-        const fr = [m.get("o0"), m.get("o1"), m.get("o2")];
+        const m = sliceGrid(img, 5, 1, ["o0", "o1", "o2", "o3", "o4"]);
+        const fr = [m.get("o0"), m.get("o1"), m.get("o2"), m.get("o3"), m.get("o4")];
         if (fr.every(Boolean)) this.orcCasterCastFrames = fr as CanvasImageSource[];
       }),
     );
