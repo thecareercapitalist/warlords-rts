@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.191.0 — Wolf-rider gallop matches its base _(2026-06-07)_
+- Regenerated the orc wolf-rider gallop to match the idle base: bare-headed green
+  orc, single spiked left pauldron, skull-buckle belt, bracers, jagged axe, on the
+  grey tan-edged dire wolf — consistent across all 4 frames (the old gallop had a
+  fuller chestplate, causing an armor jump idle↔move). Old sheet archived.
+
 ## v0.190.0 — Fix units freezing instead of attacking buildings _(2026-06-07)_
 - Units that acquired a building but couldn't find a free tile adjacent to its
   footprint (crowded by other attackers, a gold mine, or terrain) would just **stand
