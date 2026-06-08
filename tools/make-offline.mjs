@@ -71,6 +71,8 @@ tileData.wolfriderGallop = dataUri(resolve(root, "public", "gen_wolfrider_gallop
 tileData.archerShot = dataUri(resolve(root, "public", "gen_archer_shot.jpg"));
 tileData.orcArcherShot = dataUri(resolve(root, "public", "gen_orcarcher_shot.jpg"));
 tileData.peonChop = dataUri(resolve(root, "public", "gen_peon_chop.jpg"));
+tileData.peonWalk = dataUri(resolve(root, "public", "gen_peon_walk.jpg"));
+tileData.orcPeonWalk = dataUri(resolve(root, "public", "gen_orcpeon_walk.jpg"));
 tileData.peonBuild = dataUri(resolve(root, "public", "gen_peon_build.jpg"));
 
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.

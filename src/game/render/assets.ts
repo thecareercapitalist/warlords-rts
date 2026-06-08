@@ -160,6 +160,9 @@ export class Assets {
   /** Footman/grunt 4-frame walk cycles per faction (while moving). */
   footmanWalkFrames: CanvasImageSource[] = [];
   gruntWalkFrames: CanvasImageSource[] = [];
+  /** Peon 4-frame walk cycles per faction (while travelling, not working). */
+  peonWalkFrames: CanvasImageSource[] = [];
+  orcPeonWalkFrames: CanvasImageSource[] = [];
   /** Human footman attack frames [windup, mid, strike]. */
   footmanAtkFrames: CanvasImageSource[] = [];
   /** Orc grunt (enemy melee) attack frames [windup, mid, strike]. */
@@ -331,6 +334,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["b0", "b1", "b2"]);
         const fr = [m.get("b0"), m.get("b1"), m.get("b2")];
         if (fr.every(Boolean)) this.buildFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Peon 4-frame walk cycles (human + orc).
+    jobs.push(
+      load(inl?.peonWalk ?? "/gen_peon_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["p0", "p1", "p2", "p3"]);
+        const fr = [m.get("p0"), m.get("p1"), m.get("p2"), m.get("p3")];
+        if (fr.every(Boolean)) this.peonWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.orcPeonWalk ?? "/gen_orcpeon_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["p0", "p1", "p2", "p3"]);
+        const fr = [m.get("p0"), m.get("p1"), m.get("p2"), m.get("p3")];
+        if (fr.every(Boolean)) this.orcPeonWalkFrames = fr as CanvasImageSource[];
       }),
     );
     // Footman/grunt 4-frame walk cycles.

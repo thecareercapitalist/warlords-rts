@@ -1176,6 +1176,13 @@ export class Renderer {
         const n = this.assets.mineFrames.length;
         sprite = this.assets.mineFrames[Math.floor(this.now * 7) % n];
       }
+    } else if (u.def.canGather && !atWork) {
+      // Worker travelling (to a resource, back to drop-off, or a plain move) →
+      // 4-frame walk cycle, faction-specific; falls back to the static sprite.
+      const walk = isEnemy ? this.assets.orcPeonWalkFrames : this.assets.peonWalkFrames;
+      if (walk.length === 4) {
+        sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      }
     } else if (u.kind === "footman" && u.attackAnim > 0) {
       // Play the melee swing forward across the attack window (windup → … →
       // recover): humans swing a sword, orcs an axe. Frame-count agnostic.

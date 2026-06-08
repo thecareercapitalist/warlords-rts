@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.183.0 — Peon walk cycle _(2026-06-07)_
+- Workers (human + orc) now play a **4-frame walk cycle** while travelling — heading
+  to a resource, hauling back to a drop-off, or on a plain move — instead of sliding.
+  Work animations (mine/chop/build) still play only once arrived. Generated via Gemini.
+
 ## v0.182.0 — Footman/grunt walk cycle _(2026-06-07)_
 - The footman (human) and grunt (orc) now play a **4-frame walk cycle** while moving
   (contact → passing → contact → passing), phase-offset per unit, on top of the
