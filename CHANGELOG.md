@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.189.0 — Knight gallop matches the barded warhorse _(2026-06-07)_
+- Regenerated the mounted-knight gallop so its warhorse wears the same **heavy plate
+  barding** (chamfron + neck/flank plates) and crimson caparison as the idle base
+  sprite — the horse's armor no longer "appears" when the knight stops. Consistent
+  horned-helm lancer across all 4 gallop frames. Old sheet archived.
+- (Audited the human footman: walk and swing already share helm/steel/tabard — no
+  change needed.)
+
 ## v0.188.0 — Slower gather + corpses on death _(2026-06-07)_
 - **Gather time doubled** (1.75 → 3.5s at the node per load) so income builds up at a
   sane pace instead of flooding in.
