@@ -17,6 +17,10 @@ export type HudAction =
   | { type: "cancel" }
   | { type: "cancelUnit" }
   | { type: "stop" }
+  | { type: "move" }
+  | { type: "attackMove" }
+  | { type: "patrol" }
+  | { type: "hold" }
   | { type: "spell"; id: SpellId }
   | { type: "denied"; label: string; reason: string };
 
@@ -140,6 +144,33 @@ export class Hud {
         hotkey: "S",
         action: { type: "stop" },
         enabled: true,
+      });
+      return;
+    }
+
+    // Own combat units selected (no worker/mage/building) → command buttons.
+    const fighters = units.filter(
+      (u) => u.playerId === humanId && u.def.damage > 0 && !u.def.canGather && u.kind !== "mage",
+    );
+    if (fighters.length > 0 && buildings.length === 0) {
+      const held = fighters.some((u) => u.holdGround);
+      const cmds: { label: string; key: string; action: HudAction }[] = [
+        { label: "Move", key: "M", action: { type: "move" } },
+        { label: "Attack", key: "Q", action: { type: "attackMove" } },
+        { label: "Stop", key: "X", action: { type: "stop" } },
+        { label: "Patrol", key: "R", action: { type: "patrol" } },
+        { label: held ? "Unhold" : "Hold", key: "H", action: { type: "hold" } },
+      ];
+      cmds.forEach((c, i) => {
+        this.buttons.push({
+          rect: place(i),
+          label: c.label,
+          sub: c.key,
+          hotkey: c.key,
+          action: c.action,
+          enabled: true,
+          autocast: c.action.type === "hold" && held,
+        });
       });
       return;
     }

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.169.0 — On-screen unit command buttons _(2026-06-07)_
+- Selecting your combat units now shows clickable **command buttons** in the HUD —
+  **Move (M), Attack (Q), Stop (X), Patrol (R), Hold (H)** — wired to the same
+  handlers as the hotkeys (Move/Attack arm a target cursor, Hold toggles & lights
+  up while active). A proper on-screen action menu, not hotkeys-only.
+
 ## v0.168.0 — Tabbed pause menu + clearer save slots _(2026-06-07)_
 - The pause menu is now **tabbed**: **Game** (resume/restart, save/load, toggles)
   and **Controls** (the rebind list) — far less cluttered.

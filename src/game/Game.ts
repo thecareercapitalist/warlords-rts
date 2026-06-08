@@ -933,6 +933,31 @@ export class Game {
       for (const u of this.selUnits) u.stop();
       return;
     }
+    if (action.type === "move") {
+      this.moveMode = true;
+      this.attackMoveMode = false;
+      return;
+    }
+    if (action.type === "attackMove") {
+      this.attackMoveMode = true;
+      this.moveMode = false;
+      return;
+    }
+    if (action.type === "patrol") {
+      this.patrolMode = true;
+      return;
+    }
+    if (action.type === "hold") {
+      const fighters = this.selUnits.filter((u) => u.def.damage > 0 && u.playerId === this.humanId);
+      const turnOn = fighters.some((u) => !u.holdGround);
+      for (const u of fighters) {
+        u.holdGround = turnOn;
+        if (turnOn) u.attackTarget = null;
+      }
+      this.setMessage(turnOn ? "Holding position" : "Hold released");
+      this.rebuildHudButtons();
+      return;
+    }
     if (action.type === "spell") {
       // Left-click a spell → arm targeting; the next map click casts it.
       this.castMode = action.id;
