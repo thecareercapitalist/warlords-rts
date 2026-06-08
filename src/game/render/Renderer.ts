@@ -336,6 +336,19 @@ export class Renderer {
         this.diamondPath(s.x, s.y);
         ctx.fillStyle = COLORS.fogExplored;
         ctx.fill();
+        // Soften the explored→hidden edge: tiles fringing the unknown deepen toward
+        // black per hidden neighbour, so the remembered map fades into darkness
+        // rather than hard-cutting at a tile boundary.
+        let hidden = 0;
+        if (fog.level(tx - 1, ty) === 0) hidden++;
+        if (fog.level(tx + 1, ty) === 0) hidden++;
+        if (fog.level(tx, ty - 1) === 0) hidden++;
+        if (fog.level(tx, ty + 1) === 0) hidden++;
+        if (hidden > 0) {
+          this.diamondPath(s.x, s.y);
+          ctx.fillStyle = `rgba(0,0,0,${0.14 * hidden})`;
+          ctx.fill();
+        }
       }
     }
   }

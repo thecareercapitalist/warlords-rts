@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.215.0 — Fog-of-war edge softening _(2026-06-08)_
+- Explored-but-unseen tiles that border the unknown now deepen toward black per
+  hidden neighbour, so the remembered map dissolves into darkness instead of
+  hard-cutting at a tile edge — more atmospheric dread. Cheap 4-neighbour check in
+  the fog overlay. Verified by render.
+
 ## v0.214.0 — Low-supply warning _(2026-06-08)_
 - The supply readout now turns **amber** within 2 of the cap and **pulsing red with a
   "⚠ Build a Farm" hint** once capped — so a player who can't figure out why training
