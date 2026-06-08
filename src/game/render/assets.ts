@@ -218,6 +218,8 @@ export class Assets {
   bastionSprite: CanvasImageSource | undefined;
   /** Ornate gothic 9-slice frame (hollow centre) for HUD/menu panels. */
   frameSprite: CanvasImageSource | undefined;
+  /** War Cry command-button icon (a war horn with ember sound-waves). */
+  warcryIcon: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
   /** Worker chopping (sideways axe) frames [windup, mid, follow]. */
@@ -393,6 +395,12 @@ export class Assets {
         if (!img) return;
         const m = sliceGrid(img, 1, 1, ["frame"]);
         this.frameSprite = m.get("frame");
+      }),
+    );
+    jobs.push(
+      load(inl?.warcry ?? "/gen_warcry.jpg").then((img) => {
+        if (!img) return;
+        this.warcryIcon = sliceGrid(img, 1, 1, ["i"]).get("i");
       }),
     );
     jobs.push(

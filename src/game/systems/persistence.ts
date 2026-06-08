@@ -86,6 +86,8 @@ interface SaveData {
     hp: number;
     c: [ResourceKind, number] | null;
     rt?: [number, number] | null; // resource tile being harvested (resume on load)
+    ac?: string | null; // mage autocast spell (persist so loaded mages keep casting)
+    kl?: number; // kills (preserve veterancy rank across save/load)
   }[];
   bld: {
     k: BuildingKind;
@@ -122,6 +124,8 @@ export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0
         hp: Math.round(u.hp),
         c: u.carrying ? [u.carrying.kind, u.carrying.amount] : null,
         rt: u.resourceTile ? [u.resourceTile.x, u.resourceTile.y] : null,
+        ac: u.autocast ?? null,
+        kl: u.kills,
       })),
     bld: world.buildings
       .filter((b) => !b.dead)
@@ -191,6 +195,8 @@ export function loadGame(slot = 0): { world: World; explored: number[]; elapsed:
   for (const u of data.unt) {
     const uu = new Unit(u.k, u.p, { x: u.x, y: u.y });
     uu.hp = u.hp;
+    if (u.ac) uu.autocast = u.ac;
+    if (u.kl) uu.kills = u.kl;
     if (u.c) uu.carrying = { kind: u.c[0], amount: u.c[1] };
     w.addUnit(uu);
     // Resume harvesting the tile it was on, so loaded workers don't stand idle.

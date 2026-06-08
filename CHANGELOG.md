@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.226.0 — War Cry icon/label + autocast persists across save-load _(2026-06-08)_
+- **War Cry now explains itself + has an icon** — the command button shows a gothic
+  war-horn icon, the label "War Cry", and "+50% atk · 6s" so its effect is clear at a
+  glance (was an unlabelled "Cry").
+- **Autocast (and veterancy) survive save/load** — `autocast` and `kills` are now
+  serialized, so loaded mages keep auto-casting instead of standing idle, and units
+  keep their rank. Verified: a saved heal-autocast mage reloads with autocast intact.
+- Spell orbs are now colour-coded per spell (fire amber / heal green / freeze blue).
+
 ## v0.225.0 — Fixes: temple footprint, Heal autocast, dismissable hints _(2026-06-08)_
 - **Temple no longer overflows its mark** — the cathedral sprite was still ~30% too
   big for its 3-tile footprint (read as shifted off-mark); draw scale 0.78 → 0.6 so

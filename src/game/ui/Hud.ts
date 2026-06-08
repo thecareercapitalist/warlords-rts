@@ -170,14 +170,14 @@ export class Hud {
         { label: "Stop", key: "X", action: { type: "stop" } },
         { label: "Patrol", key: "R", action: { type: "patrol" } },
         { label: held ? "Unhold" : "Hold", key: "H", action: { type: "hold" } },
-        { label: "Cry", key: "F", action: { type: "warcry" } },
+        { label: "War Cry", key: "F", action: { type: "warcry" } },
       ];
       cmds.forEach((c, i) => {
         const isCry = c.action.type === "warcry";
         this.buttons.push({
           rect: place(i),
           label: c.label,
-          sub: c.key,
+          sub: isCry ? "+50% atk · 6s" : c.key,
           hotkey: c.key,
           action: c.action,
           enabled: !isCry || this.warcryCd <= 0,
@@ -639,19 +639,23 @@ export class Hud {
       let icon: CanvasImageSource | undefined;
       if (a.type === "build") icon = this.assets?.buildingSprite(a.kind);
       else if (a.type === "train") icon = this.assets?.unitSprite(a.kind);
+      else if (a.type === "warcry") icon = this.assets?.warcryIcon;
       const iconBox = 30;
       ctx.save();
       if (!b.enabled) ctx.globalAlpha = 0.45;
       if (icon) {
         this.drawIcon(icon, x + 3, y + 3, iconBox, h - 6);
       } else if (a.type === "spell") {
-        const fire = a.id === "fireball";
+        // Orb colour per spell: fire (amber), heal (green), freeze (blue).
+        const inner = a.id === "fireball" ? "#ffe7b0" : a.id === "heal" ? "#d6ffcf" : "#dff0ff";
+        const mid = a.id === "fireball" ? "#ff8a2e" : a.id === "heal" ? "#4fce5a" : "#5aa0ff";
+        const outer = a.id === "fireball" ? "rgba(150,40,10,0)" : a.id === "heal" ? "rgba(30,120,40,0)" : "rgba(60,90,220,0)";
         const cx = x + 3 + iconBox / 2;
         const cy = y + h / 2;
         const grd = ctx.createRadialGradient(cx, cy, 1, cx, cy, 12);
-        grd.addColorStop(0, fire ? "#ffe7b0" : "#dff0ff");
-        grd.addColorStop(0.5, fire ? "#ff8a2e" : "#5aa0ff");
-        grd.addColorStop(1, fire ? "rgba(150,40,10,0)" : "rgba(60,90,220,0)");
+        grd.addColorStop(0, inner);
+        grd.addColorStop(0.5, mid);
+        grd.addColorStop(1, outer);
         ctx.fillStyle = grd;
         ctx.beginPath();
         ctx.arc(cx, cy, 12, 0, Math.PI * 2);

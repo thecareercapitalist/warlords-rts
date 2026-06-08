@@ -72,6 +72,7 @@ tileData.orccaster = dataUri(resolve(root, "public", "gen_orccaster.jpg"));
 tileData.griffin = dataUri(resolve(root, "public", "gen_griffin.jpg"));
 tileData.mine = dataUri(resolve(root, "public", "gen_mine.jpg"));
 tileData.frame = dataUri(resolve(root, "public", "gen_frame.jpg"));
+tileData.warcry = dataUri(resolve(root, "public", "gen_warcry.jpg"));
 tileData.knightGallop = dataUri(resolve(root, "public", "gen_knight_gallop.jpg"));
 tileData.wolfriderGallop = dataUri(resolve(root, "public", "gen_wolfrider_gallop.jpg"));
 tileData.knightAtk = dataUri(resolve(root, "public", "gen_knight_atk.jpg"));
