@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.181.0 — Archer range buff _(2026-06-07)_
+- **Archer attack range 4 → 5 tiles.** Archers had 8 vision but only 4 range, so
+  they barely out-ranged melee and couldn't kite; matching the mage's 5 lets them
+  poke and pull back as proper skirmishers. Verified they now hit at ~4.6 tiles.
+
 ## v0.180.0 — 5-frame archer + caster attacks _(2026-06-07)_
 - Archer bow (human + orc) and caster (mage + warlock) attacks regenerated as
   **5-frame** sheets and now play **forward across the 0.36s window** (frame-count

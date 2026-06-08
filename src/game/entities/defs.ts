@@ -120,7 +120,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     speed: 90,
     radius: 9,
     damage: 6,
-    attackRange: 4,
+    attackRange: 5, // proper ranged poke — matches their 8 vision, lets them kite melee
     attackCooldown: 1.4,
     visionRadius: 8,
     supply: 1,
