@@ -939,8 +939,9 @@ export class Renderer {
     const center = ws((gx + 0.5) * TILE, (gy + 0.5) * TILE);
     const cw = (sprite as HTMLCanvasElement).width;
     const ch = (sprite as HTMLCanvasElement).height;
-    // Scale so a segment is ~1.45 tiles wide → adjacent walls overlap into a run.
-    const scale = ((maxX - minX) / cw) * 1.45;
+    // Scale so a segment is a touch over a tile → adjacent walls just overlap into
+    // a continuous run without spilling far onto a neighbouring bastion.
+    const scale = ((maxX - minX) / cw) * 1.28;
     const dw = cw * scale;
     const dh = ch * scale;
 
@@ -962,12 +963,17 @@ export class Renderer {
     const ew = E || W || (!N && !S && !E && !W); // isolated → default E–W ("\")
     const bastion = this.assets.bastionSprite;
     if (ns && ew && bastion) {
-      // A junction (bend/T/cross) is a corner BASTION — the straight arms from
-      // neighboring tiles run into it, so no overlapping segments here.
-      const bw2 = (maxX - minX) / (bastion as HTMLCanvasElement).width * 1.4;
+      // A junction (bend/T/cross) is a corner BASTION — bigger + taller than the
+      // walls so the straight arms read as running INTO it, not over it.
+      const bw2 = ((maxX - minX) / (bastion as HTMLCanvasElement).width) * 1.7;
       const bdw = (bastion as HTMLCanvasElement).width * bw2;
       const bdh = (bastion as HTMLCanvasElement).height * bw2;
-      ctx.drawImage(bastion, center.x - bdw / 2, maxY - bdh + (maxY - center.y) * 0.55, bdw, bdh);
+      // Soft ground shadow so it grounds over the wall arms.
+      ctx.fillStyle = "rgba(0,0,0,0.28)";
+      ctx.beginPath();
+      ctx.ellipse(center.x, maxY - (maxY - center.y) * 0.2, bdw * 0.36, bdw * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.drawImage(bastion, center.x - bdw / 2, maxY - bdh + (maxY - center.y) * 0.7, bdw, bdh);
     } else {
       if (ns) blit(false); // continuous "/" run
       if (ew) blit(true); // continuous "\" run

@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.146.0 — Bastion render fix _(2026-06-07)_
+- Fixed the corner bastion looking cluttered: wall-segment overlap reduced
+  (1.45→1.28 tiles) so arms stop spilling onto the tower, and the bastion is now
+  bigger + taller with a ground shadow so walls clearly read as running *into* it.
+
 ## v0.145.0 — Bigger projectiles + trails _(2026-06-07)_
 - Arrows are **much bigger and clearer** with a zoom floor (`ps`) so they no longer
   shrink to a dot when zoomed out, plus a faint motion streak. Mage/dragon bolts
