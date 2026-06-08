@@ -167,6 +167,9 @@ export class Assets {
   /** Caster cast cycles [gather, charge, release] per faction (mage vs warlock). */
   mageCastFrames: CanvasImageSource[] = [];
   orcCasterCastFrames: CanvasImageSource[] = [];
+  /** Mounted gallop cycles (4 frames) per faction (knight horse vs orc wolf). */
+  knightGallopFrames: CanvasImageSource[] = [];
+  wolfriderGallopFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -331,6 +334,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
         const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Mounted gallop cycles: human knight (horse) + orc wolf-rider.
+    jobs.push(
+      load(inl?.knightGallop ?? "/gen_knight_gallop.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["k0", "k1", "k2", "k3"]);
+        const fr = [m.get("k0"), m.get("k1"), m.get("k2"), m.get("k3")];
+        if (fr.every(Boolean)) this.knightGallopFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.wolfriderGallop ?? "/gen_wolfrider_gallop.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.wolfriderGallopFrames = fr as CanvasImageSource[];
       }),
     );
     // Caster cast cycles: human mage + orc warlock.

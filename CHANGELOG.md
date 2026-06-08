@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.171.0 — Mounted gallop animation _(2026-06-07)_
+- The mounted **knight** (warhorse) and orc **wolf-rider** now **gallop** while
+  moving — a 4-frame leg cycle (gathered → reach → airborne → push-off), faction
+  specific. Idle/attacking falls back to the static mount. Generated via Gemini.
+
 ## v0.170.0 — Framed end-game screen _(2026-06-07)_
 - The **Victory / Defeat screen** now sits in the ornate gothic frame — a proper
   stone-and-iron result panel with ⚔/☠ flourishes and the run stats inside, matching

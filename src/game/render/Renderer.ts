@@ -1193,6 +1193,12 @@ export class Renderer {
         const seq = [0, 1, 2, 1];
         sprite = flap[seq[Math.floor(this.now * 3.5 + u.pos.x * 0.04) % seq.length]];
       }
+    } else if (u.kind === "knight" && (u.path.length > 0 || u.finalTarget !== null) && u.attackAnim <= 0) {
+      // Mounted gallop while travelling (horse for humans, dire wolf for orcs).
+      const gallop = isEnemy ? this.assets.wolfriderGallopFrames : this.assets.knightGallopFrames;
+      if (gallop.length === 4) {
+        sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
+      }
     } else if (u.kind === "mage" && u.attackAnim > 0) {
       // Cast cycle (release → recover): human mage vs orc warlock.
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
