@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.209.0 — Difficulty-scaled first-wave grace _(2026-06-08)_
+- The AI now holds its **first** attack wave until a difficulty-scaled minimum game
+  age (Recruit 120s · Soldier 85s · Warlord 55s), building its army in the meantime —
+  so a new player gets a fair build-up window instead of a possible early rush, while
+  Warlord stays aggressive. Later waves are ungated. Verified: at 95s, Warlord has
+  attacked (1 wave) while Recruit hasn't (0).
+
 ## v0.208.0 — Varied map each session _(2026-06-08)_
 - The first game on every page load used a hardcoded seed (1337) — always the same
   map. Now all new games (initial + restart) draw a fresh `Date.now()`-based seed,

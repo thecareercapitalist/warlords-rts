@@ -33,6 +33,7 @@ export class AIController {
   private wavesSent = 0; // each launched wave raises the bar for the next
   private trainTick = 0; // rotates the mixed-army unit choice
   private difficulty: Difficulty = "normal";
+  private age = 0; // seconds since the match began (gates the first wave)
 
   constructor(private readonly playerId: number) {}
 
@@ -49,6 +50,7 @@ export class AIController {
   update(world: World, dt: number): void {
     const p = world.player(this.playerId);
     if (p.defeated) return;
+    this.age += dt; // accrues every frame, independent of the decision tick
     this.timer -= dt;
     if (this.timer > 0) return;
     this.timer = TICK;
@@ -327,6 +329,11 @@ export class AIController {
     // Warlord commits sooner.
     const diffAdj = this.difficulty === "easy" ? 3 : this.difficulty === "hard" ? -2 : 0;
     const threshold = Math.max(3, ATTACK_ARMY_SIZE + diffAdj + Math.min(this.wavesSent * 2, 8));
+    // First-wave grace: never rush before a difficulty-scaled minimum, so the player
+    // gets a build-up window (Recruit generous, Warlord short). Later waves are
+    // ungated — once the war is on, it stays on.
+    const firstWaveGrace = this.difficulty === "easy" ? 120 : this.difficulty === "hard" ? 55 : 85;
+    if (this.wavesSent === 0 && this.age < firstWaveGrace) return;
     if (fighters.length >= threshold) {
       const target = this.findEnemyTarget(world);
       if (target) {
