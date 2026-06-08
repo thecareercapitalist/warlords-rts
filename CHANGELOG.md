@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.179.0 — Caster spell hotkeys fixed _(2026-06-07)_
+- With a caster selected, the spell hotkeys (Fireball **R**, Freeze **X**) now win
+  over the generic patrol/stop keys that share those letters — pressing them arms
+  the spell instead of issuing patrol/stop. Non-casters are unaffected.
+
 ## v0.178.0 — Smoother 5-frame melee swings _(2026-06-07)_
 - Footman sword swing and orc grunt axe swing regenerated as **5 frames** each
   (wind-up → overhead → mid-swing → strike → recover) and now play **forward across

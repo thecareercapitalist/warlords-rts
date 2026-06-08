@@ -398,6 +398,14 @@ export class Game {
         else this.recallControlGroup(n);
         continue;
       }
+      // Spell hotkeys win over generic commands when a caster is selected (the
+      // spell buttons only exist in that context), so Fireball/Freeze aren't
+      // shadowed by patrol/stop sharing the same key.
+      const hudSpell = this.hud.hotkeyAction(key);
+      if (hudSpell && hudSpell.type === "spell") {
+        this.applyHudAction(hudSpell);
+        continue;
+      }
       if (key === this.kb.get("moveCmd") && this.selUnits.some((u) => u.playerId === this.humanId)) {
         this.moveMode = true;
         this.attackMoveMode = false;
