@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.157.0 — AI expands to distant gold mines _(2026-06-07)_
+- The AI no longer starves on the new finite mines: when no gold remains within ~22
+  tiles of its base, its gold workers now path to the **nearest live mine anywhere
+  on the map** (new `nearestLiveMine` fallback). Verified: with the AI's home mine
+  drained, a worker walked to a far mine and its gold recovered.
+
 ## v0.156.0 — Fullscreen toggle _(2026-06-07)_
 - Pause menu gains a **Fullscreen: ON/OFF** toggle (Fullscreen API on the document)
   alongside Edge-scroll + Music — three tidy toggles in one row. Verified the row

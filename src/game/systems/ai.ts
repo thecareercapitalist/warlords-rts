@@ -140,11 +140,14 @@ export class AIController {
       const woodCount = workers.filter(onWood).length;
       const wantWood = woodCount < woodTarget;
       const center = townhall.center();
-      const node =
-        (wantWood
-          ? this.scanResource(world, center, "wood", 20)
-          : this.scanResource(world, center, "gold", 20)) ??
-        this.findResource(world, center, w.playerId);
+      // Gold workers fall back to the nearest LIVE mine anywhere on the map once
+      // local gold is exhausted (mines are finite now) — keeps the economy alive
+      // and pushes the AI to work distant/neutral mines.
+      const node = wantWood
+        ? (this.scanResource(world, center, "wood", 24) ?? this.findResource(world, center, w.playerId))
+        : (this.scanResource(world, center, "gold", 22) ??
+           this.nearestLiveMine(world, center) ??
+           this.scanResource(world, center, "wood", 24));
       if (node) orderGather(world, w, node);
     }
   }
@@ -377,6 +380,23 @@ export class AIController {
           bestD = d;
           best = { x, y };
         }
+      }
+    }
+    return best;
+  }
+
+  /** Nearest goldmine anywhere on the map that still has gold (map-wide fallback). */
+  private nearestLiveMine(world: World, fromPx: Vec2): Vec2 | null {
+    const ft = toTile(fromPx.x, fromPx.y);
+    let best: Vec2 | null = null;
+    let bestD = Infinity;
+    for (const m of world.map.goldmines) {
+      const t = world.map.at(m.x, m.y);
+      if (!t || t.terrain !== "goldmine" || t.resource <= 0) continue;
+      const d = (m.x - ft.x) ** 2 + (m.y - ft.y) ** 2;
+      if (d < bestD) {
+        bestD = d;
+        best = { x: m.x, y: m.y };
       }
     }
     return best;
