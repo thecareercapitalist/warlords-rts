@@ -2,12 +2,13 @@ import type { Camera } from "../Camera.ts";
 import type { Vec2 } from "../types.ts";
 import { type Rect, rectContains } from "../util/math.ts";
 import { ACTION_ORDER, type ActionId, type Keybindings } from "./Keybindings.ts";
+import type { SlotMeta } from "../systems/persistence.ts";
 
 export type MenuResult =
   | { type: "resume" }
   | { type: "restart" }
   | { type: "save" }
-  | { type: "load" }
+  | { type: "loadSlot"; slot: number }
   | { type: "reset" }
   | { type: "toggleEdgeScroll" }
   | { type: "toggleMusic" }
@@ -19,7 +20,7 @@ interface Layout {
   resume: Rect;
   restart: Rect;
   save: Rect;
-  load: Rect;
+  slots: Rect[];
   edgeToggle: Rect;
   musicToggle: Rect;
   fullscreenToggle: Rect;
@@ -36,7 +37,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 460;
-    const ph = 208 + ACTION_ORDER.length * 40 + 70;
+    const ph = 250 + ACTION_ORDER.length * 40 + 70;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -44,21 +45,22 @@ export class PauseMenu {
     const btn = (x: number, y: number, w: number): Rect => ({ x, y, w, h: 34 });
     const resume = btn(px + 30, py + 56, 180);
     const restart = btn(px + pw - 210, py + 56, 180);
-    const save = btn(px + 30, py + 98, 180);
-    const load = btn(px + pw - 210, py + 98, 180);
+    const save = btn(px + 30, py + 98, pw - 60); // full width — auto-rotates slots
     const thirdW = (pw - 60 - 20) / 3;
-    const edgeToggle = btn(px + 30, py + 140, thirdW);
-    const musicToggle = btn(px + 30 + thirdW + 10, py + 140, thirdW);
-    const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 140, thirdW);
+    // Three dated save slots (click to load).
+    const slots = [0, 1, 2].map((i) => btn(px + 30 + (thirdW + 10) * i, py + 140, thirdW));
+    const edgeToggle = btn(px + 30, py + 182, thirdW);
+    const musicToggle = btn(px + 30 + thirdW + 10, py + 182, thirdW);
+    const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 182, thirdW);
 
     const rows: Layout["rows"] = [];
-    let ry = py + 202;
+    let ry = py + 244;
     for (const a of ACTION_ORDER) {
       rows.push({ action: a.id, label: a.label, keyBox: { x: px + pw - 150, y: ry, w: 110, h: 28 } });
       ry += 40;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, save, load, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
+    return { panel, resume, restart, save, slots, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -66,7 +68,9 @@ export class PauseMenu {
     if (rectContains(l.resume, p)) return { type: "resume" };
     if (rectContains(l.restart, p)) return { type: "restart" };
     if (rectContains(l.save, p)) return { type: "save" };
-    if (rectContains(l.load, p)) return { type: "load" };
+    for (let i = 0; i < l.slots.length; i++) {
+      if (rectContains(l.slots[i], p)) return { type: "loadSlot", slot: i };
+    }
     if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
     if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
     if (rectContains(l.fullscreenToggle, p)) return { type: "toggleFullscreen" };
@@ -83,6 +87,7 @@ export class PauseMenu {
     kb: Keybindings,
     edgeScroll = false,
     musicOn = true,
+    slots: (SlotMeta | null)[] = [],
   ): void {
     const l = this.layoutFor(cam);
 
@@ -120,8 +125,25 @@ export class PauseMenu {
 
     this.button(ctx, l.resume, "Resume", true);
     this.button(ctx, l.restart, "Restart", true);
-    this.button(ctx, l.save, "Save Game", true);
-    this.button(ctx, l.load, "Load Game", true);
+    this.button(ctx, l.save, "Save Game (auto-slot)", true);
+    // Three dated save slots (click to load).
+    for (let i = 0; i < l.slots.length; i++) {
+      const m = slots[i] ?? null;
+      const r = l.slots[i];
+      this.button(ctx, r, m ? `Slot ${i + 1}` : `Slot ${i + 1}`, !!m);
+      if (m) {
+        ctx.fillStyle = "#cdbb95";
+        ctx.font = "9px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(this.fmtClock(m.savedAt), r.x + r.w / 2, r.y + r.h - 6);
+      } else {
+        ctx.fillStyle = "#6b6356";
+        ctx.font = "9px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("empty", r.x + r.w / 2, r.y + r.h - 6);
+      }
+    }
     const isFs = typeof document !== "undefined" && !!document.fullscreenElement;
     this.button(ctx, l.edgeToggle, `Edge: ${edgeScroll ? "ON" : "OFF"}`, true);
     this.button(ctx, l.musicToggle, `Music: ${musicOn ? "ON" : "OFF"}`, true);
@@ -131,7 +153,7 @@ export class PauseMenu {
     ctx.fillStyle = "#9fb2c2";
     ctx.font = "13px 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("CONTROLS — click a key to rebind", l.panel.x + 30, l.panel.y + 188);
+    ctx.fillText("CONTROLS — click a key to rebind", l.panel.x + 30, l.panel.y + 230);
 
     for (const row of l.rows) {
       ctx.fillStyle = "#dfe6ee";
@@ -162,6 +184,14 @@ export class PauseMenu {
     ctx.font = "12px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Esc to resume", cam.viewW / 2, l.panel.y + l.panel.h - 12);
+  }
+
+  /** "6/7 19:05" — short month/day + 24h time of a save's timestamp. */
+  private fmtClock(ms: number): string {
+    const d = new Date(ms);
+    const hh = `${d.getHours()}`.padStart(2, "0");
+    const mm = `${d.getMinutes()}`.padStart(2, "0");
+    return `${d.getMonth() + 1}/${d.getDate()} ${hh}:${mm}`;
   }
 
   private button(ctx: CanvasRenderingContext2D, r: Rect, label: string, enabled: boolean): void {

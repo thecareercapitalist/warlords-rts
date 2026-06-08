@@ -9,7 +9,59 @@ import { Building } from "../entities/Building.ts";
 // (attack targets, drop-offs) are intentionally dropped so the save can never
 // contain a dangling pointer.
 
-const KEY = "warlords.save.v1";
+const LEGACY_KEY = "warlords.save.v1";
+const SLOTS = 3;
+const slotKey = (slot: number): string => `warlords.save.v1.${slot}`;
+
+/** Per-slot metadata for the load list. */
+export interface SlotMeta {
+  slot: number;
+  savedAt: number; // epoch ms
+  elapsed: number; // seconds of in-game time
+}
+
+interface SlotWrapper {
+  savedAt: number;
+  elapsed: number;
+  data: SaveData;
+}
+
+/** Metadata for all slots (null = empty). Legacy single save shows as slot 0. */
+export function listSlots(): (SlotMeta | null)[] {
+  const out: (SlotMeta | null)[] = [];
+  for (let s = 0; s < SLOTS; s++) {
+    let meta: SlotMeta | null = null;
+    try {
+      const raw = localStorage.getItem(slotKey(s)) ?? (s === 0 ? localStorage.getItem(LEGACY_KEY) : null);
+      if (raw) {
+        const obj = JSON.parse(raw) as Partial<SlotWrapper> & Partial<SaveData>;
+        const savedAt = typeof obj.savedAt === "number" ? obj.savedAt : 0;
+        const elapsed = typeof obj.elapsed === "number" ? obj.elapsed : 0;
+        meta = { slot: s, savedAt, elapsed };
+      }
+    } catch {
+      /* ignore */
+    }
+    out.push(meta);
+  }
+  return out;
+}
+
+/** Slot to overwrite on a quick-save: first empty, else the oldest. */
+export function nextSaveSlot(): number {
+  const metas = listSlots();
+  const empty = metas.findIndex((m) => m === null);
+  if (empty >= 0) return empty;
+  let oldest = 0;
+  let oldestAt = Infinity;
+  metas.forEach((m, i) => {
+    if (m && m.savedAt < oldestAt) {
+      oldestAt = m.savedAt;
+      oldest = i;
+    }
+  });
+  return oldest;
+}
 
 const TERRAIN_IDS: TerrainType[] = ["grass", "water", "forest", "rock", "goldmine"];
 const TERRAIN_TO_ID: Record<TerrainType, number> = {
@@ -42,14 +94,10 @@ interface SaveData {
 }
 
 export function hasSave(): boolean {
-  try {
-    return localStorage.getItem(KEY) !== null;
-  } catch {
-    return false;
-  }
+  return listSlots().some((m) => m !== null);
 }
 
-export function saveGame(world: World, explored: number[]): boolean {
+export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0): boolean {
   const data: SaveData = {
     v: 1,
     players: world.players.map((p) => ({ g: p.gold, w: p.wood, d: p.defeated })),
@@ -81,21 +129,26 @@ export function saveGame(world: World, explored: number[]): boolean {
       })),
     explored,
   };
+  const wrapper: SlotWrapper = { savedAt: Date.now(), elapsed, data };
   try {
-    localStorage.setItem(KEY, JSON.stringify(data));
+    localStorage.setItem(slotKey(slot), JSON.stringify(wrapper));
     return true;
   } catch {
     return false; // quota or storage blocked
   }
 }
 
-/** Rebuild a World from the save plus the explored-tile mask, or null if none. */
-export function loadGame(): { world: World; explored: number[] } | null {
+/** Rebuild a World from a slot plus the explored-tile mask, or null if none. */
+export function loadGame(slot = 0): { world: World; explored: number[]; elapsed: number } | null {
   let data: SaveData;
+  let elapsed = 0;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(slotKey(slot)) ?? (slot === 0 ? localStorage.getItem(LEGACY_KEY) : null);
     if (!raw) return null;
-    data = JSON.parse(raw) as SaveData;
+    const obj = JSON.parse(raw) as Partial<SlotWrapper> & Partial<SaveData>;
+    // New saves wrap data in {savedAt, elapsed, data}; legacy saves are bare SaveData.
+    data = (obj.data ?? (obj as SaveData)) as SaveData;
+    if (typeof obj.elapsed === "number") elapsed = obj.elapsed;
     if (data.v !== 1) return null;
   } catch {
     return null;
@@ -132,5 +185,5 @@ export function loadGame(): { world: World; explored: number[] } | null {
     w.addUnit(uu);
   }
   w.recomputeSupply();
-  return { world: w, explored: data.explored ?? [] };
+  return { world: w, explored: data.explored ?? [], elapsed };
 }

@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.158.0 — Dated save slots _(2026-06-07)_
+- Save/Load is now **3 dated slots**. "Save Game" auto-writes the first empty slot
+  (or overwrites the oldest); each slot shows its **date + time**, and clicking a
+  slot loads it. Saves also store **elapsed game time**, restored on load. Old
+  single saves are read as Slot 1 for back-compat.
+
 ## v0.157.0 — AI expands to distant gold mines _(2026-06-07)_
 - The AI no longer starves on the new finite mines: when no gold remains within ~22
   tiles of its base, its gold workers now path to the **nearest live mine anywhere

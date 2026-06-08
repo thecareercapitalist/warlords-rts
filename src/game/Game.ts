@@ -33,7 +33,7 @@ import {
   updatePatrol,
 } from "./systems/orders.ts";
 import { entityAt, unitAt } from "./systems/selection.ts";
-import { saveGame, loadGame } from "./systems/persistence.ts";
+import { saveGame, loadGame, listSlots, nextSaveSlot } from "./systems/persistence.ts";
 
 export class Game {
   private readonly ctx: CanvasRenderingContext2D;
@@ -821,10 +821,10 @@ export class Game {
     this.pauseMenu.awaiting = null;
   }
 
-  private doLoad(): void {
-    const res = loadGame();
+  private doLoad(slot = 0): void {
+    const res = loadGame(slot);
     if (!res) {
-      this.setMessage("No saved game");
+      this.setMessage("Empty slot");
       return;
     }
     this.world = res.world;
@@ -841,7 +841,7 @@ export class Game {
     this.effects.clear();
     this.attackPing = null;
     this.gameOver = null;
-    this.elapsed = 0;
+    this.elapsed = res.elapsed ?? 0;
     this.kills = 0;
     this.razed = 0;
     this.shake = 0;
@@ -873,10 +873,11 @@ export class Game {
         this.setPaused(false);
         this.startNewGame((Math.floor(performance.now()) % 100000) + 1);
       } else if (res.type === "save") {
-        const ok = saveGame(this.world, this.fog.exportExplored());
-        this.setMessage(ok ? "Game saved" : "Save failed");
-      } else if (res.type === "load") {
-        this.doLoad();
+        const slot = nextSaveSlot();
+        const ok = saveGame(this.world, this.fog.exportExplored(), slot, this.elapsed);
+        this.setMessage(ok ? `Saved to slot ${slot + 1}` : "Save failed");
+      } else if (res.type === "loadSlot") {
+        this.doLoad(res.slot);
       } else if (res.type === "reset") this.kb.reset();
       else if (res.type === "toggleEdgeScroll") {
         this.edgeScroll = !this.edgeScroll;
@@ -1175,7 +1176,7 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} M`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver)
-      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled);
+      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots());
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }
