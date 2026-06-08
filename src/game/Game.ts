@@ -276,7 +276,7 @@ export class Game {
       }
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
-        this.effects.spawnDecal(e.x, e.y); // lingering grimdark stain
+        this.effects.spawnDecal(e.x, e.y, e.color); // corpse + blood, lingers then fades
         this.sfx.death();
         if (e.by === this.humanId) this.kills++;
       } else if (e.type === "collapse") {

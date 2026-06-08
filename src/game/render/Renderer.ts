@@ -1166,15 +1166,15 @@ export class Renderer {
     const atWork = u.path.length === 0 && u.finalTarget === null;
     if (u.def.canGather && u.state === "building" && atWork && this.assets.buildFrames.length === 3) {
       // Kneeling vertical hammer swing while constructing/repairing.
-      sprite = this.assets.buildFrames[Math.floor(this.now * 6 + u.pos.x) % 3];
+      sprite = this.assets.buildFrames[Math.floor(this.now * 4.5 + u.pos.x) % 3];
     } else if (u.def.canGather && u.state === "gathering" && atWork) {
-      // Chop (sideways axe) on forest, mine (pickaxe) on gold.
+      // Chop (sideways axe) on forest, mine (pickaxe) on gold — measured work tempo.
       const onForest = !!u.resourceTile && world.map.at(u.resourceTile.x, u.resourceTile.y)?.terrain === "forest";
       if (onForest && this.assets.chopFrames.length === 3) {
-        sprite = this.assets.chopFrames[Math.floor(this.now * 7 + u.pos.x) % 3];
+        sprite = this.assets.chopFrames[Math.floor(this.now * 4.5 + u.pos.x) % 3];
       } else if (this.assets.mineFrames.length >= 2) {
         const n = this.assets.mineFrames.length;
-        sprite = this.assets.mineFrames[Math.floor(this.now * 7) % n];
+        sprite = this.assets.mineFrames[Math.floor(this.now * 4.5) % n];
       }
     } else if (u.def.canGather && !atWork) {
       // Worker travelling (to a resource, back to drop-off, or a plain move) →
@@ -1705,16 +1705,44 @@ export class Renderer {
     const z = this.cam.zoom;
     for (const d of fx.decals) {
       const k = d.t / d.dur;
+      // Hold full opacity, then fade over the last quarter of the corpse's life.
+      const fade = k < 0.75 ? 1 : Math.max(0, 1 - (k - 0.75) / 0.25);
       const s = this.cam.worldToScreen(d.x, d.y);
-      ctx.globalAlpha = (1 - k) * 0.5;
-      ctx.fillStyle = "#2a0e0c"; // dark dried-blood / scorch
+
+      // Blood pool — a few dark-crimson splotches under the body.
+      ctx.globalAlpha = fade * 0.5;
+      ctx.fillStyle = "#5a1010";
       for (let i = 0; i < 4; i++) {
         const a = d.seed + (i / 4) * Math.PI * 2;
         const rr = (3 + ((i * 2.3 + d.seed) % 3)) * z;
         ctx.beginPath();
-        ctx.ellipse(s.x + Math.cos(a) * 4 * z, s.y + Math.sin(a) * 2.2 * z, rr, rr * 0.55, 0, 0, Math.PI * 2);
+        ctx.ellipse(s.x + Math.cos(a) * 5 * z, s.y + Math.sin(a) * 2.6 * z + 2 * z, rr, rr * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+
+      // Slumped corpse: a low body lump + head, dark with a faint hint of the unit's
+      // colour so you can tell who fell. Inked outline keeps it readable.
+      const col = d.color ?? "#444";
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = "#1c1614";
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y - 1 * z, 7 * z, 3.4 * z, d.seed * 0.3, 0, Math.PI * 2); // torso
+      ctx.fill();
+      ctx.fillStyle = col;
+      ctx.globalAlpha = fade * 0.45; // colour wash on top so it reads as faction
+      ctx.beginPath();
+      ctx.ellipse(s.x - 1 * z, s.y - 1.5 * z, 5 * z, 2.4 * z, d.seed * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = "#1c1614";
+      ctx.beginPath();
+      ctx.arc(s.x + 5.5 * z, s.y - 2.5 * z, 2.4 * z, 0, Math.PI * 2); // head, flung to one side
+      ctx.fill();
+      ctx.strokeStyle = "#0c0706";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y - 1 * z, 7 * z, 3.4 * z, d.seed * 0.3, 0, Math.PI * 2);
+      ctx.stroke();
     }
     ctx.globalAlpha = 1;
 

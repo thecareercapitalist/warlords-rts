@@ -54,6 +54,7 @@ interface Decal {
   seed: number;
   t: number;
   dur: number;
+  color?: string; // the fallen unit's body colour, for the corpse silhouette
 }
 
 interface Marker {
@@ -97,9 +98,10 @@ export class Effects {
     this.impacts.push({ x, y, seed: (x * 13 + y * 7) % 6.283, t: 0, dur: 0.18 });
   }
 
-  spawnDecal(x: number, y: number): void {
+  spawnDecal(x: number, y: number, color?: string): void {
     if (this.decals.length > 120) this.decals.shift(); // cap oldest out
-    this.decals.push({ x, y, seed: (x * 17 + y * 11) % 6.283, t: 0, dur: 7 });
+    // Corpses linger ~16s (RTS-typical) then fade over their last quarter.
+    this.decals.push({ x, y, seed: (x * 17 + y * 11) % 6.283, t: 0, dur: 16, color });
   }
 
   spawnFloater(x: number, y: number, text: string, color: string): void {

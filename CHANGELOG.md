@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.188.0 — Slower gather + corpses on death _(2026-06-07)_
+- **Gather time doubled** (1.75 → 3.5s at the node per load) so income builds up at a
+  sane pace instead of flooding in.
+- **Chop/mine/build animations slowed** to a measured work tempo (cycle rate 7→4.5)
+  — the frantic chopping is gone.
+- **Fallen units now leave a corpse**: a slumped body (tinted to the unit's faction)
+  in a pool of blood that lingers ~16s, then fades over its last few seconds — RTS-
+  typical timing, so battlefields read their history without piling up forever.
+
 ## v0.187.0 — Orc grunt animation consistency _(2026-06-07)_
 - Regenerated the orc grunt's **walk and swing** sheets as a matched set — every
   frame now shares the same horned helm, spiked pauldron, bone straps, and green
