@@ -278,7 +278,7 @@ export class Game {
       else if (e.type === "death") {
         this.effects.spawnDeath(e.x, e.y, e.color, e.glyph);
         this.effects.spawnDecal(e.x, e.y, e.color); // corpse + blood, lingers then fades
-        this.sfx.death();
+        this.sfx.death(e.r); // pitch scales with unit size
         if (e.by === this.humanId) this.kills++;
       } else if (e.type === "collapse") {
         this.effects.spawnCollapse(e.x, e.y, e.size);

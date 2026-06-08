@@ -156,6 +156,7 @@ function updateTowers(world: World, dt: number): void {
         color: world.player(best.playerId).color,
         glyph: best.def.glyph,
         by: b.playerId,
+        r: best.radius,
       });
       best.state = "dead";
     }
@@ -222,6 +223,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
               color: world.player(o.playerId).color,
               glyph: o.def.glyph,
               by: u.playerId,
+              r: o.radius,
             });
           }
         }
@@ -239,6 +241,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
             color: world.player(t.playerId).color,
             glyph: t.def.glyph,
             by: u.playerId,
+            r: t.etype === "unit" ? t.radius : undefined,
           });
           t.state = "dead";
         }

@@ -184,11 +184,15 @@ export class Sfx {
     this.noise({ dur: 0.16, gain: 0.32, filter: 1700 * v, sweepTo: 500 });
   }
 
-  death(): void {
+  /** Death cry; pitch scales inversely with unit size (small = higher yelp, a
+   *  dragon = a low roar). `sizeR` is the unit's body radius (px). */
+  death(sizeR = 10): void {
     if (!this.gate("death", 50)) return;
     const v = this.vary(1, 0.12);
-    this.tone({ freq: 300 * v, type: "sawtooth", dur: 0.3, gain: 0.45, slideTo: 70 });
-    this.noise({ dur: 0.14, gain: 0.26, filter: 800 });
+    const pitch = Math.max(0.55, Math.min(1.7, 12 / sizeR));
+    const dur = sizeR > 14 ? 0.5 : 0.3; // big beasts roar a touch longer
+    this.tone({ freq: 300 * v * pitch, type: "sawtooth", dur, gain: 0.45, slideTo: 70 * pitch });
+    this.noise({ dur: 0.14, gain: 0.26, filter: 800 * pitch });
   }
 
   /** Fireball / dragon breath: a roaring whoosh into a crackling boom. */

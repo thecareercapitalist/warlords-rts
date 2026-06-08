@@ -59,6 +59,7 @@ export function castSpell(world: World, u: Unit, sp: SpellDef, pt: Vec2): boolea
           color: world.player(o.playerId).color,
           glyph: o.def.glyph,
           by: u.playerId,
+          r: o.radius,
         });
       }
     } else {

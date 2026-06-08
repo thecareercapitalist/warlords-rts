@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.197.0 — Size-scaled death cries _(2026-06-07)_
+- Death sounds now **pitch with the unit's size** — small units yelp higher, a
+  dragon dies with a low, drawn-out roar. The death event carries the unit's body
+  radius; `Sfx.death(r)` maps it to pitch + duration. (All death sources — melee,
+  ranged, siege splash, towers, fireball — pass it.)
+
 ## v0.196.0 — Denied resource-bar flash _(2026-06-07)_
 - The top resource bar now briefly **flashes red** when an action is denied
   (can't afford / supply-capped / prereq) — a visual echo of the denied buzz, so the
