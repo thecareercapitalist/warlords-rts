@@ -1199,6 +1199,13 @@ export class Renderer {
       if (gallop.length === 4) {
         sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
       }
+    } else if (u.kind === "archer" && u.attackAnim > 0) {
+      // Bow draw-and-loose (loose → recover): human archer vs orc hunter.
+      const shot = isEnemy ? this.assets.orcArcherShotFrames : this.assets.archerShotFrames;
+      if (shot.length === 3) {
+        const ph = u.attackAnim / 0.18; // 1 just loosed → 0
+        sprite = shot[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
+      }
     } else if (u.kind === "mage" && u.attackAnim > 0) {
       // Cast cycle (release → recover): human mage vs orc warlock.
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;

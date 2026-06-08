@@ -170,6 +170,9 @@ export class Assets {
   /** Mounted gallop cycles (4 frames) per faction (knight horse vs orc wolf). */
   knightGallopFrames: CanvasImageSource[] = [];
   wolfriderGallopFrames: CanvasImageSource[] = [];
+  /** Archer draw-and-loose frames [nock, draw, loose] per faction. */
+  archerShotFrames: CanvasImageSource[] = [];
+  orcArcherShotFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -334,6 +337,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
         const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Archer draw-and-loose frames: human archer + orc hunter.
+    jobs.push(
+      load(inl?.archerShot ?? "/gen_archer_shot.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
+        if (fr.every(Boolean)) this.archerShotFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.orcArcherShot ?? "/gen_orcarcher_shot.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["o0", "o1", "o2"]);
+        const fr = [m.get("o0"), m.get("o1"), m.get("o2")];
+        if (fr.every(Boolean)) this.orcArcherShotFrames = fr as CanvasImageSource[];
       }),
     );
     // Mounted gallop cycles: human knight (horse) + orc wolf-rider.

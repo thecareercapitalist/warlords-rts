@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.173.0 — Archer draw-and-loose _(2026-06-07)_
+- Archers now play a **3-frame bow animation** while shooting (nock → full draw →
+  loose/recoil), faction-specific (human ranger / orc hunter), cycled by the attack
+  timer. Generated via Gemini.
+
 ## v0.172.0 — Smoother 5-frame wing-flap _(2026-06-07)_
 - Dragon + griffin wing-flap regenerated as **5 distinct frames** each (raised →
   high-mid → level → mid-low → swept low) and now cycle straight through for a much
