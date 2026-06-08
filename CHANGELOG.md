@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.174.0 — More sound effects _(2026-06-07)_
+- Three new original Web-Audio cues: a resonant **building-complete chord** when
+  construction finishes, a harsh **screech** when a griffin/dragon takes wing, and a
+  soft **footfall tick** on a move order. (Construction-finish now emits a distinct
+  `builtDone` event; the placement `build` sound is unchanged.)
+
 ## v0.173.0 — Archer draw-and-loose _(2026-06-07)_
 - Archers now play a **3-frame bow animation** while shooting (nock → full draw →
   loose/recoil), faction-specific (human ranger / orc hunter), cycled by the attack

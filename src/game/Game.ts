@@ -275,8 +275,11 @@ export class Game {
         if (e.by === this.humanId) this.razed++;
       } else if (e.type === "attack") this.sfx.attack(e.ranged, e.heavy);
       else if (e.type === "build") this.sfx.build();
-      else if (e.type === "trained" && e.playerId === this.humanId) {
-        this.sfx.ready();
+      else if (e.type === "builtDone") {
+        if (e.playerId === this.humanId) this.sfx.buildComplete();
+      } else if (e.type === "trained" && e.playerId === this.humanId) {
+        if (e.kind === "dragon") this.sfx.screech(); // griffin/dragon takes wing
+        else this.sfx.ready();
         this.effects.spawnImpact(e.x, e.y); // muster spark at the building
       }
       else if (e.type === "gain" && e.playerId === this.humanId) {
@@ -775,7 +778,10 @@ export class Game {
     const isFighter = (u: Unit): boolean => u.def.damage > 0 && !u.def.canGather;
     const attackMoveMod = this.input.ctrl;
     const aggressive = attackMoveMod && movers.some(isFighter);
-    if (plainMove) this.effects.spawnMoveMarker(worldPt.x, worldPt.y, aggressive);
+    if (plainMove) {
+      this.effects.spawnMoveMarker(worldPt.x, worldPt.y, aggressive);
+      if (movers.length > 0) this.sfx.footfall();
+    }
 
     // Plain group move (no Ctrl) → form up facing the direction of travel (melee
     // front, ranged/siege behind), so the squad arrives as a battle line.

@@ -17,7 +17,8 @@ export type GameEvent =
   | { type: "damaged"; playerId: number; x: number; y: number }
   | { type: "gain"; playerId: number; x: number; y: number; kind: ResourceKind; amount: number }
   | { type: "build" }
-  | { type: "trained"; playerId: number; x: number; y: number }
+  | { type: "builtDone"; playerId: number; x: number; y: number }
+  | { type: "trained"; playerId: number; x: number; y: number; kind?: string }
   | { type: "spell"; spell: "fireball" | "freeze"; x: number; y: number };
 
 export class World {

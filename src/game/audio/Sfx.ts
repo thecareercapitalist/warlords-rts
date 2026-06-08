@@ -265,6 +265,33 @@ export class Sfx {
     this.noise({ dur: 0.45, gain: 0.4, filter: 600 });
   }
 
+  /** Resonant four-note chord when a building finishes construction. */
+  buildComplete(): void {
+    if (!this.gate("buildComplete", 200)) return;
+    this.tone({ freq: 392, type: "triangle", dur: 0.5, gain: 0.34 }); // G
+    this.tone({ freq: 523, type: "triangle", dur: 0.5, gain: 0.3, delay: 0.04 }); // C
+    this.tone({ freq: 659, type: "triangle", dur: 0.55, gain: 0.28, delay: 0.08 }); // E
+    this.tone({ freq: 784, type: "sine", dur: 0.6, gain: 0.22, delay: 0.12 }); // G
+    this.noise({ dur: 0.18, gain: 0.1, filter: 2200 }); // soft settling dust
+  }
+
+  /** Harsh descending screech when a flying beast (griffin/dragon) takes wing. */
+  screech(): void {
+    if (!this.gate("screech", 250)) return;
+    const v = this.vary(1, 0.06);
+    this.tone({ freq: 1500 * v, type: "sawtooth", dur: 0.35, gain: 0.26, slideTo: 600 });
+    this.tone({ freq: 2200 * v, type: "square", dur: 0.22, gain: 0.12, slideTo: 1100, delay: 0.02 });
+    this.noise({ dur: 0.3, gain: 0.14, filter: 3000, sweepTo: 1200 });
+  }
+
+  /** Soft muffled footfall/hoof tick when a move order is issued. */
+  footfall(): void {
+    if (!this.gate("footfall", 70)) return;
+    const v = this.vary(1, 0.12);
+    this.tone({ freq: 150 * v, type: "sine", dur: 0.08, gain: 0.18, slideTo: 90 });
+    this.noise({ dur: 0.07, gain: 0.12, filter: 400 });
+  }
+
   /** Ominous low two-tone "under attack" warning. */
   alert(): void {
     if (!this.gate("alert", 800)) return;
