@@ -296,6 +296,10 @@ export class Game {
       else if (e.type === "gain" && e.playerId === this.humanId) {
         this.effects.spawnFloater(e.x, e.y, `+${e.amount}`, e.kind === "gold" ? "#e8c060" : "#b07a45");
       }
+      else if (e.type === "depleted") {
+        this.sfx.depleted();
+        this.effects.spawnFloater(e.x, e.y, "depleted", "#8a7e6a");
+      }
       else if (e.type === "damaged") {
         this.effects.spawnImpact(e.x, e.y); // spark burst at the point of impact
         if (e.playerId === this.humanId) {

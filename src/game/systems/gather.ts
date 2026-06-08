@@ -1,7 +1,7 @@
 import type { World } from "../World.ts";
 import type { Unit } from "../entities/Unit.ts";
 import type { ResourceKind, Vec2 } from "../types.ts";
-import { GATHER_TIME, PEON_CARRY_CAPACITY } from "../constants.ts";
+import { GATHER_TIME, PEON_CARRY_CAPACITY, TILE } from "../constants.ts";
 import { arrived } from "./movement.ts";
 import { orderGather, adjacentToTile, adjacentToBuilding, pathTo, standAdjacentTo } from "./orders.ts";
 
@@ -100,6 +100,10 @@ function tickGathering(world: World, u: Unit, dt: number): void {
   tile.resource -= amount;
   u.carrying = { kind, amount };
 
+  // Node just ran dry → signal it (sound + FX).
+  if (tile.resource <= 0) {
+    world.events.push({ type: "depleted", x: node.x * TILE + TILE / 2, y: node.y * TILE + TILE / 2 });
+  }
   // Depleted forest becomes a stump (grass) so it can be walked through.
   if (tile.terrain === "forest" && tile.resource <= 0) {
     tile.terrain = "grass";

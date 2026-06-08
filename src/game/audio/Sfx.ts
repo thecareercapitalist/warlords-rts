@@ -292,6 +292,13 @@ export class Sfx {
     this.noise({ dur: 0.07, gain: 0.12, filter: 400 });
   }
 
+  /** Hollow descending thunk when a resource node (mine/forest) runs dry. */
+  depleted(): void {
+    if (!this.gate("depleted", 150)) return;
+    this.tone({ freq: 180, type: "sine", dur: 0.28, gain: 0.3, slideTo: 70 });
+    this.noise({ dur: 0.2, gain: 0.12, filter: 500 });
+  }
+
   /** Soft descending "can't do that" buzz — not enough resources / supply / prereq. */
   denied(): void {
     if (!this.gate("denied", 220)) return;

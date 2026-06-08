@@ -19,7 +19,8 @@ export type GameEvent =
   | { type: "build" }
   | { type: "builtDone"; playerId: number; x: number; y: number }
   | { type: "trained"; playerId: number; x: number; y: number; kind?: string }
-  | { type: "spell"; spell: "fireball" | "freeze"; x: number; y: number };
+  | { type: "spell"; spell: "fireball" | "freeze"; x: number; y: number }
+  | { type: "depleted"; x: number; y: number };
 
 export class World {
   readonly map: TileMap;
