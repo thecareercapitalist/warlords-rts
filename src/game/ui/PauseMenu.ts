@@ -11,6 +11,7 @@ export type MenuResult =
   | { type: "reset" }
   | { type: "toggleEdgeScroll" }
   | { type: "toggleMusic" }
+  | { type: "toggleFullscreen" }
   | { type: "rebind"; action: ActionId };
 
 interface Layout {
@@ -21,6 +22,7 @@ interface Layout {
   load: Rect;
   edgeToggle: Rect;
   musicToggle: Rect;
+  fullscreenToggle: Rect;
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
 }
@@ -44,9 +46,10 @@ export class PauseMenu {
     const restart = btn(px + pw - 210, py + 56, 180);
     const save = btn(px + 30, py + 98, 180);
     const load = btn(px + pw - 210, py + 98, 180);
-    const halfW = (pw - 72) / 2;
-    const edgeToggle = btn(px + 30, py + 140, halfW);
-    const musicToggle = btn(px + 30 + halfW + 12, py + 140, halfW);
+    const thirdW = (pw - 60 - 20) / 3;
+    const edgeToggle = btn(px + 30, py + 140, thirdW);
+    const musicToggle = btn(px + 30 + thirdW + 10, py + 140, thirdW);
+    const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 140, thirdW);
 
     const rows: Layout["rows"] = [];
     let ry = py + 202;
@@ -55,7 +58,7 @@ export class PauseMenu {
       ry += 40;
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
-    return { panel, resume, restart, save, load, edgeToggle, musicToggle, reset, rows };
+    return { panel, resume, restart, save, load, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -66,6 +69,7 @@ export class PauseMenu {
     if (rectContains(l.load, p)) return { type: "load" };
     if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
     if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
+    if (rectContains(l.fullscreenToggle, p)) return { type: "toggleFullscreen" };
     if (rectContains(l.reset, p)) return { type: "reset" };
     for (const row of l.rows) {
       if (rectContains(row.keyBox, p)) return { type: "rebind", action: row.action };
@@ -118,8 +122,10 @@ export class PauseMenu {
     this.button(ctx, l.restart, "Restart", true);
     this.button(ctx, l.save, "Save Game", true);
     this.button(ctx, l.load, "Load Game", true);
-    this.button(ctx, l.edgeToggle, `Edge-scroll: ${edgeScroll ? "ON" : "OFF"}`, true);
+    const isFs = typeof document !== "undefined" && !!document.fullscreenElement;
+    this.button(ctx, l.edgeToggle, `Edge: ${edgeScroll ? "ON" : "OFF"}`, true);
     this.button(ctx, l.musicToggle, `Music: ${musicOn ? "ON" : "OFF"}`, true);
+    this.button(ctx, l.fullscreenToggle, `Fullscreen: ${isFs ? "ON" : "OFF"}`, true);
 
     // Controls header.
     ctx.fillStyle = "#9fb2c2";

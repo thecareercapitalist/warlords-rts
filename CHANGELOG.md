@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.156.0 — Fullscreen toggle _(2026-06-07)_
+- Pause menu gains a **Fullscreen: ON/OFF** toggle (Fullscreen API on the document)
+  alongside Edge-scroll + Music — three tidy toggles in one row. Verified the row
+  renders and the toggle hit-tests correctly.
+
 ## v0.155.0 — Pause-menu music toggle _(2026-06-07)_
 - The pause menu now has a **Music: ON/OFF** toggle (alongside Edge-scroll) wired to
   the audio engine + persisted, so you can silence the gothic score independently of

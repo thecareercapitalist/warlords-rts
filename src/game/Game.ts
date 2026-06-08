@@ -887,6 +887,13 @@ export class Game {
         }
       } else if (res.type === "toggleMusic") {
         this.sfx.toggleMusic();
+      } else if (res.type === "toggleFullscreen") {
+        try {
+          if (document.fullscreenElement) void document.exitFullscreen();
+          else void document.documentElement.requestFullscreen();
+        } catch {
+          /* fullscreen unavailable */
+        }
       } else if (res.type === "rebind") this.pauseMenu.awaiting = res.action;
     }
   }
