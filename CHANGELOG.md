@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.178.0 — Smoother 5-frame melee swings _(2026-06-07)_
+- Footman sword swing and orc grunt axe swing regenerated as **5 frames** each
+  (wind-up → overhead → mid-swing → strike → recover) and now play **forward across
+  the whole 0.36s attack window** instead of a 3-frame strobe — applying the user's
+  animation guidance (more frames, read as motion). Cycle is now frame-count
+  agnostic, so future enrichments just drop in.
+
 ## v0.177.0 — AI forward base _(2026-06-07)_
 - The AI now **expands**: once its home gold is exhausted but a distant mine still
   has ore (and it can afford a Town Hall), it plants a **second Town Hall beside

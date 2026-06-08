@@ -334,8 +334,8 @@ export class Assets {
     jobs.push(
       load(inl?.footmanAtk ?? "/gen_footman_atk.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
-        const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
+        const m = sliceGrid(img, 5, 1, ["a0", "a1", "a2", "a3", "a4"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2"), m.get("a3"), m.get("a4")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
       }),
     );
@@ -411,8 +411,8 @@ export class Assets {
     jobs.push(
       load(inl?.gruntAtk ?? "/gen_grunt_atk.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["g0", "g1", "g2"]);
-        const fr = [m.get("g0"), m.get("g1"), m.get("g2")];
+        const m = sliceGrid(img, 5, 1, ["g0", "g1", "g2", "g3", "g4"]);
+        const fr = [m.get("g0"), m.get("g1"), m.get("g2"), m.get("g3"), m.get("g4")];
         if (fr.every(Boolean)) this.gruntAtkFrames = fr as CanvasImageSource[];
       }),
     );

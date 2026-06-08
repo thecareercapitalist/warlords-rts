@@ -1177,12 +1177,13 @@ export class Renderer {
         sprite = this.assets.mineFrames[Math.floor(this.now * 7) % n];
       }
     } else if (u.kind === "footman" && u.attackAnim > 0) {
-      // Play a 3-frame melee swing during an attack (strike → recover): humans
-      // swing a sword, orcs an axe.
+      // Play the melee swing forward across the attack window (windup → … →
+      // recover): humans swing a sword, orcs an axe. Frame-count agnostic.
       const frames = isEnemy ? this.assets.gruntAtkFrames : this.assets.footmanAtkFrames;
-      if (frames.length === 3) {
+      if (frames.length > 0) {
         const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just struck → 0
-        sprite = frames[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
+        const i = Math.min(frames.length - 1, Math.floor((1 - ph) * frames.length));
+        sprite = frames[i];
       }
     } else if (u.kind === "dragon") {
       // Flying units flap continuously (orc dragon vs human griffin), phase-offset
