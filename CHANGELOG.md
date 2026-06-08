@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.172.0 — Smoother 5-frame wing-flap _(2026-06-07)_
+- Dragon + griffin wing-flap regenerated as **5 distinct frames** each (raised →
+  high-mid → level → mid-low → swept low) and now cycle straight through for a much
+  smoother beat — replacing the 3-frame ping-pong.
+
 ## v0.171.0 — Mounted gallop animation _(2026-06-07)_
 - The mounted **knight** (warhorse) and orc **wolf-rider** now **gallop** while
   moving — a 4-frame leg cycle (gathered → reach → airborne → push-off), faction

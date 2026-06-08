@@ -1188,10 +1188,10 @@ export class Renderer {
       // Flying units flap continuously (orc dragon vs human griffin), phase-offset
       // per unit so a flight isn't perfectly in sync.
       const flap = isEnemy ? this.assets.dragonFlapFrames : this.assets.griffinFlapFrames;
-      if (flap.length >= 3) {
-        // Slower, smoother flap; ping-pong so 3 frames read as up→level→down→level.
-        const seq = [0, 1, 2, 1];
-        sprite = flap[seq[Math.floor(this.now * 3.5 + u.pos.x * 0.04) % seq.length]];
+      if (flap.length > 0) {
+        // Smooth slow flap straight through the frames (5 = raised→level→swept low),
+        // phase-offset per unit so a flight isn't perfectly in sync.
+        sprite = flap[Math.floor(this.now * 6 + u.pos.x * 0.04) % flap.length];
       }
     } else if (u.kind === "knight" && (u.path.length > 0 || u.finalTarget !== null) && u.attackAnim <= 0) {
       // Mounted gallop while travelling (horse for humans, dire wolf for orcs).

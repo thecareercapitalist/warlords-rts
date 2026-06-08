@@ -374,16 +374,16 @@ export class Assets {
     jobs.push(
       load(inl?.dragonFly ?? "/gen_dragon_fly.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["d0", "d1", "d2"]);
-        const fr = [m.get("d0"), m.get("d1"), m.get("d2")];
+        const m = sliceGrid(img, 5, 1, ["d0", "d1", "d2", "d3", "d4"]);
+        const fr = [m.get("d0"), m.get("d1"), m.get("d2"), m.get("d3"), m.get("d4")];
         if (fr.every(Boolean)) this.dragonFlapFrames = fr as CanvasImageSource[];
       }),
     );
     jobs.push(
       load(inl?.griffinFly ?? "/gen_griffin_fly.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 3, 1, ["f0", "f1", "f2"]);
-        const fr = [m.get("f0"), m.get("f1"), m.get("f2")];
+        const m = sliceGrid(img, 5, 1, ["f0", "f1", "f2", "f3", "f4"]);
+        const fr = [m.get("f0"), m.get("f1"), m.get("f2"), m.get("f3"), m.get("f4")];
         if (fr.every(Boolean)) this.griffinFlapFrames = fr as CanvasImageSource[];
       }),
     );
