@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.196.0 — Denied resource-bar flash _(2026-06-07)_
+- The top resource bar now briefly **flashes red** when an action is denied
+  (can't afford / supply-capped / prereq) — a visual echo of the denied buzz, so the
+  block reads instantly. Decays over ~0.45s.
+
 ## v0.195.0 — Resource-depleted cue _(2026-06-07)_
 - When a gold mine or forest tile runs dry, it now emits a **hollow "depleted"
   thunk** + a small floating "depleted" label — useful feedback now that mines are

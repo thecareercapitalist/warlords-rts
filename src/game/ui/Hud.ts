@@ -47,6 +47,8 @@ export class Hud {
   private groupChips: { n: number; rect: Rect }[] = [];
   /** Set by Game once loaded — lets command buttons show sprite icons. */
   assets: Assets | null = null;
+  /** Set by Game (decays over ~0.45s); reddens the resource bar on a denied action. */
+  denyFlash = 0;
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {}
 
@@ -306,6 +308,11 @@ export class Hud {
     tg.addColorStop(1, "#0c0b08");
     ctx.fillStyle = tg;
     ctx.fillRect(0, 0, cam.viewW, 34);
+    // Brief red wash when an action was denied for cost — visual echo of the buzz.
+    if (this.denyFlash > 0) {
+      ctx.fillStyle = `rgba(196,73,47,${Math.min(0.5, this.denyFlash) * 0.6})`;
+      ctx.fillRect(0, 0, cam.viewW, 34);
+    }
     ctx.fillStyle = "rgba(255,244,214,0.12)"; // top highlight
     ctx.fillRect(0, 0, cam.viewW, 1);
     ctx.fillStyle = COLORS.uiEmber;

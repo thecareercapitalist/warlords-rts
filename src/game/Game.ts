@@ -240,6 +240,7 @@ export class Game {
     }
     this.elapsed += dt;
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 22); // decay shake
+    if (this.hud.denyFlash > 0) this.hud.denyFlash = Math.max(0, this.hud.denyFlash - dt);
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
     if (this.attackPing) {
       this.attackPing.t += dt;
@@ -966,6 +967,7 @@ export class Game {
     if (action.type === "denied") {
       this.setMessage(`${action.label}: ${action.reason}`);
       this.sfx.denied();
+      this.hud.denyFlash = 0.45;
       return;
     }
     this.sfx.click();
