@@ -300,6 +300,14 @@ export class Assets {
         if (w) this.enemyUnitSprites.set("knight", w);
       }),
     );
+    // Orc caster: the enemy "mage" variant (same stats, different vibe).
+    jobs.push(
+      load(inl?.orccaster ?? "/gen_orccaster.jpg").then((img) => {
+        if (!img) return;
+        const oc = sliceGrid(img, 1, 1, ["orccaster"]).get("orccaster");
+        if (oc) this.enemyUnitSprites.set("mage", oc);
+      }),
+    );
     await Promise.all(jobs);
     this.loaded = true;
   }

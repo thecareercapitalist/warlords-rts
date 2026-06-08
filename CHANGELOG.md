@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.151.0 — Orc caster _(2026-06-07)_
+- The enemy **Mage** is now a distinct **orc warlock** (green-skinned, tattered
+  robes, a bone totem-staff with a glowing green skull) — same stats as the human
+  mage, different vibe. Generated via Gemini → `enemyUnitSprites.mage`.
+
 ## v0.150.0 — Cavalry: mounted knight + wolf rider _(2026-06-07)_
 - The **Knight** is now mounted, with **faction-specific art**: humans ride an
   armored **warhorse** (lance + caparison), orcs ride a snarling **dire wolf**
