@@ -1160,16 +1160,21 @@ export class Renderer {
     // ground ellipses can scale proportionally to the (large) sprite.
     // A gathering worker plays a 2-frame pickaxe swing instead of the idle sprite.
     let sprite = this.assets.unitSprite(u.kind, isEnemy);
-    if (u.def.canGather && u.state === "building" && this.assets.buildFrames.length === 3) {
+    // A worker only plays its WORK animation once it has actually arrived and is
+    // standing still — while walking to the site it uses the normal walk sprite,
+    // so it no longer "hammers" or "swings" mid-stride.
+    const atWork = u.path.length === 0 && u.finalTarget === null;
+    if (u.def.canGather && u.state === "building" && atWork && this.assets.buildFrames.length === 3) {
       // Kneeling vertical hammer swing while constructing/repairing.
-      sprite = this.assets.buildFrames[Math.floor(this.now * 7 + u.pos.x) % 3];
-    } else if (u.def.canGather && u.state === "gathering") {
+      sprite = this.assets.buildFrames[Math.floor(this.now * 6 + u.pos.x) % 3];
+    } else if (u.def.canGather && u.state === "gathering" && atWork) {
       // Chop (sideways axe) on forest, mine (pickaxe) on gold.
       const onForest = !!u.resourceTile && world.map.at(u.resourceTile.x, u.resourceTile.y)?.terrain === "forest";
       if (onForest && this.assets.chopFrames.length === 3) {
-        sprite = this.assets.chopFrames[Math.floor(this.now * 8 + u.pos.x) % 3];
-      } else if (this.assets.mineFrames.length === 2) {
-        sprite = this.assets.mineFrames[Math.floor(this.now * 6) % 2];
+        sprite = this.assets.chopFrames[Math.floor(this.now * 7 + u.pos.x) % 3];
+      } else if (this.assets.mineFrames.length >= 2) {
+        const n = this.assets.mineFrames.length;
+        sprite = this.assets.mineFrames[Math.floor(this.now * 7) % n];
       }
     } else if (u.kind === "footman" && u.attackAnim > 0) {
       // Play a 3-frame melee swing during an attack (strike → recover): humans
@@ -1183,8 +1188,10 @@ export class Renderer {
       // Flying units flap continuously (orc dragon vs human griffin), phase-offset
       // per unit so a flight isn't perfectly in sync.
       const flap = isEnemy ? this.assets.dragonFlapFrames : this.assets.griffinFlapFrames;
-      if (flap.length === 3) {
-        sprite = flap[Math.floor(this.now * 6 + u.pos.x * 0.05) % 3];
+      if (flap.length >= 3) {
+        // Slower, smoother flap; ping-pong so 3 frames read as up→level→down→level.
+        const seq = [0, 1, 2, 1];
+        sprite = flap[seq[Math.floor(this.now * 3.5 + u.pos.x * 0.04) % seq.length]];
       }
     } else if (u.kind === "mage" && u.attackAnim > 0) {
       // Cast cycle (release → recover): human mage vs orc warlock.

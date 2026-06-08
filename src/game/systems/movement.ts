@@ -74,6 +74,13 @@ export function separate(world: World, dt: number): void {
 
   for (const u of world.units) {
     if (u.dead) continue;
+    // Units actively working in place (mining/chopping, or building once arrived)
+    // hold their ground — otherwise clustered workers shove each other and appear
+    // to slide back and forth instead of standing and swinging.
+    const working =
+      u.state === "gathering" ||
+      (u.state === "building" && u.path.length === 0 && u.finalTarget === null);
+    if (working) continue;
     const cx = Math.floor(u.pos.x / cell);
     const cy = Math.floor(u.pos.y / cell);
     let pushX = 0;

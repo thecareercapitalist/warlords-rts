@@ -6,6 +6,17 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.165.0 — Work-anim sequencing + smoother mining _(2026-06-07)_
+- Workers now **walk to the site, stop, then start the work animation** — no more
+  hammering or swinging mid-stride (the work anim is gated on actually having
+  arrived).
+- **Miners no longer slide** while working: separation leaves units that are
+  mining/chopping (or building, once arrived) planted in place.
+- **Mining animation is now 4 frames** (raise → swing → strike+spark → recover),
+  much smoother than the old 2.
+- **Wing-flap slowed and smoothed** via a 4-step ping-pong over the 3 poses
+  (up → level → down → level). True extra flap frames + knight gallop next.
+
 ## v0.164.0 — Separate peon work anims + slower gather _(2026-06-07)_
 - Workers now have **distinct 3-frame animations per task**: mining = pickaxe
   (existing), **chopping** = a sideways **axe** swing, **building** = kneeling on one

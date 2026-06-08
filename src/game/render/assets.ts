@@ -293,10 +293,9 @@ export class Assets {
     jobs.push(
       load(inl?.mine ?? "/gen_mine.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 2, 1, ["mine0", "mine1"]);
-        const a = m.get("mine0");
-        const bb = m.get("mine1");
-        if (a && bb) this.mineFrames = [a, bb];
+        const m = sliceGrid(img, 4, 1, ["mine0", "mine1", "mine2", "mine3"]);
+        const fr = [m.get("mine0"), m.get("mine1"), m.get("mine2"), m.get("mine3")];
+        if (fr.every(Boolean)) this.mineFrames = fr as CanvasImageSource[];
       }),
     );
     // Worker chopping (axe) + building (hammer) 3-frame swings.
