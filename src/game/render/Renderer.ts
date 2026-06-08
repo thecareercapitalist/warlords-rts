@@ -1231,13 +1231,15 @@ export class Renderer {
     } else if (u.kind === "mage") {
       // Charge the staff only while casting; otherwise hold it lowered (frame 0).
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
-      if (cast.length > 0) {
-        if (u.attackAnim > 0) {
-          const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
-          sprite = cast[Math.min(cast.length - 1, Math.floor((1 - ph) * cast.length))];
-        } else {
-          sprite = cast[0];
-        }
+      const walk = isEnemy ? this.assets.orcCasterWalkFrames : this.assets.mageWalkFrames;
+      const moving = u.path.length > 0 || u.finalTarget !== null;
+      if (u.attackAnim > 0 && cast.length > 0) {
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
+        sprite = cast[Math.min(cast.length - 1, Math.floor((1 - ph) * cast.length))];
+      } else if (moving && walk.length === 4) {
+        sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      } else if (cast.length > 0) {
+        sprite = cast[0]; // relaxed, staff lowered
       }
     }
     let spriteW = 0;

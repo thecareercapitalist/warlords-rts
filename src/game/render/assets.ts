@@ -109,6 +109,73 @@ function sliceGrid(
   return out;
 }
 
+/**
+ * Like sliceGrid but every frame comes out the SAME size — cropped to the UNION
+ * bbox across all cells (relative to each cell origin). Use for cycles whose
+ * silhouette changes a lot frame-to-frame (flyers' wings): per-frame trimming
+ * makes the body pulse bigger/smaller when the renderer scales to a fixed height,
+ * whereas a shared box keeps the body anchored and only the wings move within it.
+ */
+function sliceGridUniform(
+  img: HTMLImageElement,
+  cols: number,
+  rows: number,
+  order: string[],
+): Map<string, CanvasImageSource> {
+  const out = new Map<string, CanvasImageSource>();
+  const W = img.width;
+  const H = img.height;
+  const full = document.createElement("canvas");
+  full.width = W;
+  full.height = H;
+  const fx = full.getContext("2d");
+  if (!fx) return out;
+  fx.drawImage(img, 0, 0);
+  let data: ImageData;
+  try {
+    data = fx.getImageData(0, 0, W, H);
+  } catch {
+    return out;
+  }
+  const p = data.data;
+  for (let i = 0; i < p.length; i += 4) {
+    if (isMagenta(p[i], p[i + 1], p[i + 2])) p[i + 3] = 0;
+  }
+  fx.putImageData(data, 0, 0);
+  const cw = Math.floor(W / cols);
+  const ch = Math.floor(H / rows);
+  // First pass: per-cell content bbox relative to its cell origin → union it.
+  let uminx = 1e9, uminy = 1e9, umaxx = -1, umaxy = -1;
+  order.forEach((_name, idx) => {
+    const qx = (idx % cols) * cw;
+    const qy = Math.floor(idx / cols) * ch;
+    for (let y = 0; y < ch; y++) {
+      for (let x = 0; x < cw; x++) {
+        if (p[((qy + y) * W + (qx + x)) * 4 + 3] > 40) {
+          if (x < uminx) uminx = x;
+          if (x > umaxx) umaxx = x;
+          if (y < uminy) uminy = y;
+          if (y > umaxy) umaxy = y;
+        }
+      }
+    }
+  });
+  if (umaxx < 0) return out;
+  const w = umaxx - uminx + 1;
+  const h = umaxy - uminy + 1;
+  // Second pass: crop the SAME box out of every cell → uniform frames.
+  order.forEach((name, idx) => {
+    const qx = (idx % cols) * cw;
+    const qy = Math.floor(idx / cols) * ch;
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    c.getContext("2d")?.drawImage(full, qx + uminx, qy + uminy, w, h, 0, 0, w, h);
+    out.set(name, c);
+  });
+  return out;
+}
+
 /** Knock out a sprite sheet's flat background colour (sampled from a corner). */
 function chromaKey(img: HTMLImageElement): CanvasImageSource {
   const cv = document.createElement("canvas");
@@ -173,6 +240,9 @@ export class Assets {
   /** Caster cast cycles [gather, charge, release] per faction (mage vs warlock). */
   mageCastFrames: CanvasImageSource[] = [];
   orcCasterCastFrames: CanvasImageSource[] = [];
+  /** Caster 4-frame walk cycles per faction (mage vs warlock), while moving. */
+  mageWalkFrames: CanvasImageSource[] = [];
+  orcCasterWalkFrames: CanvasImageSource[] = [];
   /** Mounted gallop cycles (4 frames) per faction (knight horse vs orc wolf). */
   knightGallopFrames: CanvasImageSource[] = [];
   wolfriderGallopFrames: CanvasImageSource[] = [];
@@ -396,6 +466,23 @@ export class Assets {
         if (fr.every(Boolean)) this.orcArcherShotFrames = fr as CanvasImageSource[];
       }),
     );
+    // Caster walk cycles: human mage + orc warlock.
+    jobs.push(
+      load(inl?.mageWalk ?? "/gen_mage_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.mageWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.orcCasterWalk ?? "/gen_orccaster_walk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
+        const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
+        if (fr.every(Boolean)) this.orcCasterWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
     // Mounted gallop cycles: human knight (horse) + orc wolf-rider.
     jobs.push(
       load(inl?.knightGallop ?? "/gen_knight_gallop.jpg").then((img) => {
@@ -434,7 +521,7 @@ export class Assets {
     jobs.push(
       load(inl?.dragonFly ?? "/gen_dragon_fly.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 5, 1, ["d0", "d1", "d2", "d3", "d4"]);
+        const m = sliceGridUniform(img, 5, 1, ["d0", "d1", "d2", "d3", "d4"]);
         const fr = [m.get("d0"), m.get("d1"), m.get("d2"), m.get("d3"), m.get("d4")];
         if (fr.every(Boolean)) this.dragonFlapFrames = fr as CanvasImageSource[];
       }),
@@ -442,7 +529,7 @@ export class Assets {
     jobs.push(
       load(inl?.griffinFly ?? "/gen_griffin_fly.jpg").then((img) => {
         if (!img) return;
-        const m = sliceGrid(img, 5, 1, ["f0", "f1", "f2", "f3", "f4"]);
+        const m = sliceGridUniform(img, 5, 1, ["f0", "f1", "f2", "f3", "f4"]);
         const fr = [m.get("f0"), m.get("f1"), m.get("f2"), m.get("f3"), m.get("f4")];
         if (fr.every(Boolean)) this.griffinFlapFrames = fr as CanvasImageSource[];
       }),

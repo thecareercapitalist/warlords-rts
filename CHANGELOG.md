@@ -6,6 +6,18 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.198.0 — Animation fixes: griffin pulse, knight rest, mage walk _(2026-06-08)_
+- **Griffin/dragon no longer grow & shrink in flight.** The flap frames were each
+  bbox-trimmed to their own size, so wings-up frames (taller) made the renderer
+  scale the body down. New `sliceGridUniform` crops all flap frames to a shared
+  union box, so the body stays put and only the wings move (frames now 316×449).
+- **Knight rests properly.** Regenerated the idle base sprite as a calm standing
+  warhorse on all four hooves with the lance upright (was a rearing/charging pose);
+  keeps the gallop's barding + horned helm so idle↔move stays consistent.
+- **Mage (and warlock) now walk.** New 4-frame caster walk cycles; a moving caster
+  strides instead of gliding (casting still plays the cast cycle, idle the relaxed
+  pose). Old knight sprite archived.
+
 ## v0.197.0 — Size-scaled death cries _(2026-06-07)_
 - Death sounds now **pitch with the unit's size** — small units yelp higher, a
   dragon dies with a low, drawn-out roar. The death event carries the unit's body
