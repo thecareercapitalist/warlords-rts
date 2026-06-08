@@ -20,7 +20,9 @@ const SHEET_URLS: Record<SheetKey, string> = {
 // Generated (Pixelcut) sheets: grids on flat magenta, sliced into trimmed sprites.
 // Cell order matches the generation prompt (row-major).
 const UNIT_SHEET_URL = "/gen_units.png";
-const UNIT_SHEET_ORDER = ["peon", "footman", "archer", "knight"];
+// NB: the 4th cell is the retired horseless "knight" — stored under an unused key so
+// it can never shadow the mounted gen_knight.jpg sprite (which is the only "knight").
+const UNIT_SHEET_ORDER = ["peon", "footman", "archer", "_retiredKnight"];
 const BUILDING_SHEET_URL = "/gen_buildings.png";
 const BUILDING_SHEET_ORDER = [
   "townhall", "barracks", "farm",

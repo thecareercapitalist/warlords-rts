@@ -6,6 +6,18 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.227.0 — Temple anchor, horseless-knight fix, richer combat SFX _(2026-06-08)_
+- **Temple sits on its footprint.** The building "seat" offset scaled with footprint
+  size, sinking big buildings well below their diamond (temple read "too low"). Now a
+  small constant seat — temple/town hall base aligns with the tile.
+- **Knight never goes horseless.** The retired horseless knight in the unit sheet was
+  stored as "knight" and only overridden by the mounted gen_knight after load — a load
+  hiccup revealed it. The sheet cell is now parked under an unused key (mounted knight
+  is the only "knight"), plus an idle fallback to a gallop frame if the base is missing.
+- **Better combat sound.** Sword clang is now a bright inharmonic metal strike (noise
+  "shing" + bell-ratio partials + body) instead of square-wave beeps; the bow is a
+  string thunk + airy arrow zip.
+
 ## v0.226.0 — War Cry icon/label + autocast persists across save-load _(2026-06-08)_
 - **War Cry now explains itself + has an icon** — the command button shows a gothic
   war-horn icon, the label "War Cry", and "+50% atk · 6s" so its effect is clear at a

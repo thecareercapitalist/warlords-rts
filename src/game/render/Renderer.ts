@@ -748,7 +748,10 @@ export class Renderer {
     const dh = ch * scale;
     const bottomY = Math.max(...ys); // footprint front (south) vertex
     const dx = center.x - dw / 2;
-    const dy = bottomY - dh + (bottomY - center.y) * 0.15;
+    // Seat the base a small CONSTANT amount into the tile front. (Previously this
+    // scaled with footprint, so big buildings like the temple sank well below their
+    // diamond — "too low".)
+    const dy = bottomY - dh + ISO_HALF_H * this.cam.zoom * 0.35;
     if (reveal >= 1) {
       ctx.drawImage(sprite, dx, dy, dw, dh);
       return;
@@ -1311,6 +1314,12 @@ export class Renderer {
       if (gallop.length === 4) {
         sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
       }
+    } else if (u.kind === "knight") {
+      // Idle: mounted standing sprite; if it failed to load, fall back to a gallop
+      // frame (still mounted) so a knight is never drawn horseless.
+      const base = this.assets.unitSprite("knight", isEnemy);
+      const gallop = isEnemy ? this.assets.wolfriderGallopFrames : this.assets.knightGallopFrames;
+      sprite = base ?? (gallop.length === 4 ? gallop[0] : sprite);
     } else if (u.kind === "archer") {
       // Shoot → draw cycle; moving → walk cycle (bow lowered); idle → relaxed
       // frame 0, so an archer is never perpetually aiming or sliding.

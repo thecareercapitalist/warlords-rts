@@ -167,21 +167,25 @@ export class Sfx {
 
   clang(): void {
     if (!this.gate("clang", 45)) return;
-    // Meatier melee hit: a low body thud + detuned metallic blips + a noise tick,
-    // all pitch-varied per swing so a brawl doesn't machine-gun one note.
-    const v = this.vary(1, 0.08);
-    this.tone({ freq: 130 * v, type: "sawtooth", dur: 0.07, gain: 0.32, slideTo: 70 }); // flesh/impact body
-    this.tone({ freq: 440 * v, type: "square", dur: 0.08, gain: 0.42, slideTo: 360 });
-    this.tone({ freq: 620 * v, type: "square", dur: 0.06, gain: 0.26, slideTo: 500 });
-    this.noise({ dur: 0.05, gain: 0.4, filter: 3000 });
+    // Sword-on-steel: a bright noise "shing" transient + three INHARMONIC metal
+    // partials (bell-like ratios, not a musical chord, so it reads as ringing metal
+    // rather than a beep) over a short low body thud. Pitch-varied per swing.
+    const v = this.vary(1, 0.09);
+    this.noise({ dur: 0.06, gain: 0.5, filter: 5400 * v, sweepTo: 2400 }); // the strike
+    this.tone({ freq: 540 * v, type: "triangle", dur: 0.14, gain: 0.32, slideTo: 505 * v });
+    this.tone({ freq: 1490 * v, type: "triangle", dur: 0.11, gain: 0.2, slideTo: 1410 * v, delay: 0.004 });
+    this.tone({ freq: 2630 * v, type: "sine", dur: 0.08, gain: 0.12, slideTo: 2500 * v, delay: 0.006 });
+    this.tone({ freq: 120 * v, type: "sawtooth", dur: 0.06, gain: 0.26, slideTo: 60 }); // weight
   }
 
   whoosh(): void {
     if (!this.gate("whoosh", 55)) return;
-    // Bow release: a short string "twang" + an airy arrow swish.
+    // Bow release: a short low string "thunk" (fast pitch drop) then a tight airy
+    // arrow "thwip" — bright noise sweeping down quickly as the shaft zips away.
     const v = this.vary(1, 0.1);
-    this.tone({ freq: 320 * v, type: "triangle", dur: 0.07, gain: 0.22, slideTo: 180 });
-    this.noise({ dur: 0.16, gain: 0.32, filter: 1700 * v, sweepTo: 500 });
+    this.tone({ freq: 260 * v, type: "triangle", dur: 0.05, gain: 0.24, slideTo: 110 }); // string pluck
+    this.noise({ dur: 0.14, gain: 0.34, filter: 3400 * v, sweepTo: 650 }); // arrow zip
+    this.tone({ freq: 1800 * v, type: "sine", dur: 0.04, gain: 0.08, slideTo: 3200 * v }); // faint fletch hiss
   }
 
   /** Death cry; pitch scales inversely with unit size (small = higher yelp, a
