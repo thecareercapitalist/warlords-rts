@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.211.0 — Building rubble decals _(2026-06-08)_
+- Destroyed buildings now leave a lingering **ruin** — a scorched ground scar with
+  scattered broken masonry, sized by footprint — instead of vanishing after the
+  collapse puff. Persists ~45s then fades, like the unit corpses. Spawned on the
+  `collapse` event; battlefield storytelling (They Are Billions vibe).
+
 ## v0.210.0 — Animated water shimmer _(2026-06-08)_
 - Lakes were static; now each water tile carries a soft cool moonlit glint that
   drifts with the render clock, phase-offset per tile so the water ripples as a

@@ -299,6 +299,8 @@ export class Game {
         if (e.by === this.humanId) this.kills++;
       } else if (e.type === "collapse") {
         this.effects.spawnCollapse(e.x, e.y, e.size);
+        // size = footprint × 16 (see World collapse pushes) → recover footprint for the ruin.
+        this.effects.spawnRubble(e.x, e.y, Math.max(1, Math.round(e.size / 16)));
         this.sfx.collapse();
         this.shake = Math.max(this.shake, 7); // jolt the camera on a collapse
         if (e.by === this.humanId) this.razed++;

@@ -1752,6 +1752,33 @@ export class Renderer {
       const fade = k < 0.75 ? 1 : Math.max(0, 1 - (k - 0.75) / 0.25);
       const s = this.cam.worldToScreen(d.x, d.y);
 
+      // Building rubble: a scorched ground scar + scattered broken stone blocks,
+      // sized by footprint. A lingering ruin where a building fell.
+      if (d.rubble) {
+        const rad = d.rubble * ISO_HALF_W * 0.5 * z;
+        ctx.globalAlpha = fade * 0.55;
+        ctx.fillStyle = "#15110d"; // charred scorch
+        ctx.beginPath();
+        ctx.ellipse(s.x, s.y, rad, rad * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Broken masonry chunks scattered over the scar.
+        for (let i = 0; i < 7; i++) {
+          const a = d.seed * 1.7 + i * 2.39996;
+          const rr = (0.3 + ((i * 1.7 + d.seed) % 0.6)) * rad;
+          const bx = s.x + Math.cos(a) * rr;
+          const by = s.y + Math.sin(a) * rr * 0.5;
+          const bw = (3 + ((i * 2.1 + d.seed) % 4)) * z;
+          ctx.globalAlpha = fade;
+          ctx.fillStyle = i % 2 ? "#6a6358" : "#514a40";
+          ctx.fillRect(bx - bw / 2, by - bw / 2, bw, bw * 0.8);
+          ctx.strokeStyle = "#0c0a08";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(bx - bw / 2, by - bw / 2, bw, bw * 0.8);
+        }
+        ctx.globalAlpha = 1;
+        continue;
+      }
+
       // Blood pool — a few dark-crimson splotches under the body.
       ctx.globalAlpha = fade * 0.5;
       ctx.fillStyle = "#5a1010";

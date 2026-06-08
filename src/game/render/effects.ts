@@ -55,6 +55,7 @@ interface Decal {
   t: number;
   dur: number;
   color?: string; // the fallen unit's body colour, for the corpse silhouette
+  rubble?: number; // if set, building rubble (footprint tiles) instead of a corpse
 }
 
 interface Marker {
@@ -102,6 +103,13 @@ export class Effects {
     if (this.decals.length > 120) this.decals.shift(); // cap oldest out
     // Corpses linger ~16s (RTS-typical) then fade over their last quarter.
     this.decals.push({ x, y, seed: (x * 17 + y * 11) % 6.283, t: 0, dur: 16, color });
+  }
+
+  /** A destroyed building's lingering rubble + scorch (footprint in tiles). */
+  spawnRubble(x: number, y: number, footprint: number): void {
+    if (this.decals.length > 120) this.decals.shift();
+    // Ruins persist longer than corpses (~45s) — a scar on the battlefield.
+    this.decals.push({ x, y, seed: (x * 17 + y * 11) % 6.283, t: 0, dur: 45, rubble: footprint });
   }
 
   spawnFloater(x: number, y: number, text: string, color: string): void {
