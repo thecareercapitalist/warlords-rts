@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.159.0 — Load resumes work + auto-mine rally _(2026-06-07)_
+- **Loading a game no longer leaves workers idle:** each unit's harvested tile is
+  saved and restored, so peons resume mining/chopping on load.
+- **Town Hall starts with its rally on the home gold mine**, so every newly trained
+  peon walks out and starts mining automatically from turn one.
+
 ## v0.158.0 — Dated save slots _(2026-06-07)_
 - Save/Load is now **3 dated slots**. "Save Game" auto-writes the first empty slot
   (or overwrites the oldest); each slot shows its **date + time**, and clicking a

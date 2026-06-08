@@ -162,6 +162,8 @@ export class Game {
         mine = g;
       }
     }
+    // Pre-set the rally to the home mine so freshly trained peons auto-mine gold.
+    th.rally = tileCenter(mine.x, mine.y);
 
     for (let i = 0; i < 4; i++) {
       const spot =

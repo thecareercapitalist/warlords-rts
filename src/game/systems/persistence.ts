@@ -2,6 +2,7 @@ import type { TerrainType, UnitKind, BuildingKind, ResourceKind } from "../types
 import { World } from "../World.ts";
 import { Unit } from "../entities/Unit.ts";
 import { Building } from "../entities/Building.ts";
+import { orderGather } from "./orders.ts";
 
 // Minimal save/load to localStorage. We persist durable state only — positions,
 // HP, resources, buildings, terrain resource amounts, and fog — and reset
@@ -77,7 +78,15 @@ interface SaveData {
   players: { g: number; w: number; d: boolean }[];
   terr: number[];
   res: number[];
-  unt: { k: UnitKind; p: number; x: number; y: number; hp: number; c: [ResourceKind, number] | null }[];
+  unt: {
+    k: UnitKind;
+    p: number;
+    x: number;
+    y: number;
+    hp: number;
+    c: [ResourceKind, number] | null;
+    rt?: [number, number] | null; // resource tile being harvested (resume on load)
+  }[];
   bld: {
     k: BuildingKind;
     p: number;
@@ -112,6 +121,7 @@ export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0
         y: Math.round(u.pos.y),
         hp: Math.round(u.hp),
         c: u.carrying ? [u.carrying.kind, u.carrying.amount] : null,
+        rt: u.resourceTile ? [u.resourceTile.x, u.resourceTile.y] : null,
       })),
     bld: world.buildings
       .filter((b) => !b.dead)
@@ -183,6 +193,13 @@ export function loadGame(slot = 0): { world: World; explored: number[]; elapsed:
     uu.hp = u.hp;
     if (u.c) uu.carrying = { kind: u.c[0], amount: u.c[1] };
     w.addUnit(uu);
+    // Resume harvesting the tile it was on, so loaded workers don't stand idle.
+    if (u.rt) {
+      const rtile = w.map.at(u.rt[0], u.rt[1]);
+      if (rtile && rtile.resource > 0 && (rtile.terrain === "forest" || rtile.terrain === "goldmine")) {
+        orderGather(w, uu, { x: u.rt[0], y: u.rt[1] });
+      }
+    }
   }
   w.recomputeSupply();
   return { world: w, explored: data.explored ?? [], elapsed };
