@@ -227,6 +227,9 @@ export class Assets {
   /** Footman/grunt 4-frame walk cycles per faction (while moving). */
   footmanWalkFrames: CanvasImageSource[] = [];
   gruntWalkFrames: CanvasImageSource[] = [];
+  /** Footman/grunt dedicated standing "ready" idle pose (full shield, planted). */
+  footmanIdleSprite: CanvasImageSource | undefined;
+  gruntIdleSprite: CanvasImageSource | undefined;
   /** Peon 4-frame walk cycles per faction (while travelling, not working). */
   peonWalkFrames: CanvasImageSource[] = [];
   orcPeonWalkFrames: CanvasImageSource[] = [];
@@ -446,6 +449,21 @@ export class Assets {
         const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
         const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
         if (fr.every(Boolean)) this.gruntWalkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Footman/grunt dedicated standing idle pose (single sprite, full shield).
+    jobs.push(
+      load(inl?.footmanIdle ?? "/gen_footman_idle.jpg").then((img) => {
+        if (!img) return;
+        const s = sliceGrid(img, 1, 1, ["s"]).get("s");
+        if (s) this.footmanIdleSprite = s;
+      }),
+    );
+    jobs.push(
+      load(inl?.gruntIdle ?? "/gen_grunt_idle.jpg").then((img) => {
+        if (!img) return;
+        const s = sliceGrid(img, 1, 1, ["s"]).get("s");
+        if (s) this.gruntIdleSprite = s;
       }),
     );
     // Human footman 3-frame attack swing.

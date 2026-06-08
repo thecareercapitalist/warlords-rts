@@ -1205,10 +1205,13 @@ export class Renderer {
       // so an idle soldier looks ready, not frozen mid-step. Both Gemini-sourced so
       // the look stays consistent. walk-bob still applies.
       const walk = isEnemy ? this.assets.gruntWalkFrames : this.assets.footmanWalkFrames;
+      const idle = isEnemy ? this.assets.gruntIdleSprite : this.assets.footmanIdleSprite;
       const atk = isEnemy ? this.assets.gruntAtkFrames : this.assets.footmanAtkFrames;
       const moving = u.path.length > 0 || u.finalTarget !== null;
       if (moving && walk.length === 4) {
         sprite = walk[Math.floor(this.now * 8 + u.pos.x * 0.05) % 4];
+      } else if (idle) {
+        sprite = idle; // dedicated planted ready stance, full shield (no clip)
       } else if (atk.length > 0) {
         sprite = atk[0];
       } else if (walk.length === 4) {

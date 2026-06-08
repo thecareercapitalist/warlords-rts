@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.205.0 — Footman/grunt dedicated idle pose (fixes clipped shield) _(2026-06-08)_
+- The idle footman borrowed attack-frame 0, whose shield bled past its 1/5 cell
+  boundary and got clipped by the slicer. Added dedicated single-frame **idle/ready
+  sprites** (human + orc) — sword lowered, full round shield, feet planted — and
+  route the standing pose to them. Clean, intentional, no clipping.
+
 ## v0.204.0 — Units fight back when attacked (self-defense) _(2026-06-08)_
 - Units no longer passively walk through a fight: a unit struck while on a plain
   move order now **retaliates** against its attacker (a `retaliateT` window set on
