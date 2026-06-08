@@ -351,12 +351,16 @@ export class Game {
         }
       }
       else if (e.type === "spell") {
-        this.effects.spawnBlast(e.x, e.y, e.spell === "fireball" ? "fire" : "frost");
         if (e.spell === "fireball") {
+          this.effects.spawnBlast(e.x, e.y, "fire");
           this.shake = Math.max(this.shake, 3);
           this.sfx.spellFire();
-        } else {
+        } else if (e.spell === "freeze") {
+          this.effects.spawnBlast(e.x, e.y, "frost");
           this.sfx.spellFrost();
+        } else {
+          // Heal: no blast — the mended units carry the green glow; a soft chime cues it.
+          this.sfx.ready();
         }
       }
     }

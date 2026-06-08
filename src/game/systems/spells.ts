@@ -4,7 +4,7 @@ import type { Unit, Targetable } from "../entities/Unit.ts";
 import type { Vec2 } from "../types.ts";
 import { TILE } from "../constants.ts";
 
-export type SpellId = "fireball" | "freeze";
+export type SpellId = "fireball" | "freeze" | "heal";
 
 export interface SpellDef {
   id: SpellId;
@@ -16,13 +16,15 @@ export interface SpellDef {
   radius: number; // tiles (area of effect)
   damage?: number; // fireball
   slowDur?: number; // freeze: seconds of chill
+  heal?: number; // heal: HP restored to friendly units in radius
 }
 
 export const SPELLS: Record<SpellId, SpellDef> = {
   fireball: { id: "fireball", label: "Fireball", hotkey: "R", cost: 45, cooldown: 2.4, range: 6, radius: 2, damage: 20 },
   freeze: { id: "freeze", label: "Freeze", hotkey: "X", cost: 30, cooldown: 2.2, range: 6, radius: 2.6, slowDur: 4 },
+  heal: { id: "heal", label: "Heal", hotkey: "C", cost: 35, cooldown: 3, range: 6, radius: 2.6, heal: 40 },
 };
-export const SPELL_LIST: SpellDef[] = [SPELLS.fireball, SPELLS.freeze];
+export const SPELL_LIST: SpellDef[] = [SPELLS.fireball, SPELLS.freeze, SPELLS.heal];
 
 function d2(a: Vec2, b: Vec2): number {
   const dx = a.x - b.x;
@@ -42,6 +44,17 @@ export function castSpell(world: World, u: Unit, sp: SpellDef, pt: Vec2): boolea
   u.aim = { ...pt };
   world.events.push({ type: "spell", spell: sp.id, x: pt.x, y: pt.y });
   const r2 = (sp.radius * TILE) ** 2;
+  // Heal: mend FRIENDLY units in the radius (a support counterpart to the offensive spells).
+  if (sp.id === "heal") {
+    for (const o of world.units) {
+      if (o.dead || o.playerId !== u.playerId) continue;
+      if (d2(o.pos, pt) > r2) continue;
+      const before = o.hp;
+      o.hp = Math.min(o.def.maxHp, o.hp + (sp.heal ?? 0));
+      if (o.hp > before) o.healFx = 0.8; // green mending glow (shared with Temple aura)
+    }
+    return true;
+  }
   for (const o of world.units) {
     if (o.dead || o.playerId === u.playerId) continue;
     if (d2(o.pos, pt) > r2) continue;
@@ -110,7 +123,7 @@ export function updateSpells(world: World, dt: number): void {
     if (u.slowT > 0) u.slowT -= dt;
     if (u.chillFx > 0) u.chillFx -= dt;
     if (u.def.maxMana) u.mana = Math.min(u.def.maxMana, u.mana + (u.def.manaRegen ?? 0) * dt);
-    if (u.kind === "mage" && u.autocast) {
+    if (u.kind === "mage" && u.autocast && u.autocast !== "heal") {
       const sp = SPELLS[u.autocast as SpellId];
       if (sp && canCast(u, sp)) {
         const tgt: Targetable | null = nearestEnemyInRange(world, u, sp.range);

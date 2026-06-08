@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.220.0 — New mage spell: Heal _(2026-06-08)_
+- The mage gains a third spell, **Heal** (C): restores 40 HP to friendly units in a
+  radius (green mending glow + soft chime), a support counterpart to Fireball/Freeze.
+  Manual-cast only (not autocast). Reuses the spell framework — auto-appears on the
+  mage command card. Verified: friendlies healed +40, enemies unaffected.
+
 ## v0.219.0 — Terrain ground detail _(2026-06-08)_
 - Open grass now carries sparse, deterministic ground scatter — small dark pebble
   clusters and the odd bleached bone (~15% of tiles) — so the plains read as a lived-in
