@@ -1177,6 +1177,13 @@ export class Renderer {
       if (flap.length === 3) {
         sprite = flap[Math.floor(this.now * 6 + u.pos.x * 0.05) % 3];
       }
+    } else if (u.kind === "mage" && u.attackAnim > 0) {
+      // Cast cycle (release → recover): human mage vs orc warlock.
+      const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
+      if (cast.length === 3) {
+        const ph = u.attackAnim / 0.18; // 1 just cast → 0
+        sprite = cast[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
+      }
     }
     let spriteW = 0;
     let spriteH = 0;

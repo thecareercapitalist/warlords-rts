@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.163.0 — Caster cast animation (3-frame) _(2026-06-07)_
+- The caster now plays a **3-frame cast** while attacking (gather → staff raised &
+  flaring → thrust + burst), faction-specific (human **mage** blue / orc **warlock**
+  green). Generated via Gemini, cycled by the attack timer.
+
 ## v0.162.0 — Flying wing-flap (3-frame) _(2026-06-07)_
 - The flying unit now **flaps its wings continuously** — a 3-frame cycle
   (high → level → low), faction-specific (orc **dragon** vs human **griffin**),

@@ -158,6 +158,9 @@ export class Assets {
   /** Flying wing-flap cycles [high, level, low] per faction (dragon vs griffin). */
   dragonFlapFrames: CanvasImageSource[] = [];
   griffinFlapFrames: CanvasImageSource[] = [];
+  /** Caster cast cycles [gather, charge, release] per faction (mage vs warlock). */
+  mageCastFrames: CanvasImageSource[] = [];
+  orcCasterCastFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -299,6 +302,23 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
         const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Caster cast cycles: human mage + orc warlock.
+    jobs.push(
+      load(inl?.mageCast ?? "/gen_mage_cast.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["m0", "m1", "m2"]);
+        const fr = [m.get("m0"), m.get("m1"), m.get("m2")];
+        if (fr.every(Boolean)) this.mageCastFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.orcCasterCast ?? "/gen_orccaster_cast.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["o0", "o1", "o2"]);
+        const fr = [m.get("o0"), m.get("o1"), m.get("o2")];
+        if (fr.every(Boolean)) this.orcCasterCastFrames = fr as CanvasImageSource[];
       }),
     );
     // Flying wing-flap cycles: orc dragon + human griffin.
