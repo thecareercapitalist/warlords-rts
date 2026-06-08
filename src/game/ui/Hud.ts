@@ -818,4 +818,59 @@ export class Hud {
     ctx.font = "18px 'Segoe UI', sans-serif";
     ctx.fillText("Press R to play again", cx, py + 232);
   }
+
+  /** First-run controls card — a brief gothic panel of the essential inputs. */
+  renderHints(cam: Camera, alpha = 1): void {
+    const ctx = this.ctx;
+    const lines = [
+      ["WASD / Arrows", "pan the camera"],
+      ["Left-drag", "select units"],
+      ["Right-click", "move"],
+      ["Ctrl + Right-click", "attack-move"],
+      ["Esc", "menu, settings & key rebinds"],
+    ];
+    const pw = 380;
+    const ph = 56 + lines.length * 26 + 22;
+    const px = (cam.viewW - pw) / 2;
+    const py = 80;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    const pg = ctx.createLinearGradient(0, py, 0, py + ph);
+    pg.addColorStop(0, "#262318");
+    pg.addColorStop(1, "#131009");
+    ctx.fillStyle = pg;
+    ctx.fillRect(px, py, pw, ph);
+    if (this.assets?.frameSprite) {
+      draw9Slice(ctx, this.assets.frameSprite, { x: px - 5, y: py - 8, w: pw + 10, h: ph + 14 }, 0.17, 40);
+    } else {
+      ctx.strokeStyle = "rgba(217,138,50,0.8)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 2, py + 2, pw - 4, ph - 4);
+    }
+
+    ctx.fillStyle = COLORS.uiEmber;
+    ctx.font = "bold 18px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText("⚔  How to Command  ⚔", cam.viewW / 2, py + 30);
+
+    let ly = py + 58;
+    for (const [key, desc] of lines) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#f4c46a";
+      ctx.font = "bold 14px 'Segoe UI', sans-serif";
+      ctx.fillText(key, px + pw / 2 - 12, ly);
+      ctx.textAlign = "left";
+      ctx.fillStyle = COLORS.uiText;
+      ctx.font = "14px 'Segoe UI', sans-serif";
+      ctx.fillText(desc, px + pw / 2, ly);
+      ly += 26;
+    }
+    ctx.fillStyle = "#8a7e6a";
+    ctx.font = "11px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("(shown once — full controls live in the Esc menu)", cam.viewW / 2, ly + 4);
+    ctx.restore();
+  }
 }

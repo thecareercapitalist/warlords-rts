@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.213.0 — First-run controls hint _(2026-06-08)_
+- New players (esp. from the shared link) now get a brief gothic **"How to Command"**
+  card on their first game — WASD pan, left-drag select, right-click move, Ctrl+right
+  attack-move, Esc menu — that fades out after ~12s and never shows again (localStorage
+  flag). Full controls still live in the Esc menu. Verified by render.
+
 ## v0.212.0 — Richer victory/defeat screen (score + verdict) _(2026-06-08)_
 - The end screen now shows a **Score** (slain ×10 + razed ×30 + peak army ×5 + a
   speed bonus on a fast win), a flavor **verdict** by tier ("Warlord of the Wastes" /

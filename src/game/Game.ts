@@ -78,6 +78,17 @@ export class Game {
     return "normal";
   })();
 
+  /** First-run controls hint: seconds left to show the card (0 once seen before). */
+  private hintsT = ((): number => {
+    try {
+      if (localStorage.getItem("warlords.seenHints")) return 0;
+      localStorage.setItem("warlords.seenHints", "1");
+    } catch {
+      /* ignore */
+    }
+    return 14;
+  })();
+
   private world!: World;
   private fog!: Fog;
   private ai!: AIController;
@@ -258,6 +269,7 @@ export class Game {
       if (this.messageTimer <= 0) this.message = null;
     }
     this.elapsed += dt;
+    if (this.hintsT > 0) this.hintsT -= dt; // first-run controls card counts down
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 22); // decay shake
     if (this.hud.denyFlash > 0) this.hud.denyFlash = Math.max(0, this.hud.denyFlash - dt);
     if (this.attackAlertCd > 0) this.attackAlertCd -= dt;
@@ -1294,6 +1306,11 @@ export class Game {
       this.attackPing,
       this.controlGroups,
     );
+
+    // First-run controls card (fades out over its last 2s), under the pause menu.
+    if (this.hintsT > 0 && !this.gameOver) {
+      this.hud.renderHints(this.cam, Math.max(0, Math.min(1, this.hintsT / 2)));
+    }
 
     // Audio mute indicator (top-right of the resource bar).
     this.ctx.font = "14px 'Segoe UI', sans-serif";
