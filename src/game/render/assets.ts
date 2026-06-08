@@ -249,6 +249,9 @@ export class Assets {
   /** Mounted gallop cycles (4 frames) per faction (knight horse vs orc wolf). */
   knightGallopFrames: CanvasImageSource[] = [];
   wolfriderGallopFrames: CanvasImageSource[] = [];
+  /** Mounted attack cycles (4 frames): knight lance thrust vs wolf-rider axe chop. */
+  knightAtkFrames: CanvasImageSource[] = [];
+  wolfriderAtkFrames: CanvasImageSource[] = [];
   /** Archer draw-and-loose frames [nock, draw, loose] per faction. */
   archerShotFrames: CanvasImageSource[] = [];
   orcArcherShotFrames: CanvasImageSource[] = [];
@@ -541,6 +544,23 @@ export class Assets {
         const m = sliceGrid(img, 4, 1, ["w0", "w1", "w2", "w3"]);
         const fr = [m.get("w0"), m.get("w1"), m.get("w2"), m.get("w3")];
         if (fr.every(Boolean)) this.wolfriderGallopFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Mounted attack cycles: knight lance thrust + wolf-rider axe chop.
+    jobs.push(
+      load(inl?.knightAtk ?? "/gen_knight_atk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["a0", "a1", "a2", "a3"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2"), m.get("a3")];
+        if (fr.every(Boolean)) this.knightAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    jobs.push(
+      load(inl?.wolfriderAtk ?? "/gen_wolfrider_atk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 4, 1, ["a0", "a1", "a2", "a3"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2"), m.get("a3")];
+        if (fr.every(Boolean)) this.wolfriderAtkFrames = fr as CanvasImageSource[];
       }),
     );
     // Caster cast cycles: human mage + orc warlock.

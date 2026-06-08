@@ -1226,7 +1226,15 @@ export class Renderer {
         // phase-offset per unit so a flight isn't perfectly in sync.
         sprite = flap[Math.floor(this.now * 6 + u.pos.x * 0.04) % flap.length];
       }
-    } else if (u.kind === "knight" && (u.path.length > 0 || u.finalTarget !== null) && u.attackAnim <= 0) {
+    } else if (u.kind === "knight" && u.attackAnim > 0) {
+      // Mounted attack: lance thrust (human) / axe chop (orc), played across the
+      // swing window. Falls back to the gallop/idle sprite if frames are missing.
+      const frames = isEnemy ? this.assets.wolfriderAtkFrames : this.assets.knightAtkFrames;
+      if (frames.length > 0) {
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just struck → 0
+        sprite = frames[Math.min(frames.length - 1, Math.floor((1 - ph) * frames.length))];
+      }
+    } else if (u.kind === "knight" && (u.path.length > 0 || u.finalTarget !== null)) {
       // Mounted gallop while travelling (horse for humans, dire wolf for orcs).
       const gallop = isEnemy ? this.assets.wolfriderGallopFrames : this.assets.knightGallopFrames;
       if (gallop.length === 4) {

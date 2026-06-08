@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.206.0 — Mounted attack animation (knight lance, wolf-rider axe) _(2026-06-08)_
+- Cavalry had no attack pose — a fighting knight/wolf-rider snapped to its static
+  standing sprite. Added 4-frame mounted attack cycles (human knight **lance thrust**,
+  orc wolf-rider **axe chop**), played across the swing window; gallop (move) and idle
+  unchanged. Completes "every unit animates in every state."
+
 ## v0.205.0 — Footman/grunt dedicated idle pose (fixes clipped shield) _(2026-06-08)_
 - The idle footman borrowed attack-frame 0, whose shield bled past its 1/5 cell
   boundary and got clipped by the slicer. Added dedicated single-frame **idle/ready
