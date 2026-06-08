@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.201.0 — Worker build hotkeys + temple footprint fit _(2026-06-08)_
+- **Sawmill (R) and Enclave (Q) now build correctly with a peon selected.** Peons
+  have a bit of attack damage, so the patrol(R)/attack-move(Q)/hold(H) commands were
+  firing for *workers* and eating the build key. Those commands now require an actual
+  fighter (`damage > 0 && !canGather`), so worker build hotkeys aren't shadowed.
+- **Temple no longer towers past its tile.** Added a per-building draw-scale; the
+  tall cathedral sprite is reined in to 0.78× so it sits within its 3-tile footprint.
+
 ## v0.200.0 — Knight rest pose tightened (horse reads at full size) _(2026-06-08)_
 - The idle knight's upright lance made its sprite tall, so the renderer (sizes by
   height) drew the horse small and below the galloping knight's scale. Regenerated

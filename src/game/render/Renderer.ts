@@ -19,6 +19,12 @@ export interface RenderState {
 
 const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
 
+// Per-building draw-scale tweaks (× the default footprint fit). The temple's tall
+// cathedral sprite otherwise towers well past its 3-tile footprint, so rein it in.
+const BUILDING_SPRITE_SCALE: Partial<Record<BuildingKind, number>> = {
+  temple: 0.78,
+};
+
 // CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92
 // cells. Map each building to a fitting roof [col, row]. Forge/Tower/Wall keep
 // their bespoke code-art.
@@ -456,7 +462,7 @@ export class Renderer {
     } else if (bSprite) {
       // Generated isometric building sprite. While under construction it "rises"
       // bottom→top — the sprite itself is the progress bar.
-      this.drawBuildingSprite(bSprite, corners, center, b.state === "complete" ? 1 : b.construction);
+      this.drawBuildingSprite(bSprite, corners, center, b.state === "complete" ? 1 : b.construction, BUILDING_SPRITE_SCALE[b.kind] ?? 1);
     } else if (b.kind === "tower" && b.state === "complete") {
       this.drawTurret(center, color);
     } else if (b.kind === "forge" && b.state === "complete") {
@@ -658,6 +664,7 @@ export class Renderer {
     corners: Vec2[],
     center: Vec2,
     reveal = 1,
+    kindScale = 1,
   ): void {
     const ctx = this.ctx;
     const xs = corners.map((c) => c.x);
@@ -665,7 +672,7 @@ export class Renderer {
     const fpW = Math.max(...xs) - Math.min(...xs);
     const cw = (sprite as HTMLCanvasElement).width;
     const ch = (sprite as HTMLCanvasElement).height;
-    const scale = (fpW / cw) * 0.84; // buildings sit close to their footprint
+    const scale = (fpW / cw) * 0.84 * kindScale; // buildings sit close to their footprint
     const dw = cw * scale;
     const dh = ch * scale;
     const bottomY = Math.max(...ys); // footprint front (south) vertex

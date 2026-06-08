@@ -414,12 +414,12 @@ export class Game {
       if (key === this.kb.get("moveCmd") && this.selUnits.some((u) => u.playerId === this.humanId)) {
         this.moveMode = true;
         this.attackMoveMode = false;
-      } else if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0)) {
+      } else if (key === this.kb.get("attackMove") && this.selUnits.some((u) => u.def.damage > 0 && !u.def.canGather)) {
         this.attackMoveMode = true;
         this.moveMode = false;
-      } else if (key === this.kb.get("patrol") && this.selUnits.some((u) => u.def.damage > 0)) {
+      } else if (key === this.kb.get("patrol") && this.selUnits.some((u) => u.def.damage > 0 && !u.def.canGather)) {
         this.patrolMode = true;
-      } else if (key === this.kb.get("holdGround") && this.selUnits.some((u) => u.def.damage > 0)) {
+      } else if (key === this.kb.get("holdGround") && this.selUnits.some((u) => u.def.damage > 0 && !u.def.canGather)) {
         const fighters = this.selUnits.filter((u) => u.def.damage > 0 && u.playerId === this.humanId);
         const turnOn = fighters.some((u) => !u.holdGround); // toggle as a group
         for (const u of fighters) {
