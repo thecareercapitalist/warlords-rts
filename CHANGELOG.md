@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.224.0 — Building battle-damage scorch _(2026-06-08)_
+- Wounded buildings now char the ground at their base — a scorch patch that spreads
+  and darkens as HP falls (capped, drawn under the body, extending past the footprint
+  so it reads at the edges) — alongside the existing low-HP smoke. Combat readability
+  + grim ruin feel. Verified by render (damaged vs intact). _Final pass of the
+  20-pass autonomous run (v0.205.0 → v0.224.0)._
+
 ## v0.223.0 — Per-map ambient mood _(2026-06-08)_
 - The gloom color-grade now shifts hue by map seed — cold blue, sepia dusk, or sickly
   green — so the varied maps also *feel* distinct at a glance. Renderer.ambientTint set

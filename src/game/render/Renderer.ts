@@ -450,6 +450,22 @@ export class Renderer {
     const minX = Math.min(...corners.map((c) => c.x));
     const maxX = Math.max(...corners.map((c) => c.x));
 
+    // Battle damage: a charred scorch patch spreads around the base as HP drops, so a
+    // wounded building reads at a glance (alongside the low-HP smoke). Drawn on the
+    // ground under the body, extending past the footprint so it shows at the edges.
+    const dmg = b.state === "complete" ? 1 - Math.max(0, b.hp) / b.def.maxHp : 0;
+    if (dmg > 0.2) {
+      const z = this.cam.zoom;
+      const rad = fp * ISO_HALF_W * 0.72 * z;
+      ctx.save();
+      ctx.globalAlpha = Math.min(0.5, dmg * 0.6);
+      ctx.fillStyle = "#120c08";
+      ctx.beginPath();
+      ctx.ellipse(center.x, center.y + fp * ISO_HALF_H * 0.35 * z, rad, rad * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     // Stone body (ownership comes from the trim + banner, not the body color).
     poly();
     ctx.fillStyle = b.state === "complete" ? "#4a4236" : "#2f2a22";
