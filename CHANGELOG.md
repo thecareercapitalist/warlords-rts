@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.194.0 — "Denied" sound on blocked actions _(2026-06-07)_
+- A soft descending **buzz** now plays when you try something you can't do — not
+  enough gold/wood, supply-capped, or a missing prerequisite — paired with the
+  existing on-screen reason. Original Web Audio, rate-gated, respects mute.
+
 ## v0.193.0 — AI keeps ranged behind the melee line _(2026-06-07)_
 - AI waves and defenses now form a **battle line**: melee charge the target while
   fragile **archers attack-move to ~3 tiles short of it** (toward the melee's side),

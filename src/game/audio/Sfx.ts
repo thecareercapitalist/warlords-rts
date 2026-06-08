@@ -292,6 +292,13 @@ export class Sfx {
     this.noise({ dur: 0.07, gain: 0.12, filter: 400 });
   }
 
+  /** Soft descending "can't do that" buzz — not enough resources / supply / prereq. */
+  denied(): void {
+    if (!this.gate("denied", 220)) return;
+    this.tone({ freq: 320, type: "square", dur: 0.09, gain: 0.16, slideTo: 200 });
+    this.tone({ freq: 240, type: "square", dur: 0.12, gain: 0.14, slideTo: 150, delay: 0.08 });
+  }
+
   /** Ominous low two-tone "under attack" warning. */
   alert(): void {
     if (!this.gate("alert", 800)) return;

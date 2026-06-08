@@ -961,6 +961,7 @@ export class Game {
   private applyHudAction(action: HudAction): void {
     if (action.type === "denied") {
       this.setMessage(`${action.label}: ${action.reason}`);
+      this.sfx.denied();
       return;
     }
     this.sfx.click();
