@@ -89,17 +89,18 @@ export class Hud {
     );
 
     if (hasWorker) {
-      // Explicit hotkeys to avoid first-letter collisions (Stop=S, Town Hall=H).
+      // Left-hand hotkeys that AVOID W/A/S/D (those pan the camera) and the global
+      // unit-command keys, so a build key never double-fires with movement.
       const builds: { kind: BuildingKind; key: string }[] = [
         { kind: "farm", key: "F" },
         { kind: "barracks", key: "B" },
-        { kind: "sawmill", key: "W" },
-        { kind: "temple", key: "E" },
+        { kind: "sawmill", key: "R" },
+        { kind: "temple", key: "T" },
         { kind: "forge", key: "G" },
-        { kind: "tower", key: "T" },
-        { kind: "wall", key: "L" },
-        { kind: "enclave", key: "C" },
-        { kind: "townhall", key: "H" },
+        { kind: "tower", key: "V" },
+        { kind: "wall", key: "C" },
+        { kind: "enclave", key: "Q" },
+        { kind: "townhall", key: "Z" },
       ];
       builds.forEach(({ kind, key }, i) => {
         const d = BUILDING_DEFS[kind];
@@ -115,8 +116,8 @@ export class Hud {
       this.buttons.push({
         rect: place(builds.length),
         label: "Stop",
-        sub: "S",
-        hotkey: "S",
+        sub: "X",
+        hotkey: "X",
         action: { type: "stop" },
         enabled: true,
       });
@@ -140,8 +141,8 @@ export class Hud {
       this.buttons.push({
         rect: place(SPELL_LIST.length),
         label: "Stop",
-        sub: "S",
-        hotkey: "S",
+        sub: "X",
+        hotkey: "X",
         action: { type: "stop" },
         enabled: true,
       });
@@ -176,6 +177,16 @@ export class Hud {
     }
 
     // Single production building selected → train buttons.
+    // Left-hand hotkeys clear of W/A/S/D (camera) and the global command keys.
+    const trainKey: Partial<Record<UnitKind, string>> = {
+      peon: "Q",
+      footman: "F",
+      archer: "R",
+      knight: "T",
+      catapult: "C",
+      mage: "G",
+      dragon: "V",
+    };
     const prod = buildings.find((b) => b.def.produces.length > 0 && b.state === "complete");
     if (prod) {
       prod.def.produces.forEach((kind, i) => {
@@ -188,7 +199,7 @@ export class Hud {
           rect: place(i),
           label: d.label,
           sub,
-          hotkey: d.label[0].toUpperCase(),
+          hotkey: trainKey[kind] ?? d.label[0].toUpperCase(),
           action: { type: "train", kind },
           enabled: techOk && p.gold >= d.costGold && p.wood >= d.costWood,
         });

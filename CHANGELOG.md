@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.175.0 — Hotkeys off WASD (no double-press) _(2026-06-07)_
+- Fixed command keys double-firing with WASD camera panning: every command-card
+  hotkey is now clear of W/A/S/D. Build menu → F/B/R/T/G/V/C/Q/Z; train →
+  Footman F, Archer R (was A), Knight T, Catapult C, Mage G, Dragon V (was D),
+  Peon Q; Stop → X (was S). Hotkeys now cluster on the left hand around WASD.
+
 ## v0.174.0 — More sound effects _(2026-06-07)_
 - Three new original Web-Audio cues: a resonant **building-complete chord** when
   construction finishes, a harsh **screech** when a griffin/dragon takes wing, and a
