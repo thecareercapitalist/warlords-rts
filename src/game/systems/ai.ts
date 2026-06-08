@@ -295,9 +295,17 @@ export class AIController {
     }
 
     if (this.attacking) {
-      // Keep the wave going; if it's been whittled down, regroup.
-      if (fighters.length < 2) this.attacking = false;
-      return;
+      // The wave is "live" only while some fighter is engaged or still advancing on
+      // a target. Once it's spent — everyone idle with nothing left to fight, or
+      // whittled down — drop the flag so the (now larger) army regroups and commits
+      // a FRESH wave below this same tick, keeping continuous pressure on. (Before,
+      // this returned every tick while ≥2 fighters survived, so the AI launched a
+      // single wave all game and the rest of its army just stood around.)
+      const live =
+        fighters.length >= 2 &&
+        fighters.some((f) => f.attackTarget !== null || f.path.length > 0 || f.finalTarget !== null);
+      if (live) return;
+      this.attacking = false;
     }
     // Each wave the AI commits raises the muster threshold for the next, so its
     // attacks grow larger and scarier as the game wears on (capped).

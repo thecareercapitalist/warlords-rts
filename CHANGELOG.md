@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.203.0 — Fix: AI launched only one attack wave all game _(2026-06-08)_
+- The enemy AI built an army, sent **one** wave, then its `attacking` flag stuck on
+  (it only cleared when the wave dropped below 2 fighters), so `manageArmy`
+  early-returned every tick forever — the rest of its growing army just stood around
+  doing nothing. Now the flag clears the moment a wave is **spent** (no fighter
+  engaged or advancing), so the army regroups and commits fresh waves continuously.
+  Verified: vs. the same seed, the AI now wipes the player's units and grinds the
+  Town Hall (1200→612 HP by t+240s) instead of stalling after one poke.
+
 ## v0.202.0 — Archer walk + planted footman idle _(2026-06-08)_
 - **Archers now walk** instead of sliding — new 4-frame walk cycle (human + orc,
   bow lowered) plays while moving; idle holds the relaxed bow-lowered pose, the bow
