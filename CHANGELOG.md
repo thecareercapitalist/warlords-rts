@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.199.0 — Fix sprites failing to load under a subpath (GitHub Pages) _(2026-06-08)_
+- The hosted build (GitHub Pages, served from `/warlords-rts/`) showed flat
+  programmer-art — tiles, unit/building sprites all 404'd. Cause: the asset loader
+  fetched **absolute** paths (`/gen_*.png`, `/tiles/*.png`) which resolve to the
+  domain root, not the project subpath. Now resolved against Vite's `BASE_URL`, so
+  sprites load correctly on Pages, on the dev server, and offline alike.
+
 ## v0.198.0 — Animation fixes: griffin pulse, knight rest, mage walk _(2026-06-08)_
 - **Griffin/dragon no longer grow & shrink in flight.** The flap frames were each
   bbox-trimmed to their own size, so wings-up frames (taller) made the renderer

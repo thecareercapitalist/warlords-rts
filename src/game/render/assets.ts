@@ -279,12 +279,17 @@ export class Assets {
     // Offline single-file builds inject base64 images here so the game needs no
     // server; otherwise we fetch the PNGs by URL as usual.
     const inlined = (globalThis as { __TILES?: Record<string, string> }).__TILES;
+    // Resolve "/foo.png" against the deploy base so sprites load when hosted under a
+    // subpath (e.g. GitHub Pages /warlords-rts/). BASE_URL is "/" in dev and "./" in
+    // the built bundle; data: URIs (offline inlined assets) pass through untouched.
+    const base = import.meta.env.BASE_URL;
+    const resolve = (url: string): string => (url.startsWith("/") ? base + url.slice(1) : url);
     const load = (url: string): Promise<HTMLImageElement | null> =>
-      new Promise((resolve) => {
+      new Promise((res) => {
         const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null); // renderer falls back if it's missing
-        img.src = url;
+        img.onload = () => res(img);
+        img.onerror = () => res(null); // renderer falls back if it's missing
+        img.src = resolve(url);
       });
 
     const jobs: Promise<void>[] = [];
