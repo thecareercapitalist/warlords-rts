@@ -90,7 +90,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     supply: 1,
     costGold: 45,
     costWood: 0,
-    buildTime: 16,
+    buildTime: 9, // faster to train — supports the bigger-army economy
     canGather: false,
     canBuild: false,
   },
@@ -108,7 +108,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     supply: 1,
     costGold: 45,
     costWood: 0,
-    buildTime: 16,
+    buildTime: 9,
     canGather: false,
     canBuild: false,
   },
@@ -126,7 +126,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     supply: 1,
     costGold: 40,
     costWood: 15,
-    buildTime: 18,
+    buildTime: 11,
     canGather: false,
     canBuild: false,
   },
@@ -145,7 +145,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     supply: 2,
     costGold: 70,
     costWood: 0,
-    buildTime: 26,
+    buildTime: 18,
     canGather: false,
     canBuild: false,
     requiresBuilding: "temple",
@@ -178,7 +178,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     maxHp: 50,
     speed: 85,
     radius: 10,
-    damage: 16, // potent arcane bolt
+    damage: 11, // arcane bolt (toned down from 16)
     splash: 1.3, // the bolt bursts — small area of effect
     attackRange: 5,
     attackCooldown: 1.9,

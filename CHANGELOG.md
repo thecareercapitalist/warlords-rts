@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.149.0 — Balance: faster training + mage nerf _(2026-06-07)_
+- **Faster training** to match the cheaper/bigger-army economy: footman & grunt
+  16→9s, archer 18→11s, knight 26→18s. (Cost was already halved; train time wasn't
+  — this closes that gap.)
+- **Mage toned down:** arcane bolt 16→11 dmg; **Fireball** 34→20 dmg, 35→45 mana,
+  1.4→2.4s cooldown — and it now **scorches enemy buildings** in the blast (0.6×).
+
 ## v0.148.0 — Original gothic music _(2026-06-07)_
 - Added a **procedural music system** (Web Audio, fully original — no third-party
   tracks): a slow D-minor lament (Dm–Bb–F–C) of swelling pads over a low drone with

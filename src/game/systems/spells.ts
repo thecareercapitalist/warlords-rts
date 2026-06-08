@@ -19,7 +19,7 @@ export interface SpellDef {
 }
 
 export const SPELLS: Record<SpellId, SpellDef> = {
-  fireball: { id: "fireball", label: "Fireball", hotkey: "R", cost: 35, cooldown: 1.4, range: 6, radius: 2, damage: 34 },
+  fireball: { id: "fireball", label: "Fireball", hotkey: "R", cost: 45, cooldown: 2.4, range: 6, radius: 2, damage: 20 },
   freeze: { id: "freeze", label: "Freeze", hotkey: "X", cost: 30, cooldown: 2.2, range: 6, radius: 2.6, slowDur: 4 },
 };
 export const SPELL_LIST: SpellDef[] = [SPELLS.fireball, SPELLS.freeze];
@@ -64,6 +64,22 @@ export function castSpell(world: World, u: Unit, sp: SpellDef, pt: Vec2): boolea
     } else {
       o.slowT = Math.max(o.slowT, sp.slowDur ?? 0);
       o.chillFx = sp.slowDur ?? 0;
+    }
+  }
+  // Fireball also scorches enemy buildings in the blast (at reduced effect).
+  if (sp.id === "fireball") {
+    for (const b of world.buildings) {
+      if (b.dead || b.playerId === u.playerId) continue;
+      if (d2(b.center(), pt) > r2) continue;
+      const wasAlive = b.hp > 0;
+      b.hp -= Math.round((sp.damage ?? 0) * 0.6);
+      b.hitFlash = 0.14;
+      world.events.push({ type: "damaged", playerId: b.playerId, x: b.center().x, y: b.center().y });
+      if (b.hp <= 0 && wasAlive) {
+        b.hp = 0;
+        u.kills++;
+        world.events.push({ type: "collapse", x: b.center().x, y: b.center().y, size: b.footprint * 16, by: u.playerId });
+      }
     }
   }
   return true;
