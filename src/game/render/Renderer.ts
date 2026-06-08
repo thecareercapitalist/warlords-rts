@@ -3,7 +3,7 @@ import type { Camera } from "../Camera.ts";
 import type { Fog } from "../systems/fog.ts";
 import { FOG_HIDDEN, FOG_VISIBLE } from "../systems/fog.ts";
 import type { BuildingKind, Vec2 } from "../types.ts";
-import { COLORS, TILE, FOREST_TILE_WOOD, GOLDMINE_AMOUNT } from "../constants.ts";
+import { COLORS, TILE, FOREST_TILE_WOOD, GOLDMINE_AMOUNT, ATTACK_ANIM_DUR } from "../constants.ts";
 import { BUILDING_DEFS, UNIT_DEFS } from "../entities/defs.ts";
 import { veterancyRank } from "../entities/Unit.ts";
 import { ISO_HALF_W, ISO_HALF_H, ISO_TILE_W, ISO_TILE_H } from "./iso.ts";
@@ -1144,7 +1144,7 @@ export class Renderer {
       const dx = u.aim.x - u.pos.x;
       const dy = u.aim.y - u.pos.y;
       const d = Math.hypot(dx, dy) || 1;
-      const phase = Math.min(1, u.attackAnim / 0.18); // 1 just struck → 0
+      const phase = Math.min(1, u.attackAnim / ATTACK_ANIM_DUR); // 1 just struck → 0
       strikeSwing = Math.sin(phase * Math.PI); // 0 → 1 → 0, a lunge out and back
       const ranged = u.def.attackRange > 1;
       const reach = ranged ? -8 : 18; // melee thrusts in; ranged recoils back (world units)
@@ -1181,7 +1181,7 @@ export class Renderer {
       // swing a sword, orcs an axe.
       const frames = isEnemy ? this.assets.gruntAtkFrames : this.assets.footmanAtkFrames;
       if (frames.length === 3) {
-        const ph = u.attackAnim / 0.18; // 1 just struck → 0
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just struck → 0
         sprite = frames[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
       }
     } else if (u.kind === "dragon") {
@@ -1203,14 +1203,14 @@ export class Renderer {
       // Bow draw-and-loose (loose → recover): human archer vs orc hunter.
       const shot = isEnemy ? this.assets.orcArcherShotFrames : this.assets.archerShotFrames;
       if (shot.length === 3) {
-        const ph = u.attackAnim / 0.18; // 1 just loosed → 0
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
         sprite = shot[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
       }
     } else if (u.kind === "mage" && u.attackAnim > 0) {
       // Cast cycle (release → recover): human mage vs orc warlock.
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
       if (cast.length === 3) {
-        const ph = u.attackAnim / 0.18; // 1 just cast → 0
+        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
         sprite = cast[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
       }
     }

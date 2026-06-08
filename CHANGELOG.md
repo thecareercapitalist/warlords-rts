@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.176.0 — Readable swings + pan-speed slider _(2026-06-07)_
+- **Attack/cast animations play longer** (0.18s → 0.36s, shared `ATTACK_ANIM_DUR`)
+  so the footman swing, archer loose, and mage cast read as motion instead of a
+  one-frame flash. Purely visual — attack rate is unchanged.
+- **Camera pan-speed slider** added to the pause menu's Game tab (0.5×–3.0×,
+  persisted), and the default pan speed is brisker (1.8×) — the old speed felt slow.
+
 ## v0.175.0 — Hotkeys off WASD (no double-press) _(2026-06-07)_
 - Fixed command keys double-firing with WASD camera panning: every command-card
   hotkey is now clear of W/A/S/D. Build menu → F/B/R/T/G/V/C/Q/Z; train →

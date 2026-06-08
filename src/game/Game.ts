@@ -56,6 +56,17 @@ export class Game {
     }
   })();
 
+  /** Camera pan-speed multiplier (× CAMERA_SPEED), adjustable in the pause menu. */
+  private panSpeed = ((): number => {
+    try {
+      const v = parseFloat(localStorage.getItem("warlords.panSpeed") ?? "");
+      if (Number.isFinite(v) && v >= 0.5 && v <= 3) return v;
+    } catch {
+      /* ignore */
+    }
+    return 1.8; // brisker default — the old 1.0 felt sluggish
+  })();
+
   private world!: World;
   private fog!: Fog;
   private ai!: AIController;
@@ -366,7 +377,10 @@ export class Game {
       if (m.y < EDGE_SCROLL_MARGIN) cdy -= 1;
       if (m.y > this.cam.viewH - EDGE_SCROLL_MARGIN && !this.hud.isOverUi(m)) cdy += 1;
     }
-    if (cdx || cdy) this.cam.move(cdx * CAMERA_SPEED * dt, cdy * CAMERA_SPEED * dt);
+    if (cdx || cdy) {
+      const sp = CAMERA_SPEED * this.panSpeed * dt;
+      this.cam.move(cdx * sp, cdy * sp);
+    }
 
     // Mouse-wheel zoom toward the cursor (scroll up = zoom in).
     if (this.input.wheel !== 0) {
@@ -916,6 +930,13 @@ export class Game {
         }
       } else if (res.type === "toggleMusic") {
         this.sfx.toggleMusic();
+      } else if (res.type === "setPanSpeed") {
+        this.panSpeed = Math.round(res.value * 10) / 10;
+        try {
+          localStorage.setItem("warlords.panSpeed", String(this.panSpeed));
+        } catch {
+          /* storage blocked */
+        }
       } else if (res.type === "toggleFullscreen") {
         try {
           if (document.fullscreenElement) void document.exitFullscreen();
@@ -1229,7 +1250,7 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} N`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver)
-      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite);
+      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed);
   }
 }

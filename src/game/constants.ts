@@ -58,3 +58,8 @@ export const GOLDMINE_AMOUNT = 9000; // finite — one mine won't last a game; e
 export const FOREST_TILE_WOOD = 400;
 
 export const FPS_CAP = 60;
+
+// How long an attack/cast swing animation plays (seconds). Long enough to actually
+// read the 3-frame swing rather than a single-frame flash. Purely visual — does not
+// change attack rate (that's attackCooldown).
+export const ATTACK_ANIM_DUR = 0.36;

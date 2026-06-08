@@ -1,7 +1,7 @@
 import type { World } from "../World.ts";
 import type { Unit, Targetable } from "../entities/Unit.ts";
 import { veterancyMult } from "../entities/Unit.ts";
-import { TILE } from "../constants.ts";
+import { TILE, ATTACK_ANIM_DUR } from "../constants.ts";
 import { dist, dist2, clamp, tileCenter } from "../util/math.ts";
 import { pathTo, orderAttackMove, standAdjacentTo } from "./orders.ts";
 
@@ -178,7 +178,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
     if (u.attackCooldown <= 0) {
       const c = t.center();
       // Animation + FX cues.
-      u.attackAnim = 0.18;
+      u.attackAnim = ATTACK_ANIM_DUR;
       u.aim = { x: c.x, y: c.y };
       t.hitFlash = 0.12;
       const ranged = u.def.attackRange > 1;

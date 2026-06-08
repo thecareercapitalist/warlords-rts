@@ -14,7 +14,12 @@ export type MenuResult =
   | { type: "toggleEdgeScroll" }
   | { type: "toggleMusic" }
   | { type: "toggleFullscreen" }
+  | { type: "setPanSpeed"; value: number }
   | { type: "rebind"; action: ActionId };
+
+/** Pan-speed slider range (× base camera speed). */
+const PAN_MIN = 0.5;
+const PAN_MAX = 3.0;
 
 type Tab = "game" | "controls";
 
@@ -30,6 +35,7 @@ interface Layout {
   edgeToggle: Rect;
   musicToggle: Rect;
   fullscreenToggle: Rect;
+  panSlider: Rect;
   // Controls tab
   reset: Rect;
   rows: { action: ActionId; label: string; keyBox: Rect }[];
@@ -45,7 +51,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 470;
-    const ph = this.activeTab === "game" ? 360 : 196 + ACTION_ORDER.length * 34 + 54;
+    const ph = this.activeTab === "game" ? 396 : 196 + ACTION_ORDER.length * 34 + 54;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -65,6 +71,7 @@ export class PauseMenu {
     const edgeToggle = btn(px + 30, py + 258, thirdW, 30);
     const musicToggle = btn(px + 30 + thirdW + 10, py + 258, thirdW, 30);
     const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 258, thirdW, 30);
+    const panSlider = btn(px + 30, py + 322, pw - 60, 16);
 
     // --- Controls tab ---
     const rows: Layout["rows"] = [];
@@ -75,7 +82,7 @@ export class PauseMenu {
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
 
-    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, reset, rows };
+    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, panSlider, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -99,6 +106,12 @@ export class PauseMenu {
       if (rectContains(l.edgeToggle, p)) return { type: "toggleEdgeScroll" };
       if (rectContains(l.musicToggle, p)) return { type: "toggleMusic" };
       if (rectContains(l.fullscreenToggle, p)) return { type: "toggleFullscreen" };
+      // Pan-speed slider: clickable along the track (with a generous vertical band).
+      const s = l.panSlider;
+      if (p.x >= s.x - 6 && p.x <= s.x + s.w + 6 && p.y >= s.y - 12 && p.y <= s.y + s.h + 12) {
+        const f = Math.max(0, Math.min(1, (p.x - s.x) / s.w));
+        return { type: "setPanSpeed", value: PAN_MIN + f * (PAN_MAX - PAN_MIN) };
+      }
     } else {
       if (rectContains(l.reset, p)) return { type: "reset" };
       for (const row of l.rows) {
@@ -116,6 +129,7 @@ export class PauseMenu {
     musicOn = true,
     slots: (SlotMeta | null)[] = [],
     frame?: CanvasImageSource,
+    panSpeed = 1,
   ): void {
     const l = this.layoutFor(cam);
 
@@ -156,7 +170,7 @@ export class PauseMenu {
     this.tab(ctx, l.tabControls, "Controls", this.activeTab === "controls");
 
     if (this.activeTab === "game") {
-      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots);
+      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots, panSpeed);
     } else {
       this.renderControlsTab(ctx, l, kb);
     }
@@ -173,6 +187,7 @@ export class PauseMenu {
     edgeScroll: boolean,
     musicOn: boolean,
     slots: (SlotMeta | null)[],
+    panSpeed: number,
   ): void {
     // SAVE / LOAD heading.
     ctx.fillStyle = "#cdbb95";
@@ -210,6 +225,29 @@ export class PauseMenu {
     this.button(ctx, l.edgeToggle, `Edge: ${edgeScroll ? "ON" : "OFF"}`, true);
     this.button(ctx, l.musicToggle, `Music: ${musicOn ? "ON" : "OFF"}`, true);
     this.button(ctx, l.fullscreenToggle, `Fullscr: ${isFs ? "ON" : "OFF"}`, true);
+
+    // Camera pan-speed slider.
+    const s = l.panSlider;
+    ctx.fillStyle = "#cdbb95";
+    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(`CAMERA PAN SPEED  ·  ${panSpeed.toFixed(1)}×`, s.x, s.y - 8);
+    // Track.
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(s.x, s.y + s.h / 2 - 3, s.w, 6);
+    ctx.strokeStyle = "rgba(150,170,200,0.5)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(s.x, s.y + s.h / 2 - 3, s.w, 6);
+    // Filled portion + knob.
+    const f = Math.max(0, Math.min(1, (panSpeed - PAN_MIN) / (PAN_MAX - PAN_MIN)));
+    const kx = s.x + f * s.w;
+    ctx.fillStyle = "rgba(217,138,50,0.8)";
+    ctx.fillRect(s.x, s.y + s.h / 2 - 3, f * s.w, 6);
+    ctx.fillStyle = "#f4c46a";
+    ctx.fillRect(kx - 4, s.y - 1, 8, s.h + 2);
+    ctx.strokeStyle = "#15110d";
+    ctx.strokeRect(kx - 4, s.y - 1, 8, s.h + 2);
   }
 
   private renderControlsTab(ctx: CanvasRenderingContext2D, l: Layout, kb: Keybindings): void {
