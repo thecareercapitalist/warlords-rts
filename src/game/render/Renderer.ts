@@ -1162,6 +1162,10 @@ export class Renderer {
     let sprite = this.assets.unitSprite(u.kind, isEnemy);
     if (u.def.canGather && u.state === "gathering" && this.assets.mineFrames.length === 2) {
       sprite = this.assets.mineFrames[Math.floor(this.now * 6) % 2];
+    } else if (u.kind === "footman" && !isEnemy && u.attackAnim > 0 && this.assets.footmanAtkFrames.length === 3) {
+      // Play the 3-frame sword swing during an attack (strike → recover).
+      const ph = u.attackAnim / 0.18; // 1 just struck → 0
+      sprite = this.assets.footmanAtkFrames[ph > 0.6 ? 2 : ph > 0.3 ? 1 : 0];
     }
     let spriteW = 0;
     let spriteH = 0;

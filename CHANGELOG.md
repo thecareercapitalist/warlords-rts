@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.160.0 — Footman attack swing (3-frame) _(2026-06-07)_
+- The human **footman now plays a 3-frame sword swing** while attacking
+  (wind-up → mid-swing → strike), generated via Gemini, cycled by the attack timer
+  on top of the existing lunge. First true multi-frame combat animation; the path
+  generalizes to the grunt/knight/mage/dragon next.
+
 ## v0.159.0 — Load resumes work + auto-mine rally _(2026-06-07)_
 - **Loading a game no longer leaves workers idle:** each unit's harvested tile is
   saved and restored, so peons resume mining/chopping on load.

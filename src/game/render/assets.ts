@@ -151,6 +151,8 @@ export class Assets {
   bastionSprite: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
+  /** Human footman attack frames [windup, mid, strike]. */
+  footmanAtkFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -283,6 +285,15 @@ export class Assets {
         const a = m.get("mine0");
         const bb = m.get("mine1");
         if (a && bb) this.mineFrames = [a, bb];
+      }),
+    );
+    // Human footman 3-frame attack swing.
+    jobs.push(
+      load(inl?.footmanAtk ?? "/gen_footman_atk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
+        const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
+        if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
       }),
     );
     // Faction knight variants: human = mounted knight, orc = wolf rider.
