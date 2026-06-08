@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.161.0 — Orc grunt attack swing (3-frame) _(2026-06-07)_
+- The enemy melee unit (orc) now plays its own **3-frame axe swing** while attacking
+  (wind-up → mid-swing → strike), matching the human footman's sword swing. drawUnit
+  picks sword vs axe frames by faction. Generated via Gemini.
+
 ## v0.160.0 — Footman attack swing (3-frame) _(2026-06-07)_
 - The human **footman now plays a 3-frame sword swing** while attacking
   (wind-up → mid-swing → strike), generated via Gemini, cycled by the attack timer

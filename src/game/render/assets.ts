@@ -153,6 +153,8 @@ export class Assets {
   mineFrames: CanvasImageSource[] = [];
   /** Human footman attack frames [windup, mid, strike]. */
   footmanAtkFrames: CanvasImageSource[] = [];
+  /** Orc grunt (enemy melee) attack frames [windup, mid, strike]. */
+  gruntAtkFrames: CanvasImageSource[] = [];
   loaded = false;
 
   get(key: TileKey): HTMLImageElement | undefined {
@@ -294,6 +296,15 @@ export class Assets {
         const m = sliceGrid(img, 3, 1, ["a0", "a1", "a2"]);
         const fr = [m.get("a0"), m.get("a1"), m.get("a2")];
         if (fr.every(Boolean)) this.footmanAtkFrames = fr as CanvasImageSource[];
+      }),
+    );
+    // Orc grunt (enemy melee) 3-frame attack swing.
+    jobs.push(
+      load(inl?.gruntAtk ?? "/gen_grunt_atk.jpg").then((img) => {
+        if (!img) return;
+        const m = sliceGrid(img, 3, 1, ["g0", "g1", "g2"]);
+        const fr = [m.get("g0"), m.get("g1"), m.get("g2")];
+        if (fr.every(Boolean)) this.gruntAtkFrames = fr as CanvasImageSource[];
       }),
     );
     // Faction knight variants: human = mounted knight, orc = wolf rider.
