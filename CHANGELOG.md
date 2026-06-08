@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.147.0 — Sound-FX overhaul _(2026-06-07)_
+- Punchier, less repetitive audio: a **master compressor** warms the mix and tames
+  clipping in big battles; melee/bow/death hits get **per-swing pitch variation** so
+  a brawl no longer machine-guns one note; melee is meatier (impact body + metal),
+  the bow is a string "twang" + swish.
+- **Dedicated spell sounds:** Fireball roars into a crackling boom, Freeze is a
+  glassy descending shimmer, and the dragon's bolt gets its own fiery hiss (wired
+  to the spell + fire-projectile events).
+
 ## v0.146.0 — Bastion render fix _(2026-06-07)_
 - Fixed the corner bastion looking cluttered: wall-segment overlap reduced
   (1.45→1.28 tiles) so arms stop spilling onto the tower, and the bastion is now

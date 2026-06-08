@@ -29,7 +29,16 @@ export class Sfx {
         this.ctx = new Ctor();
         this.master = this.ctx.createGain();
         this.master.gain.value = this.muted ? 0 : 0.35;
-        this.master.connect(this.ctx.destination);
+        // A compressor warms the mix + tames clipping when a big battle stacks
+        // many sounds at once.
+        const comp = this.ctx.createDynamicsCompressor();
+        comp.threshold.value = -18;
+        comp.knee.value = 18;
+        comp.ratio.value = 4;
+        comp.attack.value = 0.003;
+        comp.release.value = 0.2;
+        this.master.connect(comp);
+        comp.connect(this.ctx.destination);
       }
       if (this.ctx.state === "suspended") void this.ctx.resume();
     } catch {
@@ -67,22 +76,53 @@ export class Sfx {
   }
 
   clang(): void {
-    if (!this.gate("clang", 55)) return;
-    // Metallic: two detuned square blips + a noise tick.
-    this.tone({ freq: 440, type: "square", dur: 0.08, gain: 0.5, slideTo: 360 });
-    this.tone({ freq: 620, type: "square", dur: 0.06, gain: 0.3, slideTo: 500 });
+    if (!this.gate("clang", 45)) return;
+    // Meatier melee hit: a low body thud + detuned metallic blips + a noise tick,
+    // all pitch-varied per swing so a brawl doesn't machine-gun one note.
+    const v = this.vary(1, 0.08);
+    this.tone({ freq: 130 * v, type: "sawtooth", dur: 0.07, gain: 0.32, slideTo: 70 }); // flesh/impact body
+    this.tone({ freq: 440 * v, type: "square", dur: 0.08, gain: 0.42, slideTo: 360 });
+    this.tone({ freq: 620 * v, type: "square", dur: 0.06, gain: 0.26, slideTo: 500 });
     this.noise({ dur: 0.05, gain: 0.4, filter: 3000 });
   }
 
   whoosh(): void {
-    if (!this.gate("whoosh", 70)) return;
-    this.noise({ dur: 0.16, gain: 0.35, filter: 1400, sweepTo: 600 });
+    if (!this.gate("whoosh", 55)) return;
+    // Bow release: a short string "twang" + an airy arrow swish.
+    const v = this.vary(1, 0.1);
+    this.tone({ freq: 320 * v, type: "triangle", dur: 0.07, gain: 0.22, slideTo: 180 });
+    this.noise({ dur: 0.16, gain: 0.32, filter: 1700 * v, sweepTo: 500 });
   }
 
   death(): void {
-    if (!this.gate("death", 60)) return;
-    this.tone({ freq: 300, type: "sawtooth", dur: 0.28, gain: 0.45, slideTo: 80 });
-    this.noise({ dur: 0.12, gain: 0.25, filter: 800 });
+    if (!this.gate("death", 50)) return;
+    const v = this.vary(1, 0.12);
+    this.tone({ freq: 300 * v, type: "sawtooth", dur: 0.3, gain: 0.45, slideTo: 70 });
+    this.noise({ dur: 0.14, gain: 0.26, filter: 800 });
+  }
+
+  /** Fireball / dragon breath: a roaring whoosh into a crackling boom. */
+  spellFire(): void {
+    if (!this.gate("spellFire", 90)) return;
+    this.noise({ dur: 0.3, gain: 0.45, filter: 900, sweepTo: 220 });
+    this.tone({ freq: 180, type: "sawtooth", dur: 0.32, gain: 0.4, slideTo: 60 });
+    this.tone({ freq: 90, type: "square", dur: 0.34, gain: 0.3, slideTo: 45, delay: 0.04 });
+  }
+
+  /** Freeze nova: a glassy shimmer descending into a cold ring. */
+  spellFrost(): void {
+    if (!this.gate("spellFrost", 90)) return;
+    this.tone({ freq: 1400, type: "triangle", dur: 0.3, gain: 0.3, slideTo: 500 });
+    this.tone({ freq: 2100, type: "sine", dur: 0.26, gain: 0.18, slideTo: 900, delay: 0.03 });
+    this.noise({ dur: 0.32, gain: 0.18, filter: 5000, sweepTo: 2500 });
+  }
+
+  /** A small fiery bolt leaving the dragon's maw. */
+  firebolt(): void {
+    if (!this.gate("firebolt", 70)) return;
+    const v = this.vary(1, 0.08);
+    this.noise({ dur: 0.14, gain: 0.3, filter: 1200 * v, sweepTo: 500 });
+    this.tone({ freq: 240 * v, type: "sawtooth", dur: 0.14, gain: 0.22, slideTo: 120 });
   }
 
   build(): void {
@@ -143,6 +183,11 @@ export class Sfx {
   }
 
   // --- Synthesis helpers --------------------------------------------------
+
+  /** Random multiplier in [n-amt, n+amt] for per-call pitch variation. */
+  private vary(n: number, amt: number): number {
+    return n * (1 + (Math.random() * 2 - 1) * amt);
+  }
 
   /** Rate-limit a given sound so big battles don't machine-gun the speakers. */
   private gate(key: string, gapMs: number): boolean {

@@ -256,6 +256,7 @@ export class Game {
           // Dragon breath bursts into flame where it lands.
           this.effects.spawnBlast(e.to.x, e.to.y, "fire", 0.5);
           this.effects.spawnImpact(e.to.x, e.to.y);
+          this.sfx.firebolt();
         }
       }
       else if (e.type === "death") {
@@ -292,9 +293,9 @@ export class Game {
         this.effects.spawnBlast(e.x, e.y, e.spell === "fireball" ? "fire" : "frost");
         if (e.spell === "fireball") {
           this.shake = Math.max(this.shake, 3);
-          this.sfx.collapse();
+          this.sfx.spellFire();
         } else {
-          this.sfx.whoosh();
+          this.sfx.spellFrost();
         }
       }
     }
