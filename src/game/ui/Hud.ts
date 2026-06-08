@@ -9,7 +9,7 @@ import { UNIT_DEFS, BUILDING_DEFS } from "../entities/defs.ts";
 import { clamp, type Rect, rectContains } from "../util/math.ts";
 import { SPELL_LIST, type SpellId } from "../systems/spells.ts";
 import type { Assets } from "../render/assets.ts";
-import { drawCorners } from "./frame.ts";
+import { drawCorners, draw9Slice } from "./frame.ts";
 
 export type HudAction =
   | { type: "build"; kind: BuildingKind }
@@ -742,22 +742,39 @@ export class Hud {
     const ctx = this.ctx;
     ctx.fillStyle = "rgba(0,0,0,0.7)";
     ctx.fillRect(0, 0, cam.viewW, cam.viewH);
+
+    // Framed gothic panel behind the result.
+    const pw = 480;
+    const ph = 240;
+    const px = (cam.viewW - pw) / 2;
+    const py = (cam.viewH - ph) / 2;
+    const pg = ctx.createLinearGradient(0, py, 0, py + ph);
+    pg.addColorStop(0, "#262318");
+    pg.addColorStop(0.5, "#1b1810");
+    pg.addColorStop(1, "#131009");
+    ctx.fillStyle = pg;
+    ctx.fillRect(px, py, pw, ph);
+    if (this.assets?.frameSprite) {
+      draw9Slice(ctx, this.assets.frameSprite, { x: px - 6, y: py - 10, w: pw + 12, h: ph + 16 }, 0.17, 46);
+    }
+    const cx = cam.viewW / 2;
+
     ctx.fillStyle = won ? "#9affb0" : "#ff7b7b";
-    ctx.font = "bold 56px 'Segoe UI', sans-serif";
+    ctx.font = "bold 54px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(won ? "VICTORY" : "DEFEAT", cam.viewW / 2, cam.viewH / 2 - 30);
+    ctx.fillText(won ? "⚔ VICTORY ⚔" : "☠ DEFEAT ☠", cx, py + 78);
     const mins = Math.floor(elapsed / 60);
     const secs = Math.floor(elapsed % 60);
     ctx.fillStyle = COLORS.uiEmber;
     ctx.font = "18px 'Segoe UI', sans-serif";
     ctx.fillText(
       `Time: ${mins}m ${secs.toString().padStart(2, "0")}s    Slain: ${kills}    Razed: ${razed}`,
-      cam.viewW / 2,
-      cam.viewH / 2 + 20,
+      cx,
+      py + 132,
     );
     ctx.fillStyle = COLORS.uiText;
     ctx.font = "20px 'Segoe UI', sans-serif";
-    ctx.fillText("Press R to play again", cam.viewW / 2, cam.viewH / 2 + 56);
+    ctx.fillText("Press R to play again", cx, py + 178);
   }
 }

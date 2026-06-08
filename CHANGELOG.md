@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.170.0 — Framed end-game screen _(2026-06-07)_
+- The **Victory / Defeat screen** now sits in the ornate gothic frame — a proper
+  stone-and-iron result panel with ⚔/☠ flourishes and the run stats inside, matching
+  the pause menu's look.
+
 ## v0.169.0 — On-screen unit command buttons _(2026-06-07)_
 - Selecting your combat units now shows clickable **command buttons** in the HUD —
   **Move (M), Attack (Q), Stop (X), Patrol (R), Hold (H)** — wired to the same
