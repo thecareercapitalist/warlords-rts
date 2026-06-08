@@ -75,6 +75,8 @@ export function orderMove(world: World, u: Unit, pixel: Vec2): void {
   const t = toTile(pixel.x, pixel.y);
   u.attackTarget = null;
   u.attackMove = false;
+  u.retaliateT = 0; // a fresh move clears the fight-back window so you can pull clear
+  u.moveGraceT = 1.2; // ...and grants a brief grace to break off before self-defense re-engages
   u.holdGround = false; // repositioning cancels the hold stance
   u.resourceTile = null;
   u.buildTarget = null;

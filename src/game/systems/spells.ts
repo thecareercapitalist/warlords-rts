@@ -48,6 +48,7 @@ export function castSpell(world: World, u: Unit, sp: SpellDef, pt: Vec2): boolea
     if (sp.id === "fireball") {
       o.hp -= sp.damage ?? 0;
       o.hitFlash = 0.14;
+      o.retaliateT = 2.5;
       world.events.push({ type: "damaged", playerId: o.playerId, x: o.pos.x, y: o.pos.y });
       if (o.hp <= 0 && o.state !== "dead") {
         o.state = "dead";

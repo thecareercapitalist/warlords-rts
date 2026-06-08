@@ -86,6 +86,8 @@ export function updateCombat(world: World, dt: number): void {
     if (u.repathTimer > 0) u.repathTimer -= dt;
     if (u.hitFlash > 0) u.hitFlash -= dt;
     if (u.attackAnim > 0) u.attackAnim -= dt;
+    if (u.retaliateT > 0) u.retaliateT -= dt;
+    if (u.moveGraceT > 0) u.moveGraceT -= dt;
 
     // Drop a target that has died.
     if (u.attackTarget && u.attackTarget.dead) u.attackTarget = null;
@@ -94,10 +96,11 @@ export function updateCombat(world: World, dt: number): void {
     // enemies they encounter while attack-moving. Workers fight only when
     // explicitly ordered (which sets attackTarget directly).
     if (!u.attackTarget && u.def.damage > 0 && !u.def.canGather) {
-      // A plain MOVE order is obeyed literally — units no longer auto-engage while
-      // "moving", so the player can pull them out of a fight and reposition. They
-      // still defend themselves once idle, and hunt while attack-moving.
-      if (u.state === "attackMoving" || u.state === "idle") {
+      // A plain MOVE order is obeyed literally — units don't auto-seek while "moving"
+      // so you can reposition — EXCEPT when recently struck (retaliateT > 0): a unit
+      // fights back against whatever is hitting it even mid-move. Issuing a fresh
+      // move clears that window, so you can still pull units clear by moving them.
+      if (u.state === "attackMoving" || u.state === "idle" || (u.retaliateT > 0 && u.moveGraceT <= 0)) {
         // Generous aggro so units defend themselves against anything that wanders
         // near; a bit wider while attack-moving. Hold-ground is filtered below.
         const aggro = u.state === "attackMoving" ? u.def.visionRadius + 2 : u.def.visionRadius + 3;
@@ -146,6 +149,7 @@ function updateTowers(world: World, dt: number): void {
     world.events.push({ type: "attack", ranged: true });
     best.hp -= Math.max(1, (b.def.damage ?? 0) - (best.def.armor ?? 0));
     best.hitFlash = 0.12;
+    best.retaliateT = 2.5; // fights back even if it was mid-move
     world.events.push({ type: "damaged", playerId: best.playerId, x: best.pos.x, y: best.pos.y });
     b.attackCooldown = b.def.attackCooldown ?? 1.2;
     if (best.hp <= 0) {
@@ -189,6 +193,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       u.attackAnim = ATTACK_ANIM_DUR;
       u.aim = { x: c.x, y: c.y };
       t.hitFlash = 0.12;
+      if (t.etype === "unit") (t as Unit).retaliateT = 2.5; // struck unit fights back
       const ranged = u.def.attackRange > 1;
       const heavy = (u.def.siegeMult ?? 1) > 1; // siege engines lob a weighty shot
       world.events.push({ type: "attack", ranged, heavy });
@@ -212,6 +217,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
           if ((o.pos.x - c.x) ** 2 + (o.pos.y - c.y) ** 2 > sr2) continue;
           o.hp -= Math.max(1, splashDmg - (o.def.armor ?? 0));
           o.hitFlash = 0.12;
+          o.retaliateT = 2.5;
           world.events.push({ type: "damaged", playerId: o.playerId, x: o.pos.x, y: o.pos.y });
           if (o.hp <= 0 && o.state !== "dead") {
             o.state = "dead";

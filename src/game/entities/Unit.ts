@@ -49,6 +49,8 @@ export class Unit {
   kills = 0; // enemy units/buildings slain — drives veterancy rank + damage bonus
   fleeing = false; // AI worker retreating from a raid (skips economy re-tasking)
   holdGround = false; // stance: fire at in-range foes but never chase/advance
+  retaliateT = 0; // seconds left during which the unit fights back even while moving (set when hit)
+  moveGraceT = 0; // grace after a fresh move order during which it ignores retaliation (lets you pull clear)
 
   // Presentation-only animation timers (seconds remaining).
   hitFlash = 0; // white flash when damaged

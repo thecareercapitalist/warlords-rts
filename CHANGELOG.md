@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.204.0 — Units fight back when attacked (self-defense) _(2026-06-08)_
+- Units no longer passively walk through a fight: a unit struck while on a plain
+  move order now **retaliates** against its attacker (a `retaliateT` window set on
+  damage lets it acquire even mid-move). Idle units already defended themselves;
+  this covers moving ones.
+- **Retreat still works:** a fresh move order grants a ~1.2s grace (and clears the
+  fight-back window), so ordering a unit to flee *away* lets it break off before
+  self-defense re-engages. (Fleeing straight *through* an enemy still gets you
+  caught — move away from the threat, not into it.) Verified both paths.
+
 ## v0.203.0 — Fix: AI launched only one attack wave all game _(2026-06-08)_
 - The enemy AI built an army, sent **one** wave, then its `attacking` flag stuck on
   (it only cleared when the wave dropped below 2 fighters), so `manageArmy`
