@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.219.0 — Terrain ground detail _(2026-06-08)_
+- Open grass now carries sparse, deterministic ground scatter — small dark pebble
+  clusters and the odd bleached bone (~15% of tiles) — so the plains read as a lived-in
+  battlefield instead of a flat field. Code-drawn, no art, no flicker. Verified by
+  render.
+
 ## v0.218.0 — War Cry command button + cooldown indicator _(2026-06-08)_
 - War Cry was hotkey-only; added a **"Cry" command-card button** (alongside Move/
   Attack/Stop/Patrol/Hold) that fires it and shows a **cooldown veil + seconds-left**

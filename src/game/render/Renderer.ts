@@ -216,6 +216,31 @@ export class Renderer {
             ctx.textBaseline = "middle";
             ctx.fillText("$", s.x, s.y);
           }
+        } else if (t.terrain === "grass") {
+          // Sparse ground detail on open grass — a few pebbles or a bone sliver —
+          // so the plains aren't a flat field. Deterministic per tile (no flicker).
+          const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
+          const pick = h % 13;
+          if (pick === 0 || pick === 6) {
+            const ox = (((h >>> 4) % 16) - 8) * 0.7 * z;
+            const oy = (((h >>> 9) % 10) - 5) * 0.5 * z;
+            if (pick === 0) {
+              ctx.fillStyle = "rgba(38,38,34,0.5)"; // dark pebbles
+              for (let i = 0; i < 3; i++) {
+                const a = h * 0.7 + i * 2.1;
+                ctx.beginPath();
+                ctx.ellipse(s.x + ox + Math.cos(a) * 3 * z, s.y + oy + Math.sin(a) * 1.5 * z, (1.5 + (i % 2)) * z, 1.1 * z, 0, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            } else {
+              ctx.strokeStyle = "rgba(206,200,182,0.38)"; // a bleached bone
+              ctx.lineWidth = 2 * z;
+              ctx.beginPath();
+              ctx.moveTo(s.x + ox - 4 * z, s.y + oy + 2 * z);
+              ctx.lineTo(s.x + ox + 4 * z, s.y + oy - 2 * z);
+              ctx.stroke();
+            }
+          }
         }
       }
     }
