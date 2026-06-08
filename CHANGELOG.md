@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.187.0 — Orc grunt animation consistency _(2026-06-07)_
+- Regenerated the orc grunt's **walk and swing** sheets as a matched set — every
+  frame now shares the same horned helm, spiked pauldron, bone straps, and green
+  tone (the old swing dropped its armor on the wind-up frames). Idle/walk/attack
+  are now one coherent character. Old sheets archived to `public/archive/`.
+
 ## v0.186.0 — Consistent infantry look (no shade-jump) _(2026-06-07)_
 - Footman/grunt now draw their **idle** pose from the same Gemini walk sheet
   (frame 0) used for walking, instead of popping back to the older base sprite — so
