@@ -57,6 +57,8 @@ export class Renderer {
   ) {}
 
   private now = 0; // animation clock (seconds), supplied each frame
+  /** Per-map gloom-wash colour (Game sets this from the seed for mood variety). */
+  ambientTint = "rgba(18,20,32,0.16)";
 
   render(
     world: World,
@@ -101,8 +103,8 @@ export class Renderer {
     const ctx = this.ctx;
     const w = this.cam.viewW;
     const h = this.cam.viewH;
-    // Subtle cool darkening for muted, gothic gloom.
-    ctx.fillStyle = "rgba(18,20,32,0.16)";
+    // Subtle darkening for muted, gothic gloom — hue varies per map (set from seed).
+    ctx.fillStyle = this.ambientTint;
     ctx.fillRect(0, 0, w, h);
     // Vignette: clear centre → dark edges.
     const g = ctx.createRadialGradient(

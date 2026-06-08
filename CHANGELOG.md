@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.223.0 — Per-map ambient mood _(2026-06-08)_
+- The gloom color-grade now shifts hue by map seed — cold blue, sepia dusk, or sickly
+  green — so the varied maps also *feel* distinct at a glance. Renderer.ambientTint set
+  from the seed in startNewGame. Verified: three seeds → three different washes.
+
 ## v0.222.0 — Rank-up flourish _(2026-06-08)_
 - When a unit gains a veterancy rank from a kill, it now gets a small reward beat — a
   gold "★ Rank up" floater, a spark, and a chime — making veterancy progression feel

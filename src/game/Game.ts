@@ -159,6 +159,8 @@ export class Game {
 
   private startNewGame(seed: number): void {
     this.world = new World(seed);
+    // Per-map mood: shift the gloom wash hue by seed (cold blue / sepia dusk / sickly green).
+    this.renderer.ambientTint = ["rgba(18,20,32,0.16)", "rgba(34,24,14,0.17)", "rgba(16,28,20,0.16)"][seed % 3];
     this.fog = new Fog(this.humanId);
     this.ai = new AIController(AI_PLAYER);
     this.ai.setDifficulty(this.difficulty);
