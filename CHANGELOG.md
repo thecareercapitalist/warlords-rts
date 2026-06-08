@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.185.0 — Relaxed resting pose for ranged/casters _(2026-06-07)_
+- Archers and mages now hold a **relaxed pose** (bow lowered / staff down — frame 0
+  of their cycle) whenever they're not actually attacking, instead of the
+  base sprite's permanent drawn-bow / readied-staff stance. They draw/charge only
+  during the shot/cast.
+
 ## v0.184.0 — Focus-fire targeting _(2026-06-07)_
 - Units now **concentrate fire on wounded enemies**: target acquisition scores
   in-range foes by `linearDistance × (0.55 + 0.45·hpFraction)`, so a hurt enemy

@@ -1214,19 +1214,28 @@ export class Renderer {
       if (gallop.length === 4) {
         sprite = gallop[Math.floor(this.now * 9 + u.pos.x * 0.05) % 4];
       }
-    } else if (u.kind === "archer" && u.attackAnim > 0) {
-      // Bow draw-and-loose played forward across the window: human vs orc hunter.
+    } else if (u.kind === "archer") {
+      // Draw the bow only while shooting; otherwise hold the relaxed pose (frame 0,
+      // bow lowered) so a standing/walking archer isn't perpetually aiming.
       const shot = isEnemy ? this.assets.orcArcherShotFrames : this.assets.archerShotFrames;
       if (shot.length > 0) {
-        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
-        sprite = shot[Math.min(shot.length - 1, Math.floor((1 - ph) * shot.length))];
+        if (u.attackAnim > 0) {
+          const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just loosed → 0
+          sprite = shot[Math.min(shot.length - 1, Math.floor((1 - ph) * shot.length))];
+        } else {
+          sprite = shot[0];
+        }
       }
-    } else if (u.kind === "mage" && u.attackAnim > 0) {
-      // Cast cycle played forward across the window: human mage vs orc warlock.
+    } else if (u.kind === "mage") {
+      // Charge the staff only while casting; otherwise hold it lowered (frame 0).
       const cast = isEnemy ? this.assets.orcCasterCastFrames : this.assets.mageCastFrames;
       if (cast.length > 0) {
-        const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
-        sprite = cast[Math.min(cast.length - 1, Math.floor((1 - ph) * cast.length))];
+        if (u.attackAnim > 0) {
+          const ph = u.attackAnim / ATTACK_ANIM_DUR; // 1 just cast → 0
+          sprite = cast[Math.min(cast.length - 1, Math.floor((1 - ph) * cast.length))];
+        } else {
+          sprite = cast[0];
+        }
       }
     }
     let spriteW = 0;
