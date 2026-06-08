@@ -289,7 +289,7 @@ export class AIController {
     // interrupting any offensive wave.
     const threat = this.findThreatNearBase(world);
     if (threat) {
-      for (const f of fighters) orderAttackMove(world, f, threat);
+      this.commandLine(world, fighters, threat);
       this.attacking = false;
       return;
     }
@@ -318,9 +318,41 @@ export class AIController {
           );
           wave = byDist.slice(0, fighters.length - GARRISON_SIZE); // farthest from base attack
         }
-        for (const f of wave) orderAttackMove(world, f, target);
+        this.commandLine(world, wave, target);
         this.attacking = true;
         this.wavesSent++;
+      }
+    }
+  }
+
+  /**
+   * Order a group to a target as a battle line: melee charge the target; fragile
+   * ranged units (attackRange > 1) attack-move to a point a few tiles SHORT of the
+   * target — staying behind the melee front instead of leading the charge.
+   */
+  private commandLine(world: World, group: Unit[], target: Vec2): void {
+    const melee = group.filter((u) => u.def.attackRange <= 1);
+    let cx = 0;
+    let cy = 0;
+    for (const u of melee) {
+      cx += u.pos.x;
+      cy += u.pos.y;
+    }
+    const hasMelee = melee.length > 0;
+    if (hasMelee) {
+      cx /= melee.length;
+      cy /= melee.length;
+    }
+    for (const u of group) {
+      if (u.def.attackRange > 1 && hasMelee) {
+        // Offset back from the target toward the melee's side so they hold the rear.
+        let dx = cx - target.x;
+        let dy = cy - target.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const back = 3 * TILE;
+        orderAttackMove(world, u, { x: target.x + (dx / len) * back, y: target.y + (dy / len) * back });
+      } else {
+        orderAttackMove(world, u, target);
       }
     }
   }

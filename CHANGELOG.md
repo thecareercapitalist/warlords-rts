@@ -6,6 +6,12 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.193.0 — AI keeps ranged behind the melee line _(2026-06-07)_
+- AI waves and defenses now form a **battle line**: melee charge the target while
+  fragile **archers attack-move to ~3 tiles short of it** (toward the melee's side),
+  so they pepper from behind the front instead of leading the charge and dying.
+  Verified: footmen target the objective, archers hold 3 tiles back.
+
 ## v0.192.0 — AI retreats wounded casters/dragons _(2026-06-07)_
 - The AI now **pulls a badly-hurt mage or dragon (&lt;30% HP) back toward home** when
   an enemy is within ~6 tiles, instead of feeding its expensive caster/flyer into
