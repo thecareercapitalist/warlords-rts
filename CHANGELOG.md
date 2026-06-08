@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.148.0 — Original gothic music _(2026-06-07)_
+- Added a **procedural music system** (Web Audio, fully original — no third-party
+  tracks): a slow D-minor lament (Dm–Bb–F–C) of swelling pads over a low drone with
+  a sparse mournful bell, looping under the SFX through the shared compressor.
+  Starts on first interaction; `toggleMusic()` + persists (default on). A pause-menu
+  toggle comes with the menu-polish pass.
+
 ## v0.147.0 — Sound-FX overhaul _(2026-06-07)_
 - Punchier, less repetitive audio: a **master compressor** warms the mix and tames
   clipping in big battles; melee/bow/death hits get **per-swing pitch variation** so

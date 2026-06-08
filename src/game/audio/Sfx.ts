@@ -4,6 +4,7 @@
 // block audio until then). All calls are wrapped so audio never breaks the game.
 
 const STORAGE_KEY = "warlords.muted.v1";
+const MUSIC_KEY = "warlords.music.v1";
 
 export class Sfx {
   private ctx: AudioContext | null = null;
@@ -11,11 +12,28 @@ export class Sfx {
   muted = false;
   private lastPlay: Record<string, number> = {};
 
+  // --- Procedural music (original gothic ambience) ---
+  musicEnabled = true;
+  private musicGain: GainNode | null = null;
+  private musicTimer: ReturnType<typeof setTimeout> | null = null;
+  private chordIdx = 0;
+  private barCount = 0;
+  private readonly BAR = 5.5; // seconds per chord
+  // A slow D-minor lament: Dm – Bb – F – C (i – VI – III – VII), with bass roots.
+  private readonly CHORDS = [
+    [293.66, 349.23, 440.0], // Dm: D4 F4 A4
+    [233.08, 293.66, 349.23], // Bb: Bb3 D4 F4
+    [174.61, 220.0, 261.63], // F:  F3 A3 C4
+    [261.63, 329.63, 392.0], // C:  C4 E4 G4
+  ];
+  private readonly BASS = [73.42, 58.27, 87.31, 65.41]; // D2 Bb1 F2 C2
+
   constructor() {
     try {
       this.muted = localStorage.getItem(STORAGE_KEY) === "1";
+      this.musicEnabled = localStorage.getItem(MUSIC_KEY) !== "0";
     } catch {
-      /* storage blocked — default unmuted */
+      /* storage blocked — default unmuted, music on */
     }
   }
 
@@ -39,8 +57,13 @@ export class Sfx {
         comp.release.value = 0.2;
         this.master.connect(comp);
         comp.connect(this.ctx.destination);
+        // Music bus sits under the SFX, through the same compressor.
+        this.musicGain = this.ctx.createGain();
+        this.musicGain.gain.value = 0.5;
+        this.musicGain.connect(this.master);
       }
       if (this.ctx.state === "suspended") void this.ctx.resume();
+      if (this.musicEnabled) this.startMusic();
     } catch {
       /* audio unavailable */
     }
@@ -58,6 +81,73 @@ export class Sfx {
     } catch {
       /* ignore */
     }
+  }
+
+  // --- Music --------------------------------------------------------------
+
+  setMusicEnabled(on: boolean): void {
+    this.musicEnabled = on;
+    try {
+      localStorage.setItem(MUSIC_KEY, on ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+    if (on) this.startMusic();
+    else this.stopMusic();
+  }
+
+  toggleMusic(): void {
+    this.setMusicEnabled(!this.musicEnabled);
+  }
+
+  private startMusic(): void {
+    if (this.musicTimer || !this.ctx || !this.musicGain) return;
+    const tick = (): void => {
+      this.playBar();
+      this.musicTimer = setTimeout(tick, this.BAR * 1000);
+    };
+    tick();
+  }
+
+  private stopMusic(): void {
+    if (this.musicTimer) {
+      clearTimeout(this.musicTimer);
+      this.musicTimer = null;
+    }
+  }
+
+  /** Lay down one chord of the looping progression: bass drone + pad + a bell. */
+  private playBar(): void {
+    if (!this.ctx || !this.musicGain) return;
+    const i = this.chordIdx % this.CHORDS.length;
+    this.chordIdx++;
+    this.musicNote(this.BASS[i], this.BAR * 0.98, 0.16, "sawtooth"); // low drone
+    for (const f of this.CHORDS[i]) this.musicNote(f, this.BAR * 0.94, 0.075, "triangle"); // pad
+    // A sparse high bell every other bar for melancholy color.
+    if (this.barCount % 2 === 0) {
+      const top = this.CHORDS[i][this.CHORDS[i].length - 1] * 2;
+      this.musicNote(top, 1.8, 0.05, "sine", this.BAR * 0.45);
+    }
+    this.barCount++;
+  }
+
+  /** A long, soft-swelling musical note routed through the music bus. */
+  private musicNote(freq: number, dur: number, gain: number, type: OscillatorType, delay = 0): void {
+    const ctx = this.ctx;
+    const dest = this.musicGain;
+    if (!ctx || !dest) return;
+    const t0 = ctx.currentTime + delay;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain, t0 + dur * 0.35); // slow swell in
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur); // fade out
+    osc.connect(g);
+    g.connect(dest);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
   }
 
   // --- Public effects -----------------------------------------------------
