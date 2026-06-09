@@ -222,8 +222,9 @@ export class Assets {
   frameSprite: CanvasImageSource | undefined;
   /** War Cry command-button icon (a war horn with ember sound-waves). */
   warcryIcon: CanvasImageSource | undefined;
-  /** Dedicated compact chapel sprite for the temple (overrides the oversized sheet one). */
-  templeSprite: CanvasImageSource | undefined;
+  /** Dedicated per-building sprites that REPLACE the corresponding sheet cell (both
+   *  factions). Keyed by BuildingKind — see BUILDING_OVERRIDES below. */
+  buildingOverrides = new Map<string, CanvasImageSource>();
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
   /** Worker chopping (sideways axe) frames [windup, mid, follow]. */
@@ -283,7 +284,8 @@ export class Assets {
   /** A trimmed generated building sprite for a kind (enemy = orc variant). */
   buildingSprite(kind: string, enemy = false): CanvasImageSource | undefined {
     // The dedicated compact chapel replaces the oversized sheet temple (both factions).
-    if (kind === "temple" && this.templeSprite) return this.templeSprite;
+    const override = this.buildingOverrides.get(kind);
+    if (override) return override;
     return (enemy ? this.enemyBuildingSprites : this.buildingSprites).get(kind);
   }
 
@@ -409,12 +411,21 @@ export class Assets {
         this.warcryIcon = sliceGrid(img, 1, 1, ["i"]).get("i");
       }),
     );
-    jobs.push(
-      load(inl?.temple ?? "/gen_temple.jpg").then((img) => {
-        if (!img) return;
-        this.templeSprite = sliceGrid(img, 1, 1, ["t"]).get("t");
-      }),
-    );
+    // Dedicated per-building sprites that replace their sheet cell (kind, file, inline key).
+    const BUILDING_OVERRIDES: [string, string, string][] = [
+      ["temple", "/gen_temple.jpg", "temple"],
+      ["barracks", "/gen_barracks.jpg", "barracks"],
+      ["townhall", "/gen_townhall.jpg", "townhall"],
+    ];
+    for (const [kind, url, key] of BUILDING_OVERRIDES) {
+      jobs.push(
+        load((inl as Record<string, string> | undefined)?.[key] ?? url).then((img) => {
+          if (!img) return;
+          const spr = sliceGrid(img, 1, 1, ["o"]).get("o");
+          if (spr) this.buildingOverrides.set(kind, spr);
+        }),
+      );
+    }
     jobs.push(
       load(inl?.mine ?? "/gen_mine.jpg").then((img) => {
         if (!img) return;

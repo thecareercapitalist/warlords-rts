@@ -6,6 +6,16 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.234.0 — New barracks + grand town hall sprites _(2026-06-09)_
+- **Barracks** regenerated as a proper military building — timber-and-stone longhouse
+  with a banner watch-tower, reinforced gate, training yard and palisade, facing
+  bottom-left like the rest.
+- **Town hall** regenerated as a grand fortified **keep** (twin banner-towers,
+  portcullis gate) and scaled up (×1.4) so it reads as the dominant main building.
+- Refactored the per-building sprite override from a one-off `templeSprite` field into
+  a single generic `buildingOverrides` map (temple + barracks + townhall load through
+  one loop), removing the old field/refs to avoid spaghetti.
+
 ## v0.233.0 — Real CC0 combat sound effects _(2026-06-09)_
 - Replaced the synthesized sword/arrow/siege sounds with **real CC0 samples** from
   Kenney (Impact Sounds + RPG Audio, public domain): sword hit = metal-impact clang

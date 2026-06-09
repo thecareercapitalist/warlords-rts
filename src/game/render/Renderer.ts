@@ -23,8 +23,12 @@ const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
 // cathedral sprite otherwise towers well past its 3-tile footprint, so rein it in.
 // Per-building draw-scale tweaks (× the default footprint fit). The dedicated chapel
 // sprite is footprint-shaped, so the temple no longer needs shrinking.
+// Dedicated building sprites carry a baked ground-plot; tune draw-scale per kind so the
+// plot sits on the footprint (and the town hall reads as the dominant main building).
 const BUILDING_SPRITE_SCALE: Partial<Record<BuildingKind, number>> = {
-  temple: 1.12, // cathedral sprite has a baked cobblestone plot sized to its footprint
+  temple: 1.12,
+  barracks: 1.08,
+  townhall: 1.4, // main building — noticeably larger than barracks/temple
 };
 
 // CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92
