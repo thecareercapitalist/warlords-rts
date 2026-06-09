@@ -183,25 +183,23 @@ export class Sfx {
 
   clang(): void {
     if (!this.gate("clang", 45)) return;
-    // Sword-on-steel: a bright noise "shing" transient + three INHARMONIC metal
-    // partials (bell-like ratios, not a musical chord, so it reads as ringing metal
-    // rather than a beep) over a short low body thud. Pitch-varied per swing.
-    const v = this.vary(1, 0.09);
-    this.noise({ dur: 0.06, gain: 0.5, filter: 5400 * v, sweepTo: 2400 }); // the strike
-    this.tone({ freq: 540 * v, type: "triangle", dur: 0.14, gain: 0.32, slideTo: 505 * v });
-    this.tone({ freq: 1490 * v, type: "triangle", dur: 0.11, gain: 0.2, slideTo: 1410 * v, delay: 0.004 });
-    this.tone({ freq: 2630 * v, type: "sine", dur: 0.08, gain: 0.12, slideTo: 2500 * v, delay: 0.006 });
-    this.tone({ freq: 120 * v, type: "sawtooth", dur: 0.06, gain: 0.26, slideTo: 60 }); // weight
+    // Sword-on-steel, NOISE-based (pitched oscillators read as a xylophone): a broad
+    // bright strike transient + two resonant, inharmonic metal RINGS (high-Q bandpass
+    // noise) + a short low gritty thunk for impact weight. Varied per swing.
+    const v = this.vary(1, 0.1);
+    this.noise({ dur: 0.045, gain: 0.5, filter: 5200 * v, sweepTo: 2600 }); // the strike (broadband)
+    this.noise({ dur: 0.2, gain: 0.26, filter: 2150 * v, q: 9, sweepTo: 1850 * v }); // ring 1
+    this.noise({ dur: 0.15, gain: 0.18, filter: 3700 * v, q: 12, sweepTo: 3400 * v }); // ring 2 (inharmonic)
+    this.tone({ freq: 95 * v, type: "sawtooth", dur: 0.045, gain: 0.22, slideTo: 52 }); // low impact thunk
   }
 
   whoosh(): void {
     if (!this.gate("whoosh", 55)) return;
-    // Bow release: a short low string "thunk" (fast pitch drop) then a tight airy
-    // arrow "thwip" — bright noise sweeping down quickly as the shaft zips away.
-    const v = this.vary(1, 0.1);
-    this.tone({ freq: 260 * v, type: "triangle", dur: 0.05, gain: 0.24, slideTo: 110 }); // string pluck
-    this.noise({ dur: 0.14, gain: 0.34, filter: 3400 * v, sweepTo: 650 }); // arrow zip
-    this.tone({ freq: 1800 * v, type: "sine", dur: 0.04, gain: 0.08, slideTo: 3200 * v }); // faint fletch hiss
+    // Bow release: a soft low string thunk then an airy arrow "thwp" — broadband
+    // noise sweeping down quickly as the shaft cuts the air (no resonant tone).
+    const v = this.vary(1, 0.12);
+    this.tone({ freq: 190 * v, type: "triangle", dur: 0.04, gain: 0.14, slideTo: 95 }); // soft string thunk
+    this.noise({ dur: 0.13, gain: 0.32, filter: 2400 * v, sweepTo: 380 }); // airy arrow zip down
   }
 
   /** Death cry; pitch scales inversely with unit size (small = higher yelp, a
@@ -388,7 +386,7 @@ export class Sfx {
     osc.stop(t0 + o.dur + 0.02);
   }
 
-  private noise(o: { dur: number; gain: number; filter: number; sweepTo?: number }): void {
+  private noise(o: { dur: number; gain: number; filter: number; sweepTo?: number; q?: number }): void {
     const ctx = this.ctx;
     const master = this.master;
     if (!ctx || !master) return;
@@ -401,6 +399,7 @@ export class Sfx {
     src.buffer = buf;
     const filter = ctx.createBiquadFilter();
     filter.type = "bandpass";
+    if (o.q) filter.Q.value = o.q; // high Q → a resonant metallic ring rather than hiss
     filter.frequency.setValueAtTime(o.filter, t0);
     if (o.sweepTo) filter.frequency.exponentialRampToValueAtTime(Math.max(1, o.sweepTo), t0 + o.dur);
     const g = ctx.createGain();

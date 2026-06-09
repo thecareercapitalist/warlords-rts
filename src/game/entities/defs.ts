@@ -178,7 +178,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     maxHp: 50,
     speed: 85,
     radius: 10,
-    damage: 11, // arcane bolt (toned down from 16)
+    damage: 5, // weak arcane plink — mages lean on spells, but auto-attack for chip damage
     splash: 1.3, // the bolt bursts — small area of effect
     attackRange: 5,
     attackCooldown: 1.9,

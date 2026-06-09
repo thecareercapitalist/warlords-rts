@@ -222,6 +222,8 @@ export class Assets {
   frameSprite: CanvasImageSource | undefined;
   /** War Cry command-button icon (a war horn with ember sound-waves). */
   warcryIcon: CanvasImageSource | undefined;
+  /** Dedicated compact chapel sprite for the temple (overrides the oversized sheet one). */
+  templeSprite: CanvasImageSource | undefined;
   /** Worker mining frames [windup, strike] for a swing animation. */
   mineFrames: CanvasImageSource[] = [];
   /** Worker chopping (sideways axe) frames [windup, mid, follow]. */
@@ -280,6 +282,8 @@ export class Assets {
 
   /** A trimmed generated building sprite for a kind (enemy = orc variant). */
   buildingSprite(kind: string, enemy = false): CanvasImageSource | undefined {
+    // The dedicated compact chapel replaces the oversized sheet temple (both factions).
+    if (kind === "temple" && this.templeSprite) return this.templeSprite;
     return (enemy ? this.enemyBuildingSprites : this.buildingSprites).get(kind);
   }
 
@@ -403,6 +407,12 @@ export class Assets {
       load(inl?.warcry ?? "/gen_warcry.jpg").then((img) => {
         if (!img) return;
         this.warcryIcon = sliceGrid(img, 1, 1, ["i"]).get("i");
+      }),
+    );
+    jobs.push(
+      load(inl?.temple ?? "/gen_temple.jpg").then((img) => {
+        if (!img) return;
+        this.templeSprite = sliceGrid(img, 1, 1, ["t"]).get("t");
       }),
     );
     jobs.push(

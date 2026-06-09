@@ -6,6 +6,23 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.229.0 — Persistence pass, units off-map fix, mage attack, temple chapel, SFX _(2026-06-09)_
+- **Units no longer walk onto water / off the map.** A move ordered onto a blocked
+  tile snapped the unit's *final step* to the raw clicked point; now it clamps to the
+  nearest walkable tile centre. Verified.
+- **Save/load persistence pass.** Control groups now survive a load (units carry a
+  stable id that's preserved), alongside the already-fixed autocast + veterancy kills.
+  (Note: a browser *refresh* still starts a fresh game — that's not a load.)
+- **Mages now auto-attack** with a weak arcane bolt (damage 11 → 5) so they chip in
+  between spells. Verified they plink an enemy with no mana.
+- **Temple is a proper compact chapel.** Replaced the oversized cathedral with a
+  dedicated footprint-shaped chapel sprite (deterministic override) scaled to fill its
+  3-tile plot so its base lines up with the tile — like the mage tower, instead of
+  endlessly shrinking it.
+- **Veterancy is explained** — the selection panel now shows "Vet N (+X% dmg)".
+- **Combat SFX reworked** — sword clang is now noise-based resonant metal (no more
+  xylophone tones); the bow is a softer string-thunk + airy arrow zip.
+
 ## v0.228.0 — War Cry tuning + mage patrol + volume slider + mine info _(2026-06-08)_
 - **War Cry → +30%** (was +50%); the active buff now shows a green **(+N)** next to the
   unit's Atk in the selection panel so the bonus is obvious.

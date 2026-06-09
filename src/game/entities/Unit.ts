@@ -5,10 +5,15 @@ import type { Building } from "./Building.ts";
 
 let NEXT_ID = 1;
 
+/** Keep the id counter ahead of any restored ids (so save/load can preserve ids). */
+export function reserveUnitId(id: number): void {
+  if (id >= NEXT_ID) NEXT_ID = id + 1;
+}
+
 export type Targetable = Unit | Building;
 
 export class Unit {
-  readonly id = NEXT_ID++;
+  id = NEXT_ID++; // stable identity; restored on load so control groups survive
   readonly etype = "unit" as const;
   readonly def: UnitDef;
   readonly kind: UnitKind;

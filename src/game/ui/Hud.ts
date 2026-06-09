@@ -783,7 +783,7 @@ export class Hud {
     if (u.def.splash) s += " · Splash";
     s += ` · Pop ${u.def.supply}`;
     const rank = veterancyRank(u.kills);
-    if (rank > 0) s += ` · Vet ${rank}`;
+    if (rank > 0) s += ` · Vet ${rank} (+${Math.round((veterancyMult(u.kills) - 1) * 100)}% dmg)`;
     return s;
   }
 

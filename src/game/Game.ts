@@ -1037,6 +1037,14 @@ export class Game {
     this.selUnits = [];
     this.selBuildings = [];
     this.controlGroups.clear();
+    // Restore control groups by unit id (ids were preserved through the save).
+    if (res.groups?.length) {
+      const byId = new Map(this.world.units.map((u) => [u.id, u]));
+      for (const g of res.groups) {
+        const us = g.ids.map((id) => byId.get(id)).filter((u): u is Unit => !!u && !u.dead);
+        if (us.length) this.controlGroups.set(g.n, us);
+      }
+    }
     this.buildMode = null;
     this.builder = null;
     this.attackMoveMode = false;
@@ -1080,7 +1088,8 @@ export class Game {
         this.startNewGame(Game.freshSeed());
       } else if (res.type === "save") {
         const slot = nextSaveSlot();
-        const ok = saveGame(this.world, this.fog.exportExplored(), slot, this.elapsed);
+        const groups = [...this.controlGroups].map(([n, us]) => ({ n, ids: us.filter((u) => !u.dead).map((u) => u.id) }));
+        const ok = saveGame(this.world, this.fog.exportExplored(), slot, this.elapsed, groups);
         this.setMessage(ok ? `Saved to slot ${slot + 1}` : "Save failed");
       } else if (res.type === "loadSlot") {
         this.doLoad(res.slot);

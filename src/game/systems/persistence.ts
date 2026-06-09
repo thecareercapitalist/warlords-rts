@@ -1,6 +1,6 @@
 import type { TerrainType, UnitKind, BuildingKind, ResourceKind } from "../types.ts";
 import { World } from "../World.ts";
-import { Unit } from "../entities/Unit.ts";
+import { Unit, reserveUnitId } from "../entities/Unit.ts";
 import { Building } from "../entities/Building.ts";
 import { orderGather } from "./orders.ts";
 
@@ -88,7 +88,9 @@ interface SaveData {
     rt?: [number, number] | null; // resource tile being harvested (resume on load)
     ac?: string | null; // mage autocast spell (persist so loaded mages keep casting)
     kl?: number; // kills (preserve veterancy rank across save/load)
+    id?: number; // stable unit id (so control groups can be restored)
   }[];
+  groups?: { n: number; ids: number[] }[]; // control groups (Ctrl+1..9) by unit id
   bld: {
     k: BuildingKind;
     p: number;
@@ -108,7 +110,13 @@ export function hasSave(): boolean {
   return listSlots().some((m) => m !== null);
 }
 
-export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0): boolean {
+export function saveGame(
+  world: World,
+  explored: number[],
+  slot = 0,
+  elapsed = 0,
+  groups: { n: number; ids: number[] }[] = [],
+): boolean {
   const data: SaveData = {
     v: 1,
     players: world.players.map((p) => ({ g: p.gold, w: p.wood, d: p.defeated })),
@@ -126,7 +134,9 @@ export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0
         rt: u.resourceTile ? [u.resourceTile.x, u.resourceTile.y] : null,
         ac: u.autocast ?? null,
         kl: u.kills,
+        id: u.id,
       })),
+    groups,
     bld: world.buildings
       .filter((b) => !b.dead)
       .map((b) => ({
@@ -153,7 +163,9 @@ export function saveGame(world: World, explored: number[], slot = 0, elapsed = 0
 }
 
 /** Rebuild a World from a slot plus the explored-tile mask, or null if none. */
-export function loadGame(slot = 0): { world: World; explored: number[]; elapsed: number } | null {
+export function loadGame(
+  slot = 0,
+): { world: World; explored: number[]; elapsed: number; groups: { n: number; ids: number[] }[] } | null {
   let data: SaveData;
   let elapsed = 0;
   try {
@@ -195,6 +207,10 @@ export function loadGame(slot = 0): { world: World; explored: number[]; elapsed:
   for (const u of data.unt) {
     const uu = new Unit(u.k, u.p, { x: u.x, y: u.y });
     uu.hp = u.hp;
+    if (u.id != null) {
+      uu.id = u.id;
+      reserveUnitId(u.id);
+    }
     if (u.ac) uu.autocast = u.ac;
     if (u.kl) uu.kills = u.kl;
     if (u.c) uu.carrying = { kind: u.c[0], amount: u.c[1] };
@@ -208,5 +224,5 @@ export function loadGame(slot = 0): { world: World; explored: number[]; elapsed:
     }
   }
   w.recomputeSupply();
-  return { world: w, explored: data.explored ?? [], elapsed };
+  return { world: w, explored: data.explored ?? [], elapsed, groups: data.groups ?? [] };
 }

@@ -38,7 +38,10 @@ export function pathTo(world: World, u: Unit, tx: number, ty: number, finalPx?: 
 
   const path = findPath(world.map, from.x, from.y, dest.x, dest.y);
   u.path = path;
-  u.finalTarget = finalPx ?? tileCenter(dest.x, dest.y);
+  // Only honour an exact pixel target if the CLICKED tile was actually walkable —
+  // otherwise (water / off-map / blocked) snap to the nearest walkable tile centre,
+  // so a unit never slides onto water or off the map edge on its final step.
+  u.finalTarget = finalPx && world.map.isWalkable(tx, ty) ? finalPx : tileCenter(dest.x, dest.y);
 
   // Already adjacent / on the tile: no waypoints, just the final nudge.
   if (path.length === 0 && from.x === dest.x && from.y === dest.y) {

@@ -21,8 +21,10 @@ const UNIT_DRAW_R = 13; // screen radius (px) for a unit body at zoom 1
 
 // Per-building draw-scale tweaks (× the default footprint fit). The temple's tall
 // cathedral sprite otherwise towers well past its 3-tile footprint, so rein it in.
+// Per-building draw-scale tweaks (× the default footprint fit). The dedicated chapel
+// sprite is footprint-shaped, so the temple no longer needs shrinking.
 const BUILDING_SPRITE_SCALE: Partial<Record<BuildingKind, number>> = {
-  temple: 0.6,
+  temple: 1.32, // the chapel sprite has a baked ground-plot; scale it up to fill the 3-tile footprint
 };
 
 // CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92
