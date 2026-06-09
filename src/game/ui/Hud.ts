@@ -294,11 +294,17 @@ export class Hud {
   // --- Minimap ------------------------------------------------------------
 
   minimapToWorld(p: Vec2): Vec2 {
-    const fx = (p.x - this.minimapRect.x) / this.minimapRect.w;
-    const fy = (p.y - this.minimapRect.y) / this.minimapRect.h;
+    // Invert the diamond (iso) minimap mapping back to a tile, then world centre.
+    const r = this.minimapRect;
+    const cx = r.x + r.w / 2;
+    const cy = r.y + r.h / 2;
+    const u = (p.x - cx) / (r.w / 2); // = ax - ay
+    const w = (p.y - cy) / (r.h / 2) + 1; // = ax + ay
+    const ax = clamp((u + w) / 2, 0, 1);
+    const ay = clamp((w - u) / 2, 0, 1);
     return {
-      x: clamp(fx, 0, 1) * MAP_W * TILE,
-      y: clamp(fy, 0, 1) * MAP_H * TILE,
+      x: (ax * (MAP_W - 1) + 0.5) * TILE,
+      y: (ay * (MAP_H - 1) + 0.5) * TILE,
     };
   }
 
@@ -481,69 +487,104 @@ export class Hud {
   private renderMinimap(world: World, cam: Camera, humanId: number, fogVis: Uint8Array): void {
     const ctx = this.ctx;
     const r = this.minimapRect;
-    const sx = r.w / MAP_W;
-    const sy = r.h / MAP_H;
+    const cx = r.x + r.w / 2;
+    const cy = r.y + r.h / 2;
+    const hw = r.w / 2;
+    const hh = r.h / 2;
+    // Tile (tx,ty) → minimap point, rotated to an iso DIAMOND so it matches the
+    // tilted battlefield (top vertex = tile 0,0; bottom = far corner).
+    const mm = (tx: number, ty: number): Vec2 => {
+      const axx = tx / (MAP_W - 1);
+      const ayy = ty / (MAP_H - 1);
+      return { x: cx + (axx - ayy) * hw, y: cy + (axx + ayy - 1) * hh };
+    };
+    const chw = hw / (MAP_W - 1) + 0.6; // per-tile cell half-extents (slight overlap, no gaps)
+    const chh = hh / (MAP_H - 1) + 0.6;
+    const cell = (tx: number, ty: number): void => {
+      const p = mm(tx, ty);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - chh);
+      ctx.lineTo(p.x + chw, p.y);
+      ctx.lineTo(p.x, p.y + chh);
+      ctx.lineTo(p.x - chw, p.y);
+      ctx.closePath();
+      ctx.fill();
+    };
+    const diamond = (): void => {
+      const a = mm(0, 0), b = mm(MAP_W - 1, 0), c = mm(MAP_W - 1, MAP_H - 1), d = mm(0, MAP_H - 1);
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y - chh);
+      ctx.lineTo(b.x + chw, b.y);
+      ctx.lineTo(c.x, c.y + chh);
+      ctx.lineTo(d.x - chw, d.y);
+      ctx.closePath();
+    };
 
+    // Black diamond backdrop (the unexplored map area).
+    diamond();
     ctx.fillStyle = "#000";
-    ctx.fillRect(r.x, r.y, r.w, r.h);
+    ctx.fill();
 
     // Terrain (only explored tiles).
     for (let ty = 0; ty < MAP_H; ty++) {
       for (let tx = 0; tx < MAP_W; tx++) {
-        const lvl = fogVis[ty * MAP_W + tx];
-        if (lvl === 0) continue;
+        if (fogVis[ty * MAP_W + tx] === 0) continue;
         const t = world.map.at(tx, ty)!;
-        let c = "#3f6b35";
-        if (t.terrain === "water") c = "#2a4d80";
-        else if (t.terrain === "forest") c = "#234d22";
-        else if (t.terrain === "rock") c = "#5b5b5b";
-        else if (t.terrain === "goldmine") c = "#caa12a";
-        ctx.fillStyle = c;
-        ctx.fillRect(r.x + tx * sx, r.y + ty * sy, sx + 0.5, sy + 0.5);
+        let col = "#3f6b35";
+        if (t.terrain === "water") col = "#2a4d80";
+        else if (t.terrain === "forest") col = "#234d22";
+        else if (t.terrain === "rock") col = "#5b5b5b";
+        else if (t.terrain === "goldmine") col = "#caa12a";
+        ctx.fillStyle = col;
+        cell(tx, ty);
       }
     }
 
-    // Entities (visible only for enemies).
+    // Entities (enemies only when in vision).
     for (const b of world.buildings) {
       if (b.dead) continue;
       if (b.playerId !== humanId && fogVis[b.tile.y * MAP_W + b.tile.x] !== 2) continue;
       ctx.fillStyle = world.player(b.playerId).color;
-      ctx.fillRect(r.x + b.tile.x * sx, r.y + b.tile.y * sy, sx * b.footprint, sy * b.footprint);
+      cell(b.tile.x + (b.footprint - 1) / 2, b.tile.y + (b.footprint - 1) / 2);
     }
     for (const u of world.units) {
       if (u.dead) continue;
       const t = u.tile();
       if (u.playerId !== humanId && fogVis[t.y * MAP_W + t.x] !== 2) continue;
       ctx.fillStyle = world.player(u.playerId).color;
-      ctx.fillRect(r.x + t.x * sx, r.y + t.y * sy, Math.max(2, sx), Math.max(2, sy));
+      cell(t.x, t.y);
     }
 
-    // Camera viewport rectangle (bounding tile range of the visible diamond).
+    // Camera viewport — the visible tile range as a diamond quad.
     const range = cam.visibleTileRange();
-    const v0x = r.x + (range.x0 / MAP_W) * r.w;
-    const v0y = r.y + (range.y0 / MAP_H) * r.h;
-    const vw = ((range.x1 - range.x0 + 1) / MAP_W) * r.w;
-    const vh = ((range.y1 - range.y0 + 1) / MAP_H) * r.h;
+    const c0 = mm(range.x0, range.y0), c1 = mm(range.x1, range.y0), c2 = mm(range.x1, range.y1), c3 = mm(range.x0, range.y1);
     ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(v0x, v0y, vw, vh);
+    ctx.beginPath();
+    ctx.moveTo(c0.x, c0.y);
+    ctx.lineTo(c1.x, c1.y);
+    ctx.lineTo(c2.x, c2.y);
+    ctx.lineTo(c3.x, c3.y);
+    ctx.closePath();
+    ctx.stroke();
 
     // Pulsing ember ping where the player is under attack.
     if (this.attackPing) {
       const ping = this.attackPing;
-      const mmx = r.x + (ping.x / (MAP_W * TILE)) * r.w;
-      const mmy = r.y + (ping.y / (MAP_H * TILE)) * r.h;
+      const pt = mm(ping.x / TILE, ping.y / TILE);
       const pulse = 3 + Math.abs(Math.sin(ping.t * 6)) * 4;
-      const alpha = Math.max(0, 1 - ping.t / 4);
-      ctx.strokeStyle = `rgba(217,138,50,${alpha})`;
+      ctx.strokeStyle = `rgba(217,138,50,${Math.max(0, 1 - ping.t / 4)})`;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(mmx, mmy, pulse, 0, Math.PI * 2);
+      ctx.arc(pt.x, pt.y, pulse, 0, Math.PI * 2);
       ctx.stroke();
     }
 
-    ctx.strokeStyle = COLORS.uiPanelEdge;
-    ctx.strokeRect(r.x, r.y, r.w, r.h);
+    // Diamond frame.
+    diamond();
+    ctx.strokeStyle = COLORS.uiEmber;
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
 
   private renderSelectionInfo(

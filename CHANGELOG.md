@@ -6,6 +6,13 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.230.0 — Diamond minimap _(2026-06-09)_
+- The minimap is now rotated to an **isometric diamond** so it matches the tilted
+  battlefield (top vertex = the near corner), with an ember diamond frame instead of a
+  square. Terrain, unit/building blips, the camera-viewport box, and the attack ping
+  all map through the iso transform; click-to-jump inverts it (verified: centre click
+  → map centre).
+
 ## v0.229.0 — Persistence pass, units off-map fix, mage attack, temple chapel, SFX _(2026-06-09)_
 - **Units no longer walk onto water / off the map.** A move ordered onto a blocked
   tile snapped the unit's *final step* to the raw clicked point; now it clamps to the
