@@ -6,6 +6,11 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.232.0 — Temple cathedral sprite (regenerated) _(2026-06-09)_
+- Regenerated the temple as a small **cathedral** (spire, rose window, buttresses)
+  facing **bottom-left** like the other buildings, sitting on a baked cobblestone plot.
+  Scale tuned (1.12) so it sits on its 3-tile footprint instead of overflowing.
+
 ## v0.231.0 — Fix mage spell/command hotkey collisions _(2026-06-09)_
 - Mage spell keys moved off the universal command keys: **Fireball R→T, Freeze X→G**
   (Heal stays C). A mage is also a unit, so R/X were firing both the spell *and*
