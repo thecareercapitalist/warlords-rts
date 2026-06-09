@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.228.0 — War Cry tuning + mage patrol + volume slider + mine info _(2026-06-08)_
+- **War Cry → +30%** (was +50%); the active buff now shows a green **(+N)** next to the
+  unit's Atk in the selection panel so the bonus is obvious.
+- **Mana regen cut ~2/3** (7 → 2.3/s) so mage spells feel costly, not spammable.
+- **Mages get movement commands incl. Patrol** (Move/Stop/Patrol/Hold) alongside their
+  spells — every non-worker unit can patrol now.
+- **Gold mines are clickable** — click one to see "⛂ Gold mine — N gold left" + a floater.
+- **Master volume slider** in the pause menu (persisted), separate from mute.
+
 ## v0.227.0 — Temple anchor, horseless-knight fix, richer combat SFX _(2026-06-08)_
 - **Temple sits on its footprint.** The building "seat" offset scaled with footprint
   size, sinking big buildings well below their diamond (temple read "too low"). Now a

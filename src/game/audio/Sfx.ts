@@ -5,11 +5,14 @@
 
 const STORAGE_KEY = "warlords.muted.v1";
 const MUSIC_KEY = "warlords.music.v1";
+const VOL_KEY = "warlords.volume.v1";
+const BASE_GAIN = 0.35; // master gain at 100% volume
 
 export class Sfx {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
   muted = false;
+  volume = 1; // 0..1 master volume (× BASE_GAIN), adjustable in the pause menu
   private lastPlay: Record<string, number> = {};
 
   // --- Procedural music (original gothic ambience) ---
@@ -32,6 +35,8 @@ export class Sfx {
     try {
       this.muted = localStorage.getItem(STORAGE_KEY) === "1";
       this.musicEnabled = localStorage.getItem(MUSIC_KEY) !== "0";
+      const v = parseFloat(localStorage.getItem(VOL_KEY) ?? "");
+      if (Number.isFinite(v) && v >= 0 && v <= 1) this.volume = v;
     } catch {
       /* storage blocked — default unmuted, music on */
     }
@@ -46,7 +51,7 @@ export class Sfx {
         if (!Ctor) return;
         this.ctx = new Ctor();
         this.master = this.ctx.createGain();
-        this.master.gain.value = this.muted ? 0 : 0.35;
+        this.master.gain.value = this.muted ? 0 : BASE_GAIN * this.volume;
         // A compressor warms the mix + tames clipping when a big battle stacks
         // many sounds at once.
         const comp = this.ctx.createDynamicsCompressor();
@@ -75,9 +80,20 @@ export class Sfx {
 
   setMuted(m: boolean): void {
     this.muted = m;
-    if (this.master) this.master.gain.value = m ? 0 : 0.35;
+    if (this.master) this.master.gain.value = m ? 0 : BASE_GAIN * this.volume;
     try {
       localStorage.setItem(STORAGE_KEY, m ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /** Master volume 0..1 (× BASE_GAIN), persisted; applies live. */
+  setVolume(v: number): void {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.master && !this.muted) this.master.gain.value = BASE_GAIN * this.volume;
+    try {
+      localStorage.setItem(VOL_KEY, String(this.volume));
     } catch {
       /* ignore */
     }

@@ -205,7 +205,7 @@ function fightTarget(world: World, u: Unit, _dt: number): void {
       }
       const armor = t.etype === "unit" ? (t.def.armor ?? 0) : 0;
       const siege = t.etype === "building" ? (u.def.siegeMult ?? 1) : 1;
-      const cry = u.buffT > 0 ? 1.5 : 1; // War Cry boosts attack while active
+      const cry = u.buffT > 0 ? 1.3 : 1; // War Cry boosts attack while active
       const raw = (u.def.damage * veterancyMult(u.kills) + forgeBonus(world, u.playerId)) * siege * cry;
       t.hp -= Math.max(1, raw - armor);
       world.events.push({ type: "damaged", playerId: t.playerId, x: c.x, y: c.y });

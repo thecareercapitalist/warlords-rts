@@ -191,7 +191,7 @@ export const UNIT_DEFS: Record<UnitKind, UnitDef> = {
     canBuild: false,
     requiresBuilding: "enclave", // trained at the Mage's Enclave
     maxMana: 120,
-    manaRegen: 7,
+    manaRegen: 2.3, // cut by ~2/3 from 7 — spells should feel costly, not spammable
   },
   dragon: {
     kind: "dragon",

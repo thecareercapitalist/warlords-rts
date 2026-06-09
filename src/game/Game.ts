@@ -648,6 +648,16 @@ export class Game {
     if (ent) {
       this.addToSelection(ent);
       if (ent.playerId === this.humanId) this.sfx.select(); // own-unit ack
+      return;
+    }
+    // Clicked a gold mine (a tile, not an entity) → report its remaining gold.
+    const ct = toTile(world.x, world.y);
+    const tile = this.world.map.at(ct.x, ct.y);
+    if (tile && tile.terrain === "goldmine") {
+      const left = Math.max(0, Math.round(tile.resource));
+      this.setMessage(left > 0 ? `⛂ Gold mine — ${left} gold left` : "⛂ Gold mine — depleted");
+      this.effects.spawnFloater(ct.x * TILE + TILE / 2, ct.y * TILE + TILE / 2, `${left}`, "#e8c34a");
+      this.sfx.click();
     }
   }
 
@@ -1098,6 +1108,8 @@ export class Game {
         } catch {
           /* fullscreen unavailable */
         }
+      } else if (res.type === "setVolume") {
+        this.sfx.setVolume(res.value);
       } else if (res.type === "setDifficulty") {
         this.difficulty = res.value;
         this.ai.setDifficulty(this.difficulty);
@@ -1430,7 +1442,7 @@ export class Game {
     this.ctx.fillText(`${this.sfx.muted ? "🔇" : "🔊"} N`, this.cam.viewW - 12, 17);
 
     if (this.paused && !this.gameOver)
-      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed, this.difficulty);
+      this.pauseMenu.render(this.ctx, this.cam, this.kb, this.edgeScroll, this.sfx.musicEnabled, listSlots(), this.assets.frameSprite, this.panSpeed, this.difficulty, this.sfx.volume);
     if (this.gameOver) this.hud.renderEndScreen(this.cam, this.gameOver === "won", this.elapsed, this.kills, this.razed, this.peakArmy);
   }
 }

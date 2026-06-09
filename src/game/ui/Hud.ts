@@ -133,12 +133,15 @@ export class Hud {
       return;
     }
 
-    // Mage(s) selected → spell buttons (left-click = cast, right-click = autocast).
+    // Mage(s) selected → spell buttons (left-click = cast, right-click = autocast),
+    // PLUS the standard movement commands incl. Patrol (mages are units too).
     const mages = units.filter((u) => u.kind === "mage" && u.playerId === humanId);
-    if (mages.length > 0) {
-      SPELL_LIST.forEach((sp, i) => {
+    if (mages.length > 0 && buildings.length === 0) {
+      const held = mages.some((m) => m.holdGround);
+      let i = 0;
+      SPELL_LIST.forEach((sp) => {
         this.buttons.push({
-          rect: place(i),
+          rect: place(i++),
           label: sp.label,
           sub: `${sp.cost} mana`,
           hotkey: sp.hotkey,
@@ -147,14 +150,23 @@ export class Hud {
           autocast: mages.some((m) => m.autocast === sp.id),
         });
       });
-      this.buttons.push({
-        rect: place(SPELL_LIST.length),
-        label: "Stop",
-        sub: "X",
-        hotkey: "X",
-        action: { type: "stop" },
-        enabled: true,
-      });
+      const mageCmds: { label: string; key: string; action: HudAction }[] = [
+        { label: "Move", key: "M", action: { type: "move" } },
+        { label: "Stop", key: "X", action: { type: "stop" } },
+        { label: "Patrol", key: "R", action: { type: "patrol" } },
+        { label: held ? "Unhold" : "Hold", key: "H", action: { type: "hold" } },
+      ];
+      for (const c of mageCmds) {
+        this.buttons.push({
+          rect: place(i++),
+          label: c.label,
+          sub: c.key,
+          hotkey: c.key,
+          action: c.action,
+          enabled: true,
+          autocast: c.action.type === "hold" && held,
+        });
+      }
       return;
     }
 
@@ -177,7 +189,7 @@ export class Hud {
         this.buttons.push({
           rect: place(i),
           label: c.label,
-          sub: isCry ? "+50% atk · 6s" : c.key,
+          sub: isCry ? "+30% atk · 6s" : c.key,
           hotkey: c.key,
           action: c.action,
           enabled: !isCry || this.warcryCd <= 0,
@@ -567,7 +579,18 @@ export class Hud {
       ctx.fillStyle = COLORS.uiTextDim;
       ctx.font = "13px 'Segoe UI', sans-serif";
       ctx.fillText(`HP ${Math.ceil(u.hp)}/${u.def.maxHp}`, x, y + 20);
-      ctx.fillText(this.unitStatLine(u, forgeBonus), x, y + 38);
+      // Stat line; when War Cry is active, splice a green "(+N)" right after the Atk.
+      let statLine = this.unitStatLine(u, forgeBonus);
+      const buffBonus = u.buffT > 0 ? Math.round((Math.round(u.def.damage * veterancyMult(u.kills)) + forgeBonus) * 0.3) : 0;
+      if (buffBonus > 0) statLine = statLine.replace(/^Atk \d+/, (m) => `${m} (+${buffBonus})`);
+      ctx.fillStyle = COLORS.uiTextDim;
+      ctx.fillText(statLine, x, y + 38);
+      if (buffBonus > 0) {
+        const pre = statLine.slice(0, statLine.indexOf("(+"));
+        ctx.fillStyle = "#7cfc7c";
+        ctx.fillText(`(+${buffBonus})`, x + ctx.measureText(pre).width, y + 38);
+        ctx.fillStyle = COLORS.uiTextDim;
+      }
       const stance = this.stanceLabel(u);
       ctx.fillText(stance ? `${u.state} · ${stance}` : `State: ${u.state}`, x, y + 56);
       if (u.carrying) ctx.fillText(`Carrying ${u.carrying.amount} ${u.carrying.kind}`, x, y + 74);

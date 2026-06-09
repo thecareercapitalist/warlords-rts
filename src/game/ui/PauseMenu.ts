@@ -15,6 +15,7 @@ export type MenuResult =
   | { type: "toggleMusic" }
   | { type: "toggleFullscreen" }
   | { type: "setPanSpeed"; value: number }
+  | { type: "setVolume"; value: number }
   | { type: "setDifficulty"; value: Difficulty }
   | { type: "rebind"; action: ActionId };
 
@@ -45,6 +46,7 @@ interface Layout {
   musicToggle: Rect;
   fullscreenToggle: Rect;
   panSlider: Rect;
+  volSlider: Rect;
   diff: Rect[];
   // Controls tab
   reset: Rect;
@@ -61,7 +63,7 @@ export class PauseMenu {
 
   private layoutFor(cam: Camera): Layout {
     const pw = 470;
-    const ph = this.activeTab === "game" ? 452 : 196 + ACTION_ORDER.length * 34 + 54;
+    const ph = this.activeTab === "game" ? 504 : 196 + ACTION_ORDER.length * 34 + 54;
     const px = (cam.viewW - pw) / 2;
     const py = (cam.viewH - ph) / 2;
     const panel: Rect = { x: px, y: py, w: pw, h: ph };
@@ -81,10 +83,11 @@ export class PauseMenu {
     const edgeToggle = btn(px + 30, py + 258, thirdW, 30);
     const musicToggle = btn(px + 30 + thirdW + 10, py + 258, thirdW, 30);
     const fullscreenToggle = btn(px + 30 + (thirdW + 10) * 2, py + 258, thirdW, 30);
-    const panSlider = btn(px + 30, py + 322, pw - 60, 16);
+    const panSlider = btn(px + 30, py + 318, pw - 60, 16);
+    const volSlider = btn(px + 30, py + 364, pw - 60, 16);
     // Difficulty selector: three equal segments.
     const diffW = (pw - 60 - 16) / 3;
-    const diff = [0, 1, 2].map((i) => btn(px + 30 + (diffW + 8) * i, py + 372, diffW, 32));
+    const diff = [0, 1, 2].map((i) => btn(px + 30 + (diffW + 8) * i, py + 416, diffW, 32));
 
     // --- Controls tab ---
     const rows: Layout["rows"] = [];
@@ -95,7 +98,7 @@ export class PauseMenu {
     }
     const reset = btn(px + 30, ry + 6, pw - 60);
 
-    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, panSlider, diff, reset, rows };
+    return { panel, resume, restart, tabGame, tabControls, save, slots, edgeToggle, musicToggle, fullscreenToggle, panSlider, volSlider, diff, reset, rows };
   }
 
   hitTest(cam: Camera, p: Vec2): MenuResult | null {
@@ -125,6 +128,10 @@ export class PauseMenu {
         const f = Math.max(0, Math.min(1, (p.x - s.x) / s.w));
         return { type: "setPanSpeed", value: PAN_MIN + f * (PAN_MAX - PAN_MIN) };
       }
+      const vs = l.volSlider;
+      if (p.x >= vs.x - 6 && p.x <= vs.x + vs.w + 6 && p.y >= vs.y - 12 && p.y <= vs.y + vs.h + 12) {
+        return { type: "setVolume", value: Math.max(0, Math.min(1, (p.x - vs.x) / vs.w)) };
+      }
       for (let i = 0; i < l.diff.length; i++) {
         if (rectContains(l.diff[i], p)) return { type: "setDifficulty", value: DIFFICULTIES[i].id };
       }
@@ -147,6 +154,7 @@ export class PauseMenu {
     frame?: CanvasImageSource,
     panSpeed = 1,
     difficulty: Difficulty = "normal",
+    volume = 1,
   ): void {
     const l = this.layoutFor(cam);
 
@@ -187,7 +195,7 @@ export class PauseMenu {
     this.tab(ctx, l.tabControls, "Controls", this.activeTab === "controls");
 
     if (this.activeTab === "game") {
-      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots, panSpeed, difficulty);
+      this.renderGameTab(ctx, l, edgeScroll, musicOn, slots, panSpeed, difficulty, volume);
     } else {
       this.renderControlsTab(ctx, l, kb);
     }
@@ -206,6 +214,7 @@ export class PauseMenu {
     slots: (SlotMeta | null)[],
     panSpeed: number,
     difficulty: Difficulty,
+    volume: number,
   ): void {
     // SAVE / LOAD heading.
     ctx.fillStyle = "#cdbb95";
@@ -266,6 +275,27 @@ export class PauseMenu {
     ctx.fillRect(kx - 4, s.y - 1, 8, s.h + 2);
     ctx.strokeStyle = "#15110d";
     ctx.strokeRect(kx - 4, s.y - 1, 8, s.h + 2);
+
+    // Master volume slider.
+    const vsl = l.volSlider;
+    ctx.fillStyle = "#cdbb95";
+    ctx.font = "bold 12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(`VOLUME  ·  ${Math.round(volume * 100)}%`, vsl.x, vsl.y - 8);
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(vsl.x, vsl.y + vsl.h / 2 - 3, vsl.w, 6);
+    ctx.strokeStyle = "rgba(150,170,200,0.5)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(vsl.x, vsl.y + vsl.h / 2 - 3, vsl.w, 6);
+    const vf = Math.max(0, Math.min(1, volume));
+    const vkx = vsl.x + vf * vsl.w;
+    ctx.fillStyle = "rgba(217,138,50,0.8)";
+    ctx.fillRect(vsl.x, vsl.y + vsl.h / 2 - 3, vf * vsl.w, 6);
+    ctx.fillStyle = "#f4c46a";
+    ctx.fillRect(vkx - 4, vsl.y - 1, 8, vsl.h + 2);
+    ctx.strokeStyle = "#15110d";
+    ctx.strokeRect(vkx - 4, vsl.y - 1, 8, vsl.h + 2);
 
     // Difficulty selector — three segmented buttons, active one lit.
     ctx.fillStyle = "#cdbb95";
