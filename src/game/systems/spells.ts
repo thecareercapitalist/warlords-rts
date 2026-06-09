@@ -20,8 +20,10 @@ export interface SpellDef {
 }
 
 export const SPELLS: Record<SpellId, SpellDef> = {
-  fireball: { id: "fireball", label: "Fireball", hotkey: "R", cost: 45, cooldown: 2.4, range: 6, radius: 2, damage: 20 },
-  freeze: { id: "freeze", label: "Freeze", hotkey: "X", cost: 30, cooldown: 2.2, range: 6, radius: 2.6, slowDur: 4 },
+  // Spell keys avoid the universal unit-command keys (M/Q/X/R/H/F) — a mage is also a
+  // unit, so those keys must stay free for Move/Attack/Stop/Patrol/Hold/War-Cry.
+  fireball: { id: "fireball", label: "Fireball", hotkey: "T", cost: 45, cooldown: 2.4, range: 6, radius: 2, damage: 20 },
+  freeze: { id: "freeze", label: "Freeze", hotkey: "G", cost: 30, cooldown: 2.2, range: 6, radius: 2.6, slowDur: 4 },
   heal: { id: "heal", label: "Heal", hotkey: "C", cost: 35, cooldown: 3, range: 6, radius: 2.6, heal: 40 },
 };
 export const SPELL_LIST: SpellDef[] = [SPELLS.fireball, SPELLS.freeze, SPELLS.heal];

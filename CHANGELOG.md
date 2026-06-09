@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.231.0 — Fix mage spell/command hotkey collisions _(2026-06-09)_
+- Mage spell keys moved off the universal command keys: **Fireball R→T, Freeze X→G**
+  (Heal stays C). A mage is also a unit, so R/X were firing both the spell *and*
+  Patrol/Stop — now Patrol (R), Stop (X), Move (M), Hold (H) all work on a mage and the
+  spells live on T/G/C. Verified the mage card + key dispatch.
+- Audited the rest: worker build keys and production train keys that overlap the global
+  combat keys (Q/R/F/H) are already safe because workers/buildings fail the
+  `damage>0 && !canGather` gate, so no other collisions exist.
+
 ## v0.230.0 — Diamond minimap _(2026-06-09)_
 - The minimap is now rotated to an **isometric diamond** so it matches the tilted
   battlefield (top vertex = the near corner), with an ember diamond frame instead of a

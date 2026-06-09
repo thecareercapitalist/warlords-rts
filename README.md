@@ -29,7 +29,7 @@ A from-scratch, Warcraft-style **isometric real-time strategy** game — built i
 | Attack a target | Right-click an enemy |
 | Stop / Hold / Patrol | **X** / **H** / **R** |
 | Build (worker selected) | Farm **F** · Barracks **B** · Sawmill **R** · Temple **T** · Forge **G** · Tower **V** · Wall **C** · Enclave **Q** · Town Hall **Z** |
-| Cast (mage selected) | Fireball **R** · Freeze **X** — right-click a spell to autocast |
+| Cast (mage selected) | Fireball **T** · Freeze **G** · Heal **C** — right-click a spell to autocast (mages also Move/Stop/Patrol/Hold like any unit) |
 | Control groups | **Ctrl+1–9** assign, **1–9** recall (double-tap to center) |
 | Jump to base · Mute · Pause | **Space** · **N** · **Esc** |
 
