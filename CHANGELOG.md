@@ -6,6 +6,14 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.235.0 — Dedicated farm / sawmill / forge / tower sprites _(2026-06-09)_
+- All remaining sheet/code-art buildings now have bespoke isometric sprites (farm barn
+  + field, timber sawmill with water-wheel, stone forge with ember furnace, round
+  battlemented guard tower), facing bottom-left on baked plots — routed through the
+  same `buildingOverrides` map.
+- **Removed** the now-dead `drawForge`/`drawTurret` code-art and their render branches
+  (the sprite override supersedes them) to keep the renderer clean.
+
 ## v0.234.0 — New barracks + grand town hall sprites _(2026-06-09)_
 - **Barracks** regenerated as a proper military building — timber-and-stone longhouse
   with a banner watch-tower, reinforced gate, training yard and palisade, facing

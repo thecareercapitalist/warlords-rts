@@ -416,6 +416,10 @@ export class Assets {
       ["temple", "/gen_temple.jpg", "temple"],
       ["barracks", "/gen_barracks.jpg", "barracks"],
       ["townhall", "/gen_townhall.jpg", "townhall"],
+      ["farm", "/gen_farm.jpg", "farm"],
+      ["sawmill", "/gen_sawmill.jpg", "sawmill"],
+      ["forge", "/gen_forge.jpg", "forge"],
+      ["tower", "/gen_tower.jpg", "tower"],
     ];
     for (const [kind, url, key] of BUILDING_OVERRIDES) {
       jobs.push(

@@ -29,6 +29,10 @@ const BUILDING_SPRITE_SCALE: Partial<Record<BuildingKind, number>> = {
   temple: 1.12,
   barracks: 1.08,
   townhall: 1.4, // main building — noticeably larger than barracks/temple
+  farm: 1.05,
+  sawmill: 1.05,
+  forge: 1.05,
+  tower: 1.0,
 };
 
 // CC0 isometric roof sheet (buildings-roofs.png): 3 cols × 4 rows of 144×92
@@ -540,10 +544,6 @@ export class Renderer {
       // Generated isometric building sprite. While under construction it "rises"
       // bottom→top — the sprite itself is the progress bar.
       this.drawBuildingSprite(bSprite, corners, center, b.state === "complete" ? 1 : b.construction, BUILDING_SPRITE_SCALE[b.kind] ?? 1);
-    } else if (b.kind === "tower" && b.state === "complete") {
-      this.drawTurret(center, color);
-    } else if (b.kind === "forge" && b.state === "complete") {
-      this.drawForge(center);
     } else if (b.state === "complete") {
       // Prefer a real CC0 isometric roof sprite; fall back to code-art if the
       // sheet failed to load.
@@ -1157,67 +1157,6 @@ export class Renderer {
     ctx.moveTo(cx - rw, baseY);
     ctx.lineTo(cx - rw, topY);
     ctx.stroke();
-  }
-
-  /** A dark furnace with a flickering ember mouth — the Forge. */
-  private drawForge(center: Vec2): void {
-    const ctx = this.ctx;
-    const z = this.cam.zoom;
-    const cx = center.x;
-    const cy = center.y;
-    // Furnace block.
-    ctx.fillStyle = "#2a2622";
-    ctx.fillRect(cx - 11 * z, cy - 5 * z, 22 * z, 16 * z);
-    ctx.strokeStyle = "#15110d";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cx - 11 * z, cy - 5 * z, 22 * z, 16 * z);
-    // Glowing ember mouth (flickers with the clock).
-    const glow = 0.6 + 0.4 * Math.abs(Math.sin(this.now * 5 + cx * 0.1));
-    ctx.fillStyle = `rgba(255,140,40,${glow})`;
-    ctx.fillRect(cx - 7 * z, cy + 1 * z, 14 * z, 8 * z);
-    ctx.fillStyle = `rgba(255,228,150,${glow * 0.9})`;
-    ctx.fillRect(cx - 3.5 * z, cy + 2.5 * z, 7 * z, 4 * z);
-    // Rising ember sparks — warm motes drifting up against the gloom.
-    for (let i = 0; i < 4; i++) {
-      const ph = this.now * 1.3 + i * 1.9 + cx * 0.05;
-      const rise = (ph % 2) / 2; // 0..1 loop
-      const ex = cx + Math.sin(ph * 2.3) * 5 * z;
-      const ey = cy - 4 * z - rise * 22 * z;
-      ctx.globalAlpha = (1 - rise) * 0.85;
-      ctx.fillStyle = i % 2 ? "#ffb347" : "#ff7a1e";
-      ctx.beginPath();
-      ctx.arc(ex, ey, (1.6 - rise) * z + 0.4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  /** A tall crenellated stone turret with team trim + flickering ember slit. */
-  private drawTurret(center: Vec2, color: string): void {
-    const ctx = this.ctx;
-    const z = this.cam.zoom;
-    const cx = center.x;
-    const baseY = center.y + 8 * z;
-    const tw = 18 * z;
-    const th = 32 * z;
-    // Column body.
-    ctx.fillStyle = "#4a4236";
-    ctx.fillRect(cx - tw / 2, baseY - th, tw, th);
-    ctx.strokeStyle = "#15110d";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(cx - tw / 2, baseY - th, tw, th);
-    // Team-colored trim band near the top.
-    ctx.fillStyle = color;
-    ctx.fillRect(cx - tw / 2, baseY - th + 3 * z, tw, 3 * z);
-    // Crenellations (merlons) on top.
-    ctx.fillStyle = "#3a342b";
-    for (let i = 0; i < 3; i++) {
-      ctx.fillRect(cx - tw / 2 + i * (tw / 3), baseY - th - 5 * z, tw / 3 - 1.5 * z, 5 * z);
-    }
-    // Ember arrow-slit, flickering with the clock.
-    const glow = 0.55 + 0.45 * Math.abs(Math.sin(this.now * 3 + cx * 0.1));
-    ctx.fillStyle = `rgba(230,150,60,${glow})`;
-    ctx.fillRect(cx - 2.5 * z, baseY - th * 0.55, 5 * z, 9 * z);
   }
 
   private drawUnit(world: World, u: import("../entities/Unit.ts").Unit, isEnemy: boolean): void {
