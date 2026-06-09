@@ -15,6 +15,11 @@ export class Sfx {
   volume = 1; // 0..1 master volume (× BASE_GAIN), adjustable in the pause menu
   private lastPlay: Record<string, number> = {};
 
+  // Decoded CC0 sample bank (Kenney impact/RPG packs, public domain). Combat sounds
+  // play these when loaded; the procedural synth stays as a fallback.
+  private samples: Record<string, AudioBuffer> = {};
+  private readonly SAMPLE_FILES = ["clang0", "clang1", "clang2", "bow0", "bow1", "thud"];
+
   // --- Procedural music (original gothic ambience) ---
   musicEnabled = true;
   private musicGain: GainNode | null = null;
@@ -66,12 +71,52 @@ export class Sfx {
         this.musicGain = this.ctx.createGain();
         this.musicGain.gain.value = 0.5;
         this.musicGain.connect(this.master);
+        this.loadSamples();
       }
       if (this.ctx.state === "suspended") void this.ctx.resume();
       if (this.musicEnabled) this.startMusic();
     } catch {
       /* audio unavailable */
     }
+  }
+
+  /** Fetch + decode the CC0 sample bank. Offline build inlines them on window.__SFX
+   *  as data URIs; otherwise they're served from <base>/sfx/<name>.ogg. */
+  private loadSamples(): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const inl = (window as unknown as { __SFX?: Record<string, string> }).__SFX;
+    const base = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? "/";
+    for (const name of this.SAMPLE_FILES) {
+      const url = inl?.[name] ?? `${base}sfx/${name}.ogg`;
+      fetch(url)
+        .then((r) => r.arrayBuffer())
+        .then((buf) => ctx.decodeAudioData(buf))
+        .then((decoded) => {
+          this.samples[name] = decoded;
+        })
+        .catch(() => {
+          /* missing/undecodable — the synth fallback covers it */
+        });
+    }
+  }
+
+  /** Play a decoded sample one-shot through the master bus. Returns false if the
+   *  sample isn't loaded yet (caller can fall back to synth). `rate` pitch-varies. */
+  private playSample(name: string, gain = 1, rate = 1): boolean {
+    const ctx = this.ctx;
+    const master = this.master;
+    const buf = this.samples[name];
+    if (!ctx || !master || !buf) return false;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.playbackRate.value = rate;
+    const g = ctx.createGain();
+    g.gain.value = gain;
+    src.connect(g);
+    g.connect(master);
+    src.start();
+    return true;
   }
 
   toggleMute(): void {
@@ -174,32 +219,39 @@ export class Sfx {
     else this.clang();
   }
 
-  /** Deep wooden counterweight release — the catapult's lob. */
+  /** Deep wooden counterweight release — the catapult's lob (CC0 wood thud + low boom). */
   siegeThud(): void {
     if (!this.gate("siege", 120)) return;
+    if (this.playSample("thud", 1.0, 0.82 + Math.random() * 0.12)) {
+      this.tone({ freq: 68, type: "sine", dur: 0.2, gain: 0.32, slideTo: 38 }); // sub-boom for weight
+      return;
+    }
     this.tone({ freq: 150, type: "sawtooth", dur: 0.22, gain: 0.5, slideTo: 60 });
     this.noise({ dur: 0.18, gain: 0.4, filter: 500, sweepTo: 200 });
   }
 
   clang(): void {
     if (!this.gate("clang", 45)) return;
-    // Sword-on-steel, NOISE-based (pitched oscillators read as a xylophone): a broad
-    // bright strike transient + two resonant, inharmonic metal RINGS (high-Q bandpass
-    // noise) + a short low gritty thunk for impact weight. Varied per swing.
+    // Sword-on-steel: a real CC0 metal-impact sample (Kenney), pitch-varied per swing.
+    if (this.playSample(`clang${Math.floor(Math.random() * 3)}`, 0.95, 0.9 + Math.random() * 0.2)) return;
+    // Synth fallback (noise-based metal) if the sample hasn't decoded yet.
     const v = this.vary(1, 0.1);
-    this.noise({ dur: 0.045, gain: 0.5, filter: 5200 * v, sweepTo: 2600 }); // the strike (broadband)
-    this.noise({ dur: 0.2, gain: 0.26, filter: 2150 * v, q: 9, sweepTo: 1850 * v }); // ring 1
-    this.noise({ dur: 0.15, gain: 0.18, filter: 3700 * v, q: 12, sweepTo: 3400 * v }); // ring 2 (inharmonic)
-    this.tone({ freq: 95 * v, type: "sawtooth", dur: 0.045, gain: 0.22, slideTo: 52 }); // low impact thunk
+    this.noise({ dur: 0.045, gain: 0.5, filter: 5200 * v, sweepTo: 2600 });
+    this.noise({ dur: 0.2, gain: 0.26, filter: 2150 * v, q: 9, sweepTo: 1850 * v });
+    this.noise({ dur: 0.15, gain: 0.18, filter: 3700 * v, q: 12, sweepTo: 3400 * v });
+    this.tone({ freq: 95 * v, type: "sawtooth", dur: 0.045, gain: 0.22, slideTo: 52 });
   }
 
   whoosh(): void {
     if (!this.gate("whoosh", 55)) return;
-    // Bow release: a soft low string thunk then an airy arrow "thwp" — broadband
-    // noise sweeping down quickly as the shaft cuts the air (no resonant tone).
+    // Bow release: a real CC0 air-cut "slice" sample + a faint string snap under it.
+    if (this.playSample(`bow${Math.floor(Math.random() * 2)}`, 0.7, 0.95 + Math.random() * 0.2)) {
+      this.tone({ freq: 150, type: "triangle", dur: 0.035, gain: 0.09, slideTo: 80 });
+      return;
+    }
     const v = this.vary(1, 0.12);
-    this.tone({ freq: 190 * v, type: "triangle", dur: 0.04, gain: 0.14, slideTo: 95 }); // soft string thunk
-    this.noise({ dur: 0.13, gain: 0.32, filter: 2400 * v, sweepTo: 380 }); // airy arrow zip down
+    this.tone({ freq: 190 * v, type: "triangle", dur: 0.04, gain: 0.14, slideTo: 95 });
+    this.noise({ dur: 0.13, gain: 0.32, filter: 2400 * v, sweepTo: 380 });
   }
 
   /** Death cry; pitch scales inversely with unit size (small = higher yelp, a

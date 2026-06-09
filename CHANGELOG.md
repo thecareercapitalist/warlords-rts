@@ -6,6 +6,15 @@ working tree back to one: `git checkout v0.3.0` (and `git checkout main` to
 return). The autonomous improvement loop bumps the minor version and tags a new
 snapshot after each major change.
 
+## v0.233.0 — Real CC0 combat sound effects _(2026-06-09)_
+- Replaced the synthesized sword/arrow/siege sounds with **real CC0 samples** from
+  Kenney (Impact Sounds + RPG Audio, public domain): sword hit = metal-impact clang
+  (3 variants), arrow = air-cut "slice", catapult = heavy wood thud + sub-boom. Each is
+  pitch-varied per hit; the procedural synth stays as a fallback if a clip fails to load.
+- `Sfx` gained a decoded sample bank (fetch → `decodeAudioData`, played through the
+  master-volume bus). Clips are served from `/sfx/` in the build and inlined as data
+  URIs (`window.__SFX`) in the offline `Warlords.html`. Credit in CREDITS.md.
+
 ## v0.232.0 — Temple cathedral sprite (regenerated) _(2026-06-09)_
 - Regenerated the temple as a small **cathedral** (spire, rose window, buttresses)
   facing **bottom-left** like the other buildings, sitting on a baked cobblestone plot.

@@ -85,6 +85,12 @@ tileData.peonWalk = dataUri(resolve(root, "public", "gen_peon_walk.jpg"));
 tileData.orcPeonWalk = dataUri(resolve(root, "public", "gen_orcpeon_walk.jpg"));
 tileData.peonBuild = dataUri(resolve(root, "public", "gen_peon_build.jpg"));
 
+// 2b. Inline the CC0 audio sample bank (Kenney, public domain) as data URIs.
+const sfxData = {};
+for (const n of ["clang0", "clang1", "clang2", "bow0", "bow1", "thud"]) {
+  sfxData[n] = `data:audio/ogg;base64,${readFileSync(resolve(root, "public", "sfx", `${n}.ogg`)).toString("base64")}`;
+}
+
 // 3. Reuse the built <head> styles/markup, swap the external script for inline.
 const builtHtml = readFileSync(resolve(dist, "index.html"), "utf8");
 const head = builtHtml.slice(0, builtHtml.indexOf("<body>"));
@@ -94,6 +100,7 @@ const out = `${headNoScript}<body>
     <canvas id="game"></canvas>
     <div id="loading">Loading Warlords…</div>
     <script>window.__TILES = ${JSON.stringify(tileData)};</script>
+    <script>window.__SFX = ${JSON.stringify(sfxData)};</script>
     <script type="module">
 ${js}
     </script>
